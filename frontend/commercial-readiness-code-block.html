@@ -801,6 +801,16 @@
   function renderEvidence(ev, fetchFailed) {
     var box = $('cra-evidence');
 
+    // With the website step switched off, no evidence check was ever offered, so
+    // don't advertise one on the results screen. Hidden rather than deleted: this
+    // reverses itself the moment websiteStepEnabled goes back to true.
+    if (!CRA_CONFIG.websiteStepEnabled) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = '';
+
     if (ev.status === 'gaps_found') {
       box.innerHTML = '<div class="cra-evtitle">Buyer-facing evidence check</div>' +
         ev.checks.map(function (c) {
