@@ -1,6 +1,13 @@
+<meta charset="utf-8">
 <!--
   COMMERCIAL READINESS ASSESSMENT — Squarespace 7.1 Code Block
   ===========================================================
+
+  The charset line above must stay first. This file contains em dashes, middle
+  dots and curly quotes; without a charset hint a browser falls back to
+  Windows-1252 and renders them as "â€”" and "Â·". Squarespace's own page already
+  declares UTF-8, so there it is a harmless no-op — it is what makes the file
+  render correctly when opened directly as a local file for testing.
   Paste this entire file into a single Code Block on
   jefffryer.com/commercial-readiness-audit
 
