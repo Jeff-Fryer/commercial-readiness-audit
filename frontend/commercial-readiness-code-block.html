@@ -220,6 +220,11 @@
      CONFIG — set functionUrl before pasting into Squarespace.
      ========================================================================== */
   var CRA_CONFIG = {
+    // Set to true to bring the optional website step back into the flow.
+    // Nothing behind it has been removed — the step markup, the fetch, the loading
+    // screen and the engine's buyer-facing evidence path are all still here and
+    // still wired up. This flag only controls whether the step is shown.
+    websiteStepEnabled: false,
     functionUrl: "https://jf-commercial-readiness.netlify.app/api/website-check",
     calendlyUrl: "https://calendly.com/JeffFryer",
     fetchTimeoutMs: 25000
@@ -545,7 +550,8 @@
      ========================================================================== */
 
   var E = window.CRA_ENGINE;
-  var TOTAL_STEPS = E.QUESTIONS.length + 1; // five questions + the website step
+  // Five questions, plus the website step only when it is enabled.
+  var TOTAL_STEPS = E.QUESTIONS.length + (CRA_CONFIG.websiteStepEnabled ? 1 : 0);
 
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) {
@@ -587,7 +593,11 @@
     }).join('');
     $('cra-back').style.visibility = step === 0 ? 'hidden' : 'visible';
     $('cra-next').disabled = picks[step] < 0;
-    $('cra-next').textContent = 'Next';
+    // On the final question the button submits rather than advances when the
+    // website step is switched off, so say so.
+    var isLast = step === E.QUESTIONS.length - 1;
+    $('cra-next').textContent =
+      (isLast && !CRA_CONFIG.websiteStepEnabled) ? 'See my result' : 'Next';
     setProgress(true, step);
     showStep('cra-step-quiz');
   }
@@ -613,7 +623,10 @@
   $('cra-next').addEventListener('click', function () {
     if (picks[step] < 0) return;
     if (step < E.QUESTIONS.length - 1) { step++; renderQuestion(); }
-    else { renderSiteStep(); }
+    else if (CRA_CONFIG.websiteStepEnabled) { renderSiteStep(); }
+    // Website step off: score immediately with no URL. This is the same call the
+    // Skip button makes, so the scoring path is unchanged.
+    else { finish(null, null, false); }
   });
 
   $('cra-back').addEventListener('click', function () {

@@ -1,5 +1,12 @@
 # Testing checklist — before publishing
 
+> **The website step is currently switched off.** `CRA_CONFIG.websiteStepEnabled`
+> is `false`, so the flow runs Q1–Q5 → results and never asks for a URL. Cases 2,
+> 3, 5 and the degrade-path table below are therefore unreachable in the shipped
+> build — they are kept, not deleted, because they apply again the moment the flag
+> is flipped back to `true` (one line, near the top of the script block). Cases 1
+> and 4 are the ones that currently run.
+
 Two things to know first:
 
 - **Test on the published URL**, not the Squarespace editor preview. The preview
