@@ -1,0 +1,21 @@
+# Netlify build configuration — repo root.
+#
+# `base` is the important line. It points Netlify at function/, where package.json
+# lives, so Netlify's build system runs `npm install` there itself. That is what
+# removes the need for Node on any local machine, now and for future changes.
+#
+# Every other path here is resolved relative to `base`:
+#   publish   -> function/public
+#   functions -> function/netlify/functions
+#
+# The function declares its own route (/api/website-check) via the exported
+# `config.path`, so no redirects are needed.
+
+[build]
+  base = "function"
+  command = ""
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"

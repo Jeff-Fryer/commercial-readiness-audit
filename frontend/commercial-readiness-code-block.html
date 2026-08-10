@@ -1,0 +1,832 @@
+<!--
+  COMMERCIAL READINESS ASSESSMENT — Squarespace 7.1 Code Block
+  ===========================================================
+  Paste this entire file into a single Code Block on
+  jefffryer.com/commercial-readiness-audit
+
+  BEFORE PASTING: set CRA_CONFIG.functionUrl below to the deployed Netlify
+  function URL. Everything else is ready to go.
+
+  Everything is namespaced under #cra-app / .cra-* / one window global, so it
+  cannot collide with Squarespace's own styles or scripts. No html/body/*
+  selectors are used.
+-->
+
+<style>
+#cra-app{
+  /* palette */
+  --cra-navy:#01040B; --cra-panel:#0B1526; --cra-panel2:#111E33; --cra-line:#1E2C45;
+  --cra-azure:#3B8EF0; --cra-azure-soft:rgba(59,142,240,.14); --cra-paper:#FCFCFC;
+  --cra-dim:#93A1B8; --cra-mut:#5F6C82;
+  --cra-oz:'Oswald','Arial Narrow',Impact,sans-serif;
+  --cra-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+
+  max-width:640px; margin:0 auto; padding:26px 18px 30px;
+  background:var(--cra-navy); color:var(--cra-paper);
+  font-family:var(--cra-ui); font-size:16px; line-height:1.5;
+  border-radius:12px; text-align:left;
+  -webkit-font-smoothing:antialiased;
+}
+#cra-app *,#cra-app *::before,#cra-app *::after{box-sizing:border-box;}
+#cra-app h2,#cra-app p,#cra-app div,#cra-app ul,#cra-app li{margin:0; padding:0;}
+#cra-app button{appearance:none; -webkit-appearance:none; font-family:inherit; border:none; background:none; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+#cra-app input{appearance:none; -webkit-appearance:none; font-family:inherit;}
+#cra-app a{text-decoration:none;}
+
+/* header */
+#cra-app .cra-kicker{font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cra-azure); margin-bottom:8px;}
+#cra-app .cra-h1{font-family:var(--cra-oz); font-weight:700; font-size:clamp(24px,5.5vw,34px); line-height:1.06; text-transform:uppercase; letter-spacing:.01em; color:var(--cra-paper);}
+#cra-app .cra-h1 span{color:var(--cra-azure);}
+#cra-app .cra-lede{margin-top:10px; font-size:15px; color:var(--cra-dim);}
+#cra-app .cra-lede b{color:var(--cra-paper); font-weight:600;}
+
+/* progress */
+#cra-app .cra-progresswrap{margin-top:20px;}
+#cra-app .cra-plabel{display:flex; justify-content:space-between; font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--cra-mut); margin-bottom:6px;}
+#cra-app .cra-pbar{height:6px; background:var(--cra-panel2); border:1px solid var(--cra-line); border-radius:4px; overflow:hidden;}
+#cra-app .cra-pbar i{display:block; height:100%; width:0%; background:var(--cra-azure); transition:width .3s ease;}
+
+/* cards + steps */
+#cra-app .cra-card{background:var(--cra-panel); border:1px solid var(--cra-line); border-radius:10px; padding:20px 18px; margin-top:16px;}
+#cra-app .cra-step{display:none;}
+#cra-app .cra-step.cra-on{display:block;}
+
+/* questions */
+#cra-app .cra-qscale{font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--cra-azure);}
+#cra-app .cra-qtext{font-family:var(--cra-oz); font-weight:600; font-size:clamp(20px,4.6vw,26px); line-height:1.22; margin-top:6px; color:var(--cra-paper);}
+#cra-app .cra-opts{margin-top:14px;}
+#cra-app .cra-opt{display:flex; gap:12px; align-items:center; width:100%; text-align:left; background:var(--cra-panel2); border:1.5px solid var(--cra-line); border-radius:9px; padding:14px 15px; margin-top:9px; color:var(--cra-dim); font-size:15px; line-height:1.35; transition:border-color .15s,color .15s,background .15s;}
+#cra-app .cra-opt:hover{border-color:var(--cra-azure); color:var(--cra-paper);}
+#cra-app .cra-opt:focus-visible{outline:2px solid var(--cra-azure); outline-offset:2px;}
+#cra-app .cra-opt .cra-dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--cra-mut); display:grid; place-items:center;}
+#cra-app .cra-opt .cra-dot i{width:10px; height:10px; border-radius:50%; background:var(--cra-azure); transform:scale(0); transition:transform .15s;}
+#cra-app .cra-opt.cra-sel{border-color:var(--cra-azure); color:var(--cra-paper); background:var(--cra-azure-soft);}
+#cra-app .cra-opt.cra-sel .cra-dot{border-color:var(--cra-azure);}
+#cra-app .cra-opt.cra-sel .cra-dot i{transform:scale(1);}
+
+/* buttons */
+#cra-app .cra-btn{display:block; width:100%; text-align:center; padding:14px 18px; margin-top:14px; background:var(--cra-azure); color:#fff; font-family:var(--cra-oz); font-weight:600; font-size:15px; letter-spacing:.07em; text-transform:uppercase; border-radius:8px;}
+#cra-app .cra-btn:disabled{opacity:.35; cursor:default;}
+#cra-app .cra-btn:active:not(:disabled){transform:translateY(1px);}
+#cra-app .cra-btn:focus-visible{outline:2px solid var(--cra-paper); outline-offset:2px;}
+#cra-app .cra-ghost{background:transparent; border:1.5px solid var(--cra-line); color:var(--cra-dim); font-size:13px; padding:11px;}
+#cra-app .cra-ghost:hover{border-color:var(--cra-azure); color:var(--cra-paper);}
+#cra-app .cra-tiny{font-size:12px; padding:9px; margin-top:8px;}
+#cra-app .cra-row2{display:flex; gap:10px;}
+#cra-app .cra-row2 .cra-btn{margin-top:12px;}
+
+/* website step */
+#cra-app .cra-helper{margin-top:10px; font-size:14px; color:var(--cra-dim);}
+#cra-app .cra-input{width:100%; margin-top:14px; background:var(--cra-panel2); border:1.5px solid var(--cra-line); border-radius:9px; padding:14px 15px; color:var(--cra-paper); font-size:16px;}
+#cra-app .cra-input::placeholder{color:var(--cra-mut);}
+#cra-app .cra-input:focus{outline:none; border-color:var(--cra-azure);}
+#cra-app .cra-err{margin-top:8px; font-size:13px; color:#FF9B9B; min-height:0;}
+
+/* loading */
+#cra-app .cra-loadcard{text-align:center; padding:34px 18px;}
+#cra-app .cra-spinner{width:30px; height:30px; margin:0 auto 16px; border:3px solid var(--cra-line); border-top-color:var(--cra-azure); border-radius:50%; animation:cra-spin 1s linear infinite;}
+@keyframes cra-spin{to{transform:rotate(360deg);}}
+#cra-app .cra-loadtitle{font-family:var(--cra-oz); font-weight:600; font-size:18px; text-transform:uppercase; letter-spacing:.05em;}
+#cra-app .cra-loadsub{margin-top:8px; font-size:13.5px; color:var(--cra-dim);}
+@media (prefers-reduced-motion:reduce){
+  #cra-app .cra-spinner{animation-duration:3s;}
+  #cra-app .cra-pbar i,#cra-app .cra-bfill{transition:none;}
+}
+
+/* results */
+#cra-app .cra-headline{font-family:var(--cra-oz); font-weight:600; font-size:clamp(17px,3.8vw,21px); line-height:1.25; text-align:center; color:var(--cra-paper);}
+#cra-app .cra-scorewrap{display:flex; align-items:baseline; justify-content:center; gap:6px; margin-top:14px;}
+#cra-app .cra-scorenum{font-family:var(--cra-oz); font-weight:700; font-size:clamp(54px,14vw,76px); line-height:1; color:var(--cra-azure);}
+#cra-app .cra-scoreof{font-family:var(--cra-oz); font-weight:600; font-size:16px; color:var(--cra-mut);}
+#cra-app .cra-label{text-align:center; margin-top:4px; font-family:var(--cra-oz); font-weight:700; font-size:clamp(18px,4.4vw,23px); text-transform:uppercase; letter-spacing:.04em;}
+#cra-app .cra-restype{text-align:center; margin-top:6px; font-size:12.5px; color:var(--cra-mut);}
+
+#cra-app .cra-bars{margin-top:22px; padding-top:18px; border-top:1px solid var(--cra-line);}
+#cra-app .cra-brow{margin-top:12px;}
+#cra-app .cra-brow:first-child{margin-top:0;}
+#cra-app .cra-blab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--cra-oz); font-weight:600; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--cra-dim); margin-bottom:5px;}
+#cra-app .cra-bval{font-size:14px; color:var(--cra-paper);}
+#cra-app .cra-btrack{height:10px; background:var(--cra-panel2); border:1px solid var(--cra-line); border-radius:6px; overflow:hidden;}
+#cra-app .cra-bfill{display:block; height:100%; width:0%; background:var(--cra-azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
+#cra-app .cra-brow.cra-weak .cra-blab{color:var(--cra-paper);}
+#cra-app .cra-brow.cra-weak .cra-bfill{background:var(--cra-paper);}
+#cra-app .cra-tag{font-family:var(--cra-oz); font-size:10px; letter-spacing:.1em; color:var(--cra-navy); background:var(--cra-paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
+
+#cra-app .cra-fixfirst{margin-top:20px; padding-top:14px; border-top:1px solid var(--cra-line); font-size:14px; color:var(--cra-dim);}
+#cra-app .cra-fixfirst b{display:block; color:var(--cra-azure); font-family:var(--cra-oz); text-transform:uppercase; letter-spacing:.07em; font-size:12px; margin-bottom:5px;}
+
+#cra-app .cra-evtitle{font-family:var(--cra-oz); font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--cra-azure); margin-bottom:10px;}
+#cra-app .cra-evnote{font-size:13.5px; color:var(--cra-dim);}
+#cra-app .cra-check{border-left:3px solid var(--cra-paper); background:var(--cra-panel2); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
+#cra-app .cra-check h4{font-family:var(--cra-oz); font-weight:600; font-size:14px; margin:0 0 6px; color:var(--cra-paper); text-transform:none; letter-spacing:0;}
+#cra-app .cra-check p{font-size:13.5px; color:var(--cra-dim);}
+#cra-app .cra-scores{margin-top:8px; font-family:var(--cra-oz); font-size:12px; letter-spacing:.05em; color:var(--cra-mut); text-transform:uppercase;}
+#cra-app .cra-scores b{color:var(--cra-paper);}
+
+#cra-app .cra-cta{background:var(--cra-azure); border-radius:10px; padding:20px 18px; margin-top:16px; text-align:center;}
+#cra-app .cra-cta .cra-ctah{font-family:var(--cra-oz); font-weight:700; font-size:19px; line-height:1.2; text-transform:uppercase; color:#fff;}
+#cra-app .cra-cta p{font-size:13.5px; margin-top:6px; color:#EAF2FF;}
+#cra-app .cra-book{display:inline-block; margin-top:12px; background:var(--cra-navy); color:#fff; font-family:var(--cra-oz); font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:14px; padding:13px 26px; border-radius:8px;}
+#cra-app .cra-book:hover{background:#0B1526;}
+
+#cra-app .cra-keep{margin-top:12px;}
+#cra-app .cra-foot{margin-top:26px; padding-top:14px; border-top:1px solid var(--cra-line); font-size:11.5px; color:var(--cra-mut); line-height:1.65;}
+#cra-app .cra-foot b{color:var(--cra-dim);}
+#cra-app .cra-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+</style>
+
+<div id="cra-app">
+
+  <header>
+    <div class="cra-kicker">Semiconductor &amp; deep tech CEOs · 60 seconds</div>
+    <h2 class="cra-h1">Commercial <span>Readiness</span> Assessment</h2>
+    <p class="cra-lede"><b>Five questions. One number.</b> Where your commercial system trails your technology, and what to fix first.</p>
+  </header>
+
+  <div class="cra-progresswrap" id="cra-pw">
+    <div class="cra-plabel"><span id="cra-plab"></span><span id="cra-ppct"></span></div>
+    <div class="cra-pbar"><i id="cra-pfill"></i></div>
+  </div>
+
+  <section class="cra-step cra-on" id="cra-step-quiz">
+    <div class="cra-card">
+      <div class="cra-qscale" id="cra-qscale"></div>
+      <div class="cra-qtext" id="cra-qtext"></div>
+      <div class="cra-opts" id="cra-opts" role="radiogroup" aria-labelledby="cra-qtext"></div>
+      <div class="cra-row2">
+        <button type="button" class="cra-btn cra-ghost" id="cra-back">Back</button>
+        <button type="button" class="cra-btn" id="cra-next" disabled>Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="cra-step" id="cra-step-site">
+    <div class="cra-card">
+      <div class="cra-qscale" id="cra-site-eyebrow"></div>
+      <div class="cra-qtext" id="cra-site-heading"></div>
+      <p class="cra-helper" id="cra-site-helper"></p>
+      <label class="cra-sr" for="cra-url">Company website</label>
+      <input type="url" id="cra-url" class="cra-input" placeholder="yourcompany.com"
+             autocomplete="url" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
+      <div class="cra-err" id="cra-url-err" role="alert"></div>
+      <button type="button" class="cra-btn" id="cra-site-go"></button>
+      <button type="button" class="cra-btn cra-ghost" id="cra-site-skip"></button>
+      <button type="button" class="cra-btn cra-ghost cra-tiny" id="cra-site-back">Back</button>
+    </div>
+  </section>
+
+  <section class="cra-step" id="cra-step-loading">
+    <div class="cra-card cra-loadcard">
+      <div class="cra-spinner"></div>
+      <div class="cra-loadtitle">Reading your homepage</div>
+      <div class="cra-loadsub" id="cra-loadsub">Comparing your answers with the commercial story a first-time buyer can see.</div>
+    </div>
+  </section>
+
+  <section class="cra-step" id="cra-step-results" aria-live="polite">
+    <div class="cra-card">
+      <div class="cra-headline" id="cra-headline"></div>
+      <div class="cra-scorewrap">
+        <div class="cra-scorenum" id="cra-score">0</div>
+        <div class="cra-scoreof">/ 100</div>
+      </div>
+      <div class="cra-label" id="cra-label"></div>
+      <div class="cra-restype" id="cra-restype"></div>
+      <div class="cra-bars" id="cra-bars"></div>
+      <div class="cra-fixfirst" id="cra-fixfirst"></div>
+    </div>
+
+    <div class="cra-card" id="cra-evidence"></div>
+
+    <div class="cra-cta">
+      <div class="cra-ctah">The score took a minute.<br>The gap analysis is the call.</div>
+      <p>30 minutes on your numbers: what closing the gap costs in time, people, and money.</p>
+      <a class="cra-book" id="cra-book" href="#" target="_blank" rel="noopener">Book a 30-minute call</a>
+    </div>
+
+    <div class="cra-keep">
+      <button type="button" class="cra-btn cra-ghost" id="cra-retake">Retake the assessment</button>
+    </div>
+  </section>
+
+  <div class="cra-foot" id="cra-foot"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ==========================================================================
+     CONFIG — set functionUrl before pasting into Squarespace.
+     ========================================================================== */
+  var CRA_CONFIG = {
+    functionUrl: "https://jf-commercial-readiness.netlify.app/api/website-check",
+    calendlyUrl: "https://calendly.com/JeffFryer",
+    fetchTimeoutMs: 25000
+  };
+
+  /* ==========================================================================
+     ENGINE — verbatim copy of commercial_readiness_assessment_final.js
+     Do not edit here. Edit the source file and re-copy this block.
+     ========================================================================== */
+
+  const PILLARS = ['story', 'sell', 'timingLane', 'charge', 'partnerships', 'alignment'];
+  const PILLAR_NAME = {
+    story: 'Your story',
+    sell: 'How you sell',
+    timingLane: 'Timing and lane',
+    charge: 'How you charge',
+    partnerships: 'Partnerships',
+    alignment: 'One team, one story'
+  };
+  const WEIGHTS = { story: 0.17, sell: 0.17, timingLane: 0.15, charge: 0.13, partnerships: 0.13, alignment: 0.25 };
+  const clamp = (n, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
+  const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+
+  /* ---------- 1. CEO-FACING QUESTIONS ---------- */
+
+  const QUESTIONS = [
+    {
+      key: 'story', pillar: ['story'],
+      question: 'Can a buyer explain why they would buy from you after one conversation?',
+      answers: [
+        'Different buyers hear different versions of what we do',
+        'They understand the technology, but not necessarily the business case',
+        'Most target buyers understand the value, with some explanation',
+        'They can clearly repeat our value and why we are different'
+      ]
+    },
+    {
+      key: 'sell', pillar: ['sell'],
+      question: 'Can your team create and close the right deals without you personally driving every one?',
+      answers: [
+        'Nearly every important deal still runs through me',
+        'The team can progress deals, but I step in to move them forward',
+        'The team runs most of the process; I join selectively',
+        'The sales motion works consistently without founder intervention'
+      ]
+    },
+    {
+      key: 'timingLane', pillar: ['timingLane'],
+      question: 'Are you pursuing a buyer with an urgent reason and a clear path to buy now?',
+      answers: [
+        'Interest is real, but urgency and budget are unclear',
+        'We have active conversations and evaluations, but buying is inconsistent',
+        'We know the segment, use case, and trigger that create demand',
+        'We repeatedly win a defined buyer with an urgent, funded need'
+      ]
+    },
+    {
+      key: 'chargePartnerships', pillar: ['charge', 'partnerships'],
+      question: 'Does your commercial model make it easier for the right customer—and the right partner—to commit?',
+      answers: [
+        'Every deal requires a new explanation of value, terms, and who brings us in',
+        'Buyers see value, but commercial approval or market access often stalls the deal',
+        'Our commercial path works for most target buyers and some partners create access',
+        'Buyers understand how to engage and partners reliably create qualified access'
+      ]
+    },
+    {
+      key: 'alignment', pillar: ['alignment'],
+      question: 'Do engineering, sales, and marketing tell the same commercial story?',
+      answers: [
+        'We describe the customer and value differently across the company',
+        'We broadly agree, but messages and priorities change by team or deal',
+        'We usually align on the customer, story, and commercial priorities',
+        'One shared story guides product decisions, selling, marketing, and partners'
+      ]
+    }
+  ];
+
+  const WEBSITE_FIELD = {
+    eyebrow: 'OPTIONAL: MAKE THE RESULT MORE SPECIFIC',
+    heading: 'What is your company website?',
+    helper: 'We’ll compare your answers with the commercial story a first-time buyer can see on your public homepage. No login required.',
+    primaryCTA: 'SEE MY COMMERCIAL READINESS SCORE',
+    skipCTA: 'Skip — show my result'
+  };
+
+  /* ---------- 2. ANSWER AND WEBSITE EQUATIONS ---------- */
+
+  /* Answer-index equation: S(q) = 100(q-1)/3, for q in {1,2,3,4}. */
+  function answerScore(q) {
+    if (!Number.isInteger(q) || q < 1 || q > 4) throw new Error('Answers must be integers from 1 through 4.');
+    return 100 * (q - 1) / 3;
+  }
+
+  /*
+   * Positive public evidence appropriate for a semiconductor/deep-tech design-in or
+   * commercial-engagement motion. For each signal the extractor returns:
+   *  1 = public positive evidence observed;
+   *  0 = relevant material was extracted and contradicts the criterion;
+   * null = not applicable or not extractable.
+   *
+   * Never convert missing evidence into 0. Public pricing, named customer logos, public
+   * case studies, trials, self-serve checkout, and generic “book a demo” CTAs are NOT
+   * required. Signals can appear on the homepage, primary navigation, or a first-level
+   * public resource clearly linked from the homepage.
+   */
+  const WEBSITE_RUBRIC = {
+    story: {
+      targetApplicationOrUseCaseNamed: 1.25,
+      targetBuyerOrDesignRoleNamed: 0.90,
+      buyerRelevantOutcomeNamed: 1.25,
+      technologyTranslatedToSystemValue: 1.25,
+      categoryOrCompetitiveAlternativeNamed: 0.90,
+      productOrCapabilityFamilyNavigable: 0.80,
+      technicalProofAccessible: 0.95,
+      designOrCustomerEvidenceAccessible: 0.90,
+      messageUnderstandableBeforeTechnicalDetail: 0.90,
+      commercialOrTechnicalNextStepClear: 0.90
+    },
+    sell: {
+      appropriateEntryPathClear: 1.10,
+      requestPathMatchesOfferingType: 1.15,
+      productOrCapabilitySelectionPathExists: 0.95,
+      applicationNotesOrReferenceDesignsAccessible: 0.90,
+      dataSheetsOrTechnicalDocumentationAccessible: 0.85,
+      designSupportOrFAEPathVisible: 1.10,
+      evaluationOrFeasibilityPathExplainedWhenRelevant: 1.00,
+      quoteOrCommercialConversationRouteVisible: 0.95,
+      distributorOrRepresentativeRouteVisibleWhenRelevant: 0.80,
+      nextStepExplainsWhatHappensNext: 0.80
+    },
+    charge: {
+      quoteRequestPathVisible: 1.10,
+      commercialEngagementModelNamedWhenRelevant: 1.20,
+      scopeBoundaryOrEngagementDeliverableNamed: 1.10,
+      buyerValueOrEconomicImpactNamed: 1.15,
+      procurementOrSourcingRouteVisibleWhenRelevant: 0.85,
+      availabilityOrLeadTimeRouteVisibleWhenRelevant: 0.75,
+      distributorPurchaseRouteVisibleWhenRelevant: 0.80,
+      customWorkOrNREPathExplainedWhenRelevant: 1.00,
+      qualificationOrCommercialCommitmentPathExplainedWhenRelevant: 0.90,
+      buyerCanIdentifyAppropriateCommercialNextStep: 1.00
+    },
+    partnerships: {
+      routeToMarketPartnerTypeNamed: 1.00,
+      partnerFinderOrTerritoryRouteVisibleWhenRelevant: 0.95,
+      distributorOrRepresentativeLocatorVisibleWhenRelevant: 1.00,
+      designOrImplementationPartnerPathVisibleWhenRelevant: 0.95,
+      ecosystemOrComplementarySolutionValueExplained: 1.05,
+      jointSolutionOrReferenceArchitectureEvidenceVisible: 1.05,
+      partnerEnablementOrEngagementPathVisible: 0.80,
+      partnerContactRouteVisible: 0.75,
+      partnerRoleInBuyerAccessClear: 1.10,
+      partnerProofVisibleWithoutRequiringNamedLogos: 0.85
+    }
+  };
+
+  function publicEvidenceScore(signals, pillar) {
+    const rubric = WEBSITE_RUBRIC[pillar];
+    const source = signals?.[pillar] || {};
+    let observedWeight = 0, positiveWeight = 0, potentialWeight = 0;
+    for (const [criterion, weight] of Object.entries(rubric)) {
+      potentialWeight += weight;
+      const value = source[criterion];
+      if (value === null || value === undefined) continue;
+      if (value !== 0 && value !== 1) throw new Error(`${pillar}.${criterion} must be 1, 0, or null.`);
+      observedWeight += weight;
+      positiveWeight += weight * value;
+    }
+    return {
+      available: observedWeight >= 3.2, // enough observed public material for a meaningful comparison
+      score: observedWeight >= 3.2 ? 100 * positiveWeight / observedWeight : null,
+      coverage: observedWeight / potentialWeight,
+      observedWeight,
+      possibleWeight: potentialWeight
+    };
+  }
+
+  /*
+   * Reconciliation equation.
+   * Let S = self-report score, O = public-evidence score, c = observed coverage,
+   * and d = S-O.
+   *
+   * If O is unavailable: P=S.
+   * If d>15: lambda=min(0.45, c[0.15+(d-15)/120]), P=(1-lambda)S+lambda O.
+   * If d<0: P=S+min(5, 0.10c(O-S)).
+   * Otherwise: P=S.
+   *
+   * The downward rule is asymmetric by design. Observable weak buyer-facing evidence
+   * can challenge a claimed public commercial story. Strong public evidence cannot
+   * validate internal deal execution, commercial discipline, or real partner behavior.
+   */
+  function reconcile(selfScore, evidence, pillar) {
+    if (!evidence.available) return { score: selfScore, gap: null, evidenceWeight: 0, flag: null };
+    const gap = selfScore - evidence.score;
+    if (gap > 15) {
+      const evidenceWeight = Math.min(0.45, evidence.coverage * (0.15 + (gap - 15) / 120));
+      return {
+        score: (1 - evidenceWeight) * selfScore + evidenceWeight * evidence.score,
+        gap, evidenceWeight,
+        flag: `${pillar.toUpperCase()}_BUYER_FACING_EVIDENCE_GAP`
+      };
+    }
+    if (gap < 0) return { score: clamp(selfScore + Math.min(5, 0.10 * evidence.coverage * -gap)), gap, evidenceWeight: 0, flag: null };
+    return { score: selfScore, gap, evidenceWeight: 0, flag: null };
+  }
+
+  /* ---------- 3. OUTPUT AND DIAGNOSIS ---------- */
+
+  function label(score) {
+    if (score < 35) return 'Commercially blocked';
+    if (score < 55) return 'Founder-dependent';
+    if (score < 75) return 'Emerging repeatability';
+    return 'Commercially ready';
+  }
+
+  function evidenceNarrative(pillar, selfScore, websiteScore) {
+    const text = {
+      story: 'You indicated that buyers can explain why they would buy. Publicly, the buyer, business outcome, category, or proof is not yet clear enough for a first-time visitor.',
+      sell: 'You indicated that the team can run a commercial motion. Publicly, the path from technical interest to evaluation, design support, quote, or commercial engagement is not yet sufficiently clear.',
+      charge: 'You indicated that the commercial path works. Publicly, the value logic, engagement scope, quote route, or commercial commitment path is not yet sufficiently visible to the buyer.',
+      partnerships: 'You indicated that partners create access. Publicly, there is not yet enough evidence of partner roles, joint value, or a route for the right partner to introduce the company.'
+    };
+    return { title: `${PILLAR_NAME[pillar]}: Internal confidence / external clarity gap`, body: text[pillar], selfReportedScore: Math.round(selfScore), buyerFacingEvidenceScore: Math.round(websiteScore) };
+  }
+
+  function firstFix(pillar) {
+    const actions = {
+      story: 'Define one buyer-led commercial story: named buyer, urgent problem, measurable system-level outcome, differentiated lane, and proof.',
+      sell: 'Build a repeatable path from technical interest to qualified evaluation, commercial commitment, and close that the team—not only the founder—can run.',
+      timingLane: 'Choose the buyer segment, use case, trigger event, and competitive alternative where urgency, authority, and a practical path to commitment are strongest.',
+      charge: 'Define a commercial path that explains value, scope, quote or engagement structure, and the commitment required at each stage.',
+      partnerships: 'Define which partner types create earlier buyer access, the joint value proposition, and the account-level motion required to turn access into opportunities.',
+      alignment: 'Create one shared buyer, category, outcome, proof standard, qualification definition, and commercial narrative across engineering, sales, marketing, and leadership.'
+    };
+    return actions[pillar];
+  }
+
+  /**
+   * Main documented function.
+   *
+   * @param {object} input
+   * @param {object} input.answers {story, sell, timingLane, chargePartnerships, alignment}; each is 1..4.
+   * @param {string|null} [input.companyWebsite] Optional public homepage URL; do not require it to score.
+   * @param {object|null} [input.websiteSignals] Output of an extractor or reviewer using WEBSITE_RUBRIC.
+   * @returns {object} `ui` is safe to render; `diagnostic` supports your CRM and Gap Analysis.
+   */
+  function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSignals = null }) {
+    const self = {
+      story: answerScore(answers.story),
+      sell: answerScore(answers.sell),
+      timingLane: answerScore(answers.timingLane),
+      charge: answerScore(answers.chargePartnerships),
+      partnerships: answerScore(answers.chargePartnerships),
+      alignment: answerScore(answers.alignment)
+    };
+
+    const scores = { timingLane: self.timingLane, alignment: self.alignment };
+    const publicEvidence = {};
+    const evidenceChecks = [];
+    const flags = [];
+    for (const pillar of ['story', 'sell', 'charge', 'partnerships']) {
+      publicEvidence[pillar] = publicEvidenceScore(websiteSignals, pillar);
+      const r = reconcile(self[pillar], publicEvidence[pillar], pillar);
+      scores[pillar] = r.score;
+      if (r.flag) {
+        flags.push({ name: r.flag, pillar, selfScore: Math.round(self[pillar]), publicEvidenceScore: Math.round(publicEvidence[pillar].score), gap: Math.round(r.gap) });
+        evidenceChecks.push(evidenceNarrative(pillar, self[pillar], publicEvidence[pillar].score));
+      }
+    }
+
+    // Contradiction variance identifies incoherent answer patterns; it is not an independent evidence count.
+    const linkedPairs = [['story','sell'], ['story','timingLane'], ['sell','alignment'], ['charge','partnerships'], ['partnerships','alignment']];
+    const variance = clamp(mean(linkedPairs.map(([a,b]) => Math.max(0, Math.abs(scores[a] - scores[b]) - 25))) / 75, 0, 1);
+    if (variance >= 0.30) flags.push({ name: 'COMMERCIAL_SYSTEM_INCONSISTENCY', meaning: 'The claimed pillars conflict enough that a human evidence review should precede a detailed prescription.' });
+    if (scores.sell < 50 && scores.alignment < 50) flags.push({ name: 'FOUNDER_DEPENDENCY_ALIGNMENT_RISK', meaning: 'Weak sales repeatability and weak internal alignment are reinforcing each other.' });
+
+    const arithmetic = PILLARS.reduce((sum, pillar) => sum + WEIGHTS[pillar] * scores[pillar], 0);
+    const harmonic = 1 / PILLARS.reduce((sum, pillar) => sum + WEIGHTS[pillar] / Math.max(scores[pillar], 1), 0);
+    // Composite: C = [0.75A + 0.25H] (1-0.08V). The harmonic term makes bottlenecks matter.
+    const composite = clamp((0.75 * arithmetic + 0.25 * harmonic) * (1 - 0.08 * variance));
+
+    const ordered = [...PILLARS].sort((a,b) => scores[a] - scores[b]);
+    const weakest = ordered.filter((p,i) => i < 2 || scores[p] <= scores[ordered[1]] + 5).slice(0,3);
+    const websiteCoverage = mean(Object.values(publicEvidence).map(e => e.coverage));
+    const confidence = 100 * (0.33 + 0.30 * websiteCoverage + 0.15 * (1 - variance));
+
+    return {
+      ui: {
+        headline: 'Your technology works. The question is whether the market can see a reason to buy.',
+        compositeScore: Math.round(composite),
+        scoreLabel: label(composite),
+        weakestPillars: weakest.map(p => ({ pillar: PILLAR_NAME[p], score: Math.round(scores[p]) })),
+        fixFirst: { pillar: PILLAR_NAME[weakest[0]], action: firstFix(weakest[0]) },
+        resultType: companyWebsite ? 'Self-assessment + buyer-facing evidence check' : 'Self-assessment result',
+        buyerFacingEvidence: companyWebsite
+          ? evidenceChecks.length
+            ? { status: 'gaps_found', checks: evidenceChecks }
+            : { status: 'no_material_gap_or_insufficient_evidence', message: 'We found no material public contradiction, or there was not enough public evidence to compare. This is not a pass/fail website grade.' }
+          : { status: 'not_requested', message: 'Add your website in the Gap Analysis to compare internal confidence with the public commercial story a buyer can see.' }
+      },
+      diagnostic: {
+        formula: 'C = [0.75A + 0.25H] × (1 - 0.08V), where A is weighted arithmetic maturity, H is weighted harmonic bottleneck maturity, and V is contradiction variance.',
+        compositeScore: Math.round(composite),
+        confidence: Math.round(confidence),
+        contradictionVariance: Math.round(100 * variance),
+        companyWebsite,
+        pillarScores: Object.fromEntries(PILLARS.map(p => [p, { name: PILLAR_NAME[p], score: Math.round(scores[p]), selfReportScore: Math.round(self[p]), label: label(scores[p]) }])),
+        publicEvidence,
+        flags
+      }
+    };
+  }
+
+  const CEO_COPY = `Your technology works. The question is whether your commercial system is ready to turn that technical proof into market demand. In 60 seconds, this assessment identifies the gap between what you have built and what buyers can understand, evaluate, approve, and buy. You will receive one Commercial Readiness Score, the two constraints holding traction back, and the first issue to fix—your story, sales motion, market lane, commercial path, partnerships, or internal alignment.`;
+
+  /* Browser-safe export. This file runs inside a static Squarespace Code Block:
+     no bundler, no module system. Attach the public surface to `window`. */
+  window.CRA_ENGINE = { QUESTIONS, WEBSITE_FIELD, WEBSITE_RUBRIC, WEIGHTS, scoreCommercialReadiness, CEO_COPY };
+
+  /* ==========================================================================
+     END ENGINE
+     ========================================================================== */
+
+  var E = window.CRA_ENGINE;
+  var TOTAL_STEPS = E.QUESTIONS.length + 1; // five questions + the website step
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ---------- state ---------- */
+  var picks = new Array(E.QUESTIONS.length).fill(-1);
+  var step = 0;
+  var params = new URLSearchParams(window.location.search);
+  var DEBUG = params.get('cra_debug') === '1';
+
+  /* ---------- navigation ---------- */
+  function showStep(id) {
+    ['cra-step-quiz', 'cra-step-site', 'cra-step-loading', 'cra-step-results'].forEach(function (s) {
+      $(s).classList.toggle('cra-on', s === id);
+    });
+  }
+
+  function setProgress(visible, index) {
+    $('cra-pw').style.display = visible ? 'block' : 'none';
+    if (!visible) return;
+    var pct = Math.round((index / TOTAL_STEPS) * 100);
+    $('cra-plab').textContent = (index + 1) + ' of ' + TOTAL_STEPS;
+    $('cra-ppct').textContent = pct + '%';
+    $('cra-pfill').style.width = pct + '%';
+  }
+
+  function renderQuestion() {
+    var q = E.QUESTIONS[step];
+    $('cra-qscale').textContent = 'Question ' + (step + 1);
+    $('cra-qtext').textContent = q.question;
+    $('cra-opts').innerHTML = q.answers.map(function (text, i) {
+      return '<button type="button" role="radio" aria-checked="' + (picks[step] === i ? 'true' : 'false') +
+             '" class="cra-opt' + (picks[step] === i ? ' cra-sel' : '') + '" data-i="' + i + '">' +
+             '<span class="cra-dot"><i></i></span><span>' + esc(text) + '</span></button>';
+    }).join('');
+    $('cra-back').style.visibility = step === 0 ? 'hidden' : 'visible';
+    $('cra-next').disabled = picks[step] < 0;
+    $('cra-next').textContent = 'Next';
+    setProgress(true, step);
+    showStep('cra-step-quiz');
+  }
+
+  function renderSiteStep() {
+    var W = E.WEBSITE_FIELD;
+    $('cra-site-eyebrow').textContent = W.eyebrow;
+    $('cra-site-heading').textContent = W.heading;
+    $('cra-site-helper').textContent = W.helper;
+    $('cra-site-go').textContent = W.primaryCTA;
+    $('cra-site-skip').textContent = W.skipCTA;
+    setProgress(true, E.QUESTIONS.length);
+    showStep('cra-step-site');
+  }
+
+  $('cra-opts').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.cra-opt');
+    if (!btn) return;
+    picks[step] = parseInt(btn.getAttribute('data-i'), 10);
+    renderQuestion();
+  });
+
+  $('cra-next').addEventListener('click', function () {
+    if (picks[step] < 0) return;
+    if (step < E.QUESTIONS.length - 1) { step++; renderQuestion(); }
+    else { renderSiteStep(); }
+  });
+
+  $('cra-back').addEventListener('click', function () {
+    if (step > 0) { step--; renderQuestion(); }
+  });
+
+  $('cra-site-back').addEventListener('click', function () {
+    step = E.QUESTIONS.length - 1;
+    renderQuestion();
+  });
+
+  $('cra-site-skip').addEventListener('click', function () {
+    finish(null, null, false);
+  });
+
+  $('cra-site-go').addEventListener('click', function () {
+    var raw = $('cra-url').value.trim();
+    var url = normaliseUrl(raw);
+    if (!url) {
+      $('cra-url-err').textContent = 'Enter a web address, for example yourcompany.com';
+      return;
+    }
+    $('cra-url-err').textContent = '';
+    runWebsiteCheck(url);
+  });
+
+  $('cra-url').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('cra-site-go').click(); }
+  });
+
+  $('cra-retake').addEventListener('click', function () {
+    picks = new Array(E.QUESTIONS.length).fill(-1);
+    step = 0;
+    $('cra-url').value = '';
+    $('cra-url-err').textContent = '';
+    renderQuestion();
+    $('cra-app').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+
+  /* ---------- website check ---------- */
+  function normaliseUrl(raw) {
+    if (!raw) return null;
+    var candidate = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+    var parsed;
+    try { parsed = new URL(candidate); } catch (e) { return null; }
+    if (!/^https?:$/.test(parsed.protocol)) return null;
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(parsed.hostname)) return null;
+    return parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname);
+  }
+
+  function runWebsiteCheck(url) {
+    showStep('cra-step-loading');
+    setProgress(false);
+
+    // Offline test hook: ?cra_signals=strong|weak|sparse|empty
+    var stub = params.get('cra_signals');
+    if (stub) {
+      window.setTimeout(function () { finish(url, stubSignals(stub), false); }, 600);
+      return;
+    }
+
+    var controller = new AbortController();
+    var timer = window.setTimeout(function () { controller.abort(); }, CRA_CONFIG.fetchTimeoutMs);
+
+    window.fetch(CRA_CONFIG.functionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: url }),
+      signal: controller.signal
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        window.clearTimeout(timer);
+        if (!data || !data.signals) { finish(url, null, true); return; }
+        finish(url, data.signals, false);
+      })
+      .catch(function (err) {
+        window.clearTimeout(timer);
+        if (DEBUG) console.warn('[CRA] website check failed:', err);
+        finish(url, null, true);
+      });
+  }
+
+  function stubSignals(mode) {
+    var out = {};
+    Object.keys(E.WEBSITE_RUBRIC).forEach(function (pillar) {
+      out[pillar] = {};
+      Object.keys(E.WEBSITE_RUBRIC[pillar]).forEach(function (crit, i) {
+        if (mode === 'strong') out[pillar][crit] = 1;
+        else if (mode === 'weak') out[pillar][crit] = 0;
+        else if (mode === 'sparse') out[pillar][crit] = i < 2 ? 1 : null;
+        else out[pillar][crit] = null;
+      });
+    });
+    return out;
+  }
+
+  /* ---------- results ---------- */
+  function finish(companyWebsite, websiteSignals, fetchFailed) {
+    var answers = {};
+    E.QUESTIONS.forEach(function (q, i) { answers[q.key] = picks[i] + 1; });
+
+    var result;
+    try {
+      result = E.scoreCommercialReadiness({
+        answers: answers,
+        companyWebsite: companyWebsite,
+        websiteSignals: websiteSignals
+      });
+    } catch (err) {
+      // Last-resort guard: fall back to the self-report result rather than showing nothing.
+      if (DEBUG) console.error('[CRA] scoring failed:', err);
+      result = E.scoreCommercialReadiness({ answers: answers, companyWebsite: null, websiteSignals: null });
+      fetchFailed = false;
+    }
+
+    if (DEBUG) console.log('[CRA] diagnostic', result.diagnostic);
+
+    renderResults(result, fetchFailed);
+  }
+
+  function renderResults(result, fetchFailed) {
+    var ui = result.ui;
+
+    $('cra-headline').textContent = ui.headline;
+    $('cra-score').textContent = ui.compositeScore;
+    $('cra-label').textContent = ui.scoreLabel;
+    $('cra-restype').textContent = ui.resultType;
+    $('cra-book').setAttribute('href', CRA_CONFIG.calendlyUrl);
+
+    // Six pillar bars, in engine order, with the weakest flagged.
+    var weakNames = ui.weakestPillars.map(function (w) { return w.pillar; });
+    var pillars = result.diagnostic.pillarScores;
+    $('cra-bars').innerHTML = Object.keys(pillars).map(function (key) {
+      var p = pillars[key];
+      var isWeak = weakNames.indexOf(p.name) !== -1;
+      return '<div class="cra-brow' + (isWeak ? ' cra-weak' : '') + '">' +
+               '<div class="cra-blab"><span>' + esc(p.name) +
+               (isWeak ? '<span class="cra-tag">FOCUS</span>' : '') + '</span>' +
+               '<span class="cra-bval">' + p.score + '</span></div>' +
+               '<div class="cra-btrack"><i class="cra-bfill" data-w="' + p.score + '"></i></div>' +
+             '</div>';
+    }).join('');
+
+    $('cra-fixfirst').innerHTML = '<b>Fix first — ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
+
+    renderEvidence(ui.buyerFacingEvidence, fetchFailed);
+    renderFooter(result.diagnostic.companyWebsite);
+
+    setProgress(false);
+    showStep('cra-step-results');
+    $('cra-app').scrollIntoView({ block: 'start', behavior: 'smooth' });
+
+    window.requestAnimationFrame(function () {
+      var fills = $('cra-bars').querySelectorAll('.cra-bfill');
+      for (var i = 0; i < fills.length; i++) {
+        fills[i].style.width = fills[i].getAttribute('data-w') + '%';
+      }
+    });
+  }
+
+  function renderEvidence(ev, fetchFailed) {
+    var box = $('cra-evidence');
+
+    if (ev.status === 'gaps_found') {
+      box.innerHTML = '<div class="cra-evtitle">Buyer-facing evidence check</div>' +
+        ev.checks.map(function (c) {
+          return '<div class="cra-check">' +
+                   '<h4>' + esc(c.title) + '</h4>' +
+                   '<p>' + esc(c.body) + '</p>' +
+                   '<div class="cra-scores">You: <b>' + c.selfReportedScore + '</b> · ' +
+                   'Publicly visible: <b>' + c.buyerFacingEvidenceScore + '</b></div>' +
+                 '</div>';
+        }).join('') +
+        '<div class="cra-evnote" style="margin-top:12px;">This compares your answers with what a first-time visitor can see. It is not a pass/fail website grade.</div>';
+      return;
+    }
+
+    // A failed or timed-out check reaches the engine as "no signals", which produces the
+    // same status as a genuinely inconclusive read. Say which one actually happened.
+    var message = (fetchFailed && ev.status === 'no_material_gap_or_insufficient_evidence')
+      ? 'We could not complete the website check this time. The result below is based on your answers alone.'
+      : ev.message;
+
+    box.innerHTML = '<div class="cra-evtitle">Buyer-facing evidence check</div>' +
+                    '<div class="cra-evnote">' + esc(message) + '</div>';
+  }
+
+  function renderFooter(companyWebsite) {
+    // Accurate on both paths: nothing is stored, but a submitted URL is sent to our
+    // service so the public homepage can be fetched and analysed.
+    var privacy = companyWebsite
+      ? 'Your answers stay in your browser. The website address you entered was sent to our service to fetch and analyse your public homepage. Neither is stored.'
+      : 'Your answers stay in your browser and are not stored or sent anywhere.';
+    $('cra-foot').innerHTML =
+      esc(privacy) +
+      '<br><br>This is a transparent, theory-driven index, not a validated predictive instrument.' +
+      '<br><br><b>Jeff Fryer · The Fryer Group · jefffryer.com</b>';
+  }
+
+  /* ---------- init ---------- */
+  renderQuestion();
+
+  // Test hook: ?cra_answers=41141 preloads answers and jumps straight to the result.
+  var preset = params.get('cra_answers');
+  if (preset && /^[1-4]{5}$/.test(preset)) {
+    picks = preset.split('').map(function (d) { return parseInt(d, 10) - 1; });
+    var presetStub = params.get('cra_signals');
+    if (presetStub) finish('https://example.com', stubSignals(presetStub), false);
+    else finish(null, null, false);
+  }
+})();
+</script>

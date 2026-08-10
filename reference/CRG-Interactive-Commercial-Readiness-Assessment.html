@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Readiness Assessment | Jeff Fryer</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#01040B; --panel:#0B1526; --panel2:#111E33; --line:#1E2C45;
+  --azure:#3B8EF0; --azure-soft:rgba(59,142,240,.14); --paper:#FCFCFC;
+  --dim:#93A1B8; --mut:#5F6C82;
+}
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+html,body{background:var(--navy); color:var(--paper); font-family:'Inter',-apple-system,sans-serif; line-height:1.5;}
+.wrap{max-width:620px; margin:0 auto; padding:22px 16px 56px;}
+h1,.oz{font-family:'Oswald','Arial Narrow',sans-serif; letter-spacing:.01em;}
+h1{font-size:clamp(24px,5.5vw,34px); font-weight:700; text-transform:uppercase; line-height:1.06;}
+h1 span{color:var(--azure);}
+.kicker{font-family:'Oswald',sans-serif; font-weight:600; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--azure); margin-bottom:8px;}
+.lede{margin-top:10px; font-size:15px; color:var(--dim);}
+.lede b{color:var(--paper);}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px 18px; margin-top:16px;}
+
+.progresswrap{margin-top:20px;}
+.plabel{display:flex; justify-content:space-between; font-family:'Oswald',sans-serif; font-weight:600; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); margin-bottom:6px;}
+.pbar{height:6px; background:var(--panel2); border:1px solid var(--line); border-radius:4px; overflow:hidden;}
+.pbar i{display:block; height:100%; width:0%; background:var(--azure); transition:width .3s;}
+
+.qscale{font-family:'Oswald',sans-serif; font-weight:600; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--azure);}
+.qtext{font-family:'Oswald',sans-serif; font-weight:600; font-size:clamp(21px,5vw,27px); line-height:1.2; margin-top:6px;}
+.opts{margin-top:14px;}
+.opt{display:flex; gap:12px; align-items:center; width:100%; text-align:left; background:var(--panel2); border:1.5px solid var(--line); border-radius:9px; padding:14px 15px; margin-top:9px; cursor:pointer; color:var(--dim); font-size:15px; line-height:1.35; font-family:'Inter',sans-serif; transition:border-color .15s, color .15s;}
+.opt:hover{border-color:var(--azure); color:var(--paper);}
+.opt .dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--mut); display:grid; place-items:center;}
+.opt .dot i{width:10px; height:10px; border-radius:50%; background:var(--azure); transform:scale(0); transition:transform .15s;}
+.opt.sel{border-color:var(--azure); color:var(--paper); background:var(--azure-soft);}
+.opt.sel .dot{border-color:var(--azure);}
+.opt.sel .dot i{transform:scale(1);}
+
+.btn{display:inline-block; width:100%; text-align:center; padding:14px 18px; margin-top:14px; background:var(--azure); color:#fff; font-family:'Oswald',sans-serif; font-weight:600; font-size:15px; letter-spacing:.08em; text-transform:uppercase; border:none; border-radius:8px; cursor:pointer; text-decoration:none;}
+.btn:disabled{opacity:.35; cursor:default;}
+.btn.ghost{background:transparent; border:1.5px solid var(--line); color:var(--dim); font-size:13px; padding:11px;}
+.btn.ghost:hover{border-color:var(--azure); color:var(--paper);}
+.btn:active:not(:disabled){transform:translateY(1px);}
+.row2{display:flex; gap:10px;}
+.row2 .btn{margin-top:12px;}
+
+.step{display:none;}
+.step.on{display:block;}
+
+/* results */
+.bars{display:flex; gap:8px; align-items:flex-end; justify-content:center; height:180px; padding-top:6px;}
+.bcol{flex:1; max-width:92px; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;}
+.bval{font-family:'Oswald',sans-serif; font-weight:700; font-size:19px; margin-bottom:4px;}
+.btrack{width:100%; height:122px; background:var(--panel2); border:1px solid var(--line); border-radius:7px; position:relative; overflow:hidden;}
+.bfill{position:absolute; bottom:0; left:0; right:0; background:var(--azure); border-radius:0 0 6px 6px; transition:height .6s ease;}
+.bcol.cap .bfill{background:#fff;}
+.bcol.cap .bval{color:#fff;}
+.blab{font-family:'Oswald',sans-serif; font-weight:600; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; margin-top:7px; color:var(--dim); text-align:center; line-height:1.25;}
+.capline{position:absolute; left:0; right:0; border-top:2px dashed rgba(252,252,252,.45);}
+
+.verdict{font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(20px,5vw,26px); text-transform:uppercase; text-align:center; margin-top:16px; line-height:1.2;}
+.verdict span{color:var(--azure);}
+.crlline{text-align:center; margin-top:8px; font-size:14px; color:var(--dim);}
+.crlline b{color:#fff; font-family:'Oswald',sans-serif; font-size:16px;}
+.bandnote{color:var(--dim); font-size:13.5px; margin-top:8px; text-align:center;}
+.fixfirst{margin-top:14px; padding-top:12px; border-top:1px solid rgba(30,44,69,.7); font-size:13.5px; color:var(--dim); text-align:center;}
+.fixfirst b{color:var(--azure); font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:12px;}
+.flag{border-left:3px solid #fff; background:var(--panel2); border-radius:0 6px 6px 0; padding:9px 12px; margin-top:10px; font-size:12.5px; color:var(--dim);}
+
+.cta{background:var(--azure); border-radius:10px; padding:18px; margin-top:16px; text-align:center;}
+.cta .oz{font-weight:700; font-size:18px; text-transform:uppercase; line-height:1.2;}
+.cta p{font-size:13px; margin-top:5px; color:#EAF2FF;}
+.cta a.book{display:inline-block; margin-top:10px; background:var(--navy); color:#fff; font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:14px; padding:12px 24px; border-radius:8px; text-decoration:none;}
+
+.keep{display:flex; gap:8px; margin-top:12px;}
+.keep .btn{margin-top:0; font-size:12px; padding:11px 8px;}
+.foot{margin-top:30px; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--mut); text-align:center; line-height:1.6;}
+.foot b{color:var(--dim);}
+.toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--azure); color:#fff; font-size:13px; padding:10px 18px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9;}
+.toast.on{opacity:1;}
+@media(min-width:560px){ .wrap{padding-top:34px;} .blab{font-size:10.5px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Semiconductor &amp; deep tech CEOs · 60 seconds</div>
+    <h1>Commercial <span>Readiness</span> Assessment</h1>
+    <p class="lede"><b>Five questions. One number.</b> How far the business trails the technology, and what to fix first.</p>
+  </header>
+
+  <div class="progresswrap" id="pw">
+    <div class="plabel"><span id="plab"></span><span id="ppct"></span></div>
+    <div class="pbar"><i id="pfill"></i></div>
+  </div>
+
+  <!-- question host -->
+  <section class="step on" id="quiz">
+    <div class="card">
+      <div class="qscale" id="qscale"></div>
+      <div class="qtext" id="qtext"></div>
+      <div class="opts" id="opts"></div>
+      <div class="row2">
+        <button class="btn ghost" id="backbtn" onclick="prevQ()">Back</button>
+        <button class="btn" id="nextbtn" onclick="nextQ()" disabled>Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- results -->
+  <section class="step" id="results">
+    <div class="card">
+      <div class="bars" id="bars"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="crlline" id="crlline"></div>
+      <div class="bandnote" id="bandnote"></div>
+      <div id="flags"></div>
+      <div class="fixfirst" id="fixfirst"></div>
+    </div>
+
+    <div class="cta">
+      <div class="oz">The score took a minute.<br>The gap analysis is the call.</div>
+      <p>30 minutes on your numbers: what closing the gap costs in time, people, and money.</p>
+      <a class="book" href="https://calendly.com/jefffryer/30min" target="_blank" rel="noopener">Book a 30-minute call</a>
+    </div>
+
+    <div class="keep">
+      <button class="btn ghost" onclick="copyLink()">Copy link</button>
+      <button class="btn ghost" onclick="downloadImage()">Save image</button>
+      <button class="btn ghost" onclick="restart()">Retake</button>
+    </div>
+
+    <div class="foot" style="border:none; margin-top:8px; padding-top:0;">Nothing is tracked, stored, or sent anywhere by this page.</div>
+  </section>
+
+  <div class="foot">Built on the readiness levels used across deep tech: TRL, BRL, MRL, SRL, PRL.<br><b>Why now:</b> design-win cycles run 12 to 24 months, and the industry's next correction is already in consensus forecasts. Readiness built in the up-cycle decides who owns the recovery.<br><br><b>Jeff Fryer · The Fryer Group · jefffryer.com</b></div>
+</div>
+<div class="toast" id="toast">Link copied</div>
+
+<script>
+"use strict";
+/* Reinhard's five questions, one per scale (TRL BRL MRL PRL SRL), terse options.
+   Level = option value. Commercial readiness = min(BRL, MRL, PRL, SRL). Gap = TRL - that floor. */
+const QS=[
+ {id:"trl", name:"Technology", ab:"TRL", q:"Does the technology work?",
+  o:[["Proof of concept, in the lab",3],["Prototype proven in a relevant environment",6],["Qualified and in operational use",8],["Proven in production at customers",9]]},
+ {id:"brl", name:"Demand", ab:"BRL", q:"Will customers pay?",
+  o:[["Good conversations",2],["Free evals underway",4],["Paid evals or NRE signed",6],["Production POs from 2+ customers",8]],
+  fix:"Money on the table: paid evals, NRE, production POs."},
+ {id:"mrl", name:"Manufacturing", ab:"MRL", q:"Can you build it at volume?",
+  o:[["Lab-scale only",3],["Pilot line, small lots",5],["Low-rate production, qualified processes",7],["Full-rate production, stable yield",9]],
+  fix:"Qualified processes at the volumes customers order."},
+ {id:"prl", name:"Profit", ab:"PRL", q:"Is there a path to profit?",
+  o:[["High burn, no model yet",2],["First revenue, heavy losses",4],["Near break-even, defensible path",6],["Profitable and improving",8]],
+  fix:"A profit path tied to yield and volume, not to hope."},
+ {id:"srl", name:"Scale", ab:"SRL", q:"Could you double output without breaking?",
+  o:[["No",3],["Only through heroics",5],["With strain",7],["Built for it",9]],
+  fix:"Growth that doesn't risk your first core customers."}
+];
+const answers=new Array(QS.length).fill(-1);
+let cur=0;
+
+/* ---------- flow ---------- */
+function show(id){ ["quiz","results"].forEach(s=>document.getElementById(s).classList.toggle("on",s===id)); window.scrollTo({top:0}); }
+function renderQ(){
+  const q=QS[cur];
+  document.getElementById("qscale").textContent=q.name;
+  document.getElementById("qtext").textContent=q.q;
+  document.getElementById("opts").innerHTML=q.o.map(([tx],i)=>`<button type="button" class="opt ${answers[cur]===i?"sel":""}" onclick="pick(${i})"><span class="dot"><i></i></span><span>${tx}</span></button>`).join("");
+  document.getElementById("backbtn").style.visibility=cur===0?"hidden":"visible";
+  document.getElementById("nextbtn").disabled=answers[cur]<0;
+  document.getElementById("nextbtn").textContent=cur===QS.length-1?"See my results":"Next";
+  document.getElementById("plab").textContent=(cur+1)+" of "+QS.length;
+  document.getElementById("ppct").textContent=Math.round(cur/QS.length*100)+"%";
+  document.getElementById("pfill").style.width=Math.round(cur/QS.length*100)+"%";
+}
+function pick(i){ answers[cur]=i; renderQ(); }
+function nextQ(){ if(answers[cur]<0) return; if(cur<QS.length-1){ cur++; renderQ(); } else { finish(); } }
+function prevQ(){ if(cur>0){ cur--; renderQ(); } }
+
+/* ---------- scoring ---------- */
+function lvl(i){ return answers[i]>=0?QS[i].o[answers[i]][1]:1; }
+let last=null;
+function finish(){
+  const lv={}; QS.forEach((q,i)=>lv[q.id]=lvl(i));
+  const biz=["brl","mrl","prl","srl"];
+  const crl=Math.min(...biz.map(id=>lv[id]));
+  const capId=biz.find(id=>lv[id]===crl);
+  const capQ=QS.find(q=>q.id===capId);
+  last={lv,crl,capBy:capQ.name};
+  document.getElementById("pw").style.display="none";
+  show("results");
+  // bars (display order: TRL BRL MRL SRL PRL to match the roadmap)
+  const order=["trl","brl","mrl","srl","prl"];
+  document.getElementById("bars").innerHTML=order.map(id=>{
+    const q=QS.find(x=>x.id===id); const v=lv[id]; const isCap=id===capId;
+    return `<div class="bcol ${isCap?"cap":""}">
+      <div class="bval">${v}</div>
+      <div class="btrack">${id!=="trl"?`<div class="capline" style="bottom:${Math.round(lv.trl/9*100)}%"></div>`:""}<div class="bfill" style="height:${Math.round(v/9*100)}%"></div></div>
+      <div class="blab">${q.name}</div></div>`;
+  }).join("");
+  // verdict
+  const gap=lv.trl-crl;
+  const v=document.getElementById("verdict");
+  if(gap>=3) v.innerHTML=`The technology is <span>${gap} levels ahead</span> of the business.`;
+  else if(gap>=1) v.innerHTML=`The business is <span>${gap} level${gap>1?"s":""} behind</span>.`;
+  else v.innerHTML=`The business is <span>keeping pace</span>.`;
+  document.getElementById("crlline").innerHTML=`Commercial readiness: <b>Level ${crl} of 9</b> · set by ${capQ.name}`;
+  document.getElementById("bandnote").textContent=
+    crl<=3?`${capQ.name} is the floor. Until it moves, nothing else compounds.`:
+    crl<=5?`${capQ.name} is where founder effort stops being enough.`:
+    crl<=7?`${capQ.name} is what separates you from raising on strength.`:
+    `Protect it. This is rarer than working silicon.`;
+  // flags (one line each)
+  const flags=[];
+  if(lv.prl>2*lv.mrl-lv.srl) flags.push("Profit math assumes manufacturing maturity you don't have. Margins break on the line, not in the model.");
+  if(lv.srl>lv.mrl+1) flags.push("Scaling ahead of manufacturing risks the core customers a raise is built on.");
+  if(lv.brl>=7&&lv.trl<7) flags.push("Demand is ahead of the product. Delay is a design win someone else closes.");
+  document.getElementById("flags").innerHTML=flags.map(f=>`<div class="flag">${f}</div>`).join("");
+  // fix first
+  document.getElementById("fixfirst").innerHTML=capQ.fix?`<b>Fix first, ${capQ.name}:</b> &nbsp;${capQ.fix}`:"";
+  history.replaceState(null,"","#r="+answers.join(""));
+}
+function restart(){ answers.fill(-1); cur=0; history.replaceState(null,"",location.pathname); document.getElementById("pw").style.display="block"; show("quiz"); renderQ(); }
+
+/* ---------- share / image ---------- */
+function copyLink(){
+  const url=location.origin+location.pathname+"#r="+answers.join("");
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast("Link copied"))
+   .catch(()=>{prompt("Copy this link:",url);});
+}
+function toast(msg){const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),1800);}
+function downloadImage(){
+  if(!last) return; const {lv,crl,capBy}=last;
+  const W=1000,H=600; const cv=document.createElement("canvas"); cv.width=W; cv.height=H; const x=cv.getContext("2d");
+  x.fillStyle="#01040B"; x.fillRect(0,0,W,H);
+  x.fillStyle="#3B8EF0"; x.font="600 22px Oswald, Arial Narrow, sans-serif"; x.fillText("COMMERCIAL READINESS ASSESSMENT", 50, 58);
+  const order=["trl","brl","mrl","srl","prl"]; const names={trl:"TECHNOLOGY",brl:"DEMAND",mrl:"MANUFACTURING",srl:"SCALE",prl:"PROFIT"};
+  order.forEach((id,i)=>{
+    const bx=70+i*185, bw=120, bh=270, by=400; const v=lv[id];
+    const biz=["brl","mrl","prl","srl"]; const isCap=biz.includes(id)&&v===crl&&names[id]===capBy.toUpperCase();
+    x.fillStyle="#111E33"; x.fillRect(bx,by-bh,bw,bh);
+    x.fillStyle=isCap?"#FCFCFC":"#3B8EF0";
+    const h=Math.round(v/9*bh); x.fillRect(bx,by-h,bw,h);
+    x.font="700 30px Oswald, Arial Narrow, sans-serif"; x.fillStyle="#FCFCFC"; x.textAlign="center";
+    x.fillText(String(v), bx+bw/2, by-h-12);
+    x.font="600 14px Oswald, Arial Narrow, sans-serif"; x.fillStyle="#93A1B8";
+    x.fillText(names[id], bx+bw/2, by+26); x.textAlign="left";
+  });
+  const gap=lv.trl-crl;
+  x.fillStyle="#FCFCFC"; x.font="700 36px Oswald, Arial Narrow, sans-serif";
+  const headline=gap>=3?`THE TECHNOLOGY IS ${gap} LEVELS AHEAD OF THE BUSINESS.`:(gap>=1?`THE BUSINESS IS ${gap} LEVEL${gap>1?"S":""} BEHIND.`:"THE BUSINESS IS KEEPING PACE.");
+  wrapText(x, headline, 50, 480, 900, 44);
+  x.fillStyle="#93A1B8"; x.font="400 17px Inter, sans-serif";
+  x.fillText(`Commercial readiness: Level ${crl} of 9, set by ${capBy}.`, 50, 540);
+  x.fillText("Jeff Fryer · The Fryer Group · jefffryer.com", 50, 576);
+  const a=document.createElement("a"); a.download="commercial-readiness-results.png"; a.href=cv.toDataURL("image/png"); a.click();
+}
+function wrapText(x,text,lx,ly,maxW,lh){
+  const words=text.split(" "); let line="";
+  for(const w of words){ const test=line?line+" "+w:w;
+    if(x.measureText(test).width>maxW){ x.fillText(line,lx,ly); ly+=lh; line=w; } else line=test; }
+  if(line) x.fillText(line,lx,ly);
+}
+
+/* ---------- init ---------- */
+renderQ();
+(function(){
+  const m=location.hash.match(/#r=([0-9]{5})/); if(!m) return;
+  const arr=m[1].split("").map(Number);
+  if(arr.every((a,i)=>a>=0&&a<QS[i].o.length)){ arr.forEach((a,i)=>answers[i]=a); finish(); }
+})();
+</script>
+</body>
+</html>
