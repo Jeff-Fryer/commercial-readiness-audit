@@ -45,31 +45,37 @@ That URL is already set in `frontend/commercial-readiness-code-block.html` — t
 is nothing to edit there.
 
 **The function has never been executed or typechecked.** The machine that generated
-these files has no Node, npm, or Netlify CLI, so `npm install`, `netlify dev`, and
-the deploy could not be run. Node 20+ is required for the steps below; there is no
-path that avoids it.
+these files has no Node, npm, or Netlify CLI.
 
-**1. Deploy.** This uploads the folder and runs the build — including `npm install` —
-in Netlify's cloud, so you do **not** need to install dependencies locally:
+**Deployment is Git-based**, so no local Node is needed — now or for future changes.
+The repo root `netlify.toml` sets `base = "function"`, which points Netlify's build
+system at `package.json` and makes it run `npm install` in the cloud.
 
-```bash
-cd commercial-readiness-audit/function
-npx -y netlify-cli deploy --prod --site c4fab0db-5ecb-428d-af9f-75373f118c81
-```
-
-(The Netlify connector can also mint a one-shot `npx -y @netlify/mcp@latest --site-id
-… --proxy-path …` command that does the same thing without a login. Either works;
-the CLI form above is stable and re-runnable.)
-
-**2. Set the API key.** Do this yourself — it's your secret, and it must be set for
-the function to score anything:
+**1. Get the repo onto GitHub.** The folder is already a git repo with one commit.
+Create an empty repo on github.com (no README, no .gitignore), then either:
 
 ```bash
-npx -y netlify-cli env:set ANTHROPIC_API_KEY "sk-ant-..." --site c4fab0db-5ecb-428d-af9f-75373f118c81
+cd commercial-readiness-audit
+git remote add origin https://github.com/<you>/commercial-readiness-audit.git
+git push -u origin main
 ```
 
-Or paste it under **Site configuration → Environment variables** in the Netlify UI.
-It is read server-side via `Netlify.env.get()` and never reaches the browser.
+…or, if you'd rather avoid a terminal auth prompt, use GitHub's web uploader
+("uploading an existing file") and drag the folder contents in.
+
+**2. Link the repo to the site.** In the Netlify dashboard for
+`jf-commercial-readiness` → **Site configuration → Build & deploy → Link repository**.
+This requires authorising Netlify's GitHub App, which is why it has to be done by
+you rather than through the API. Leave the build settings alone — `netlify.toml`
+already specifies base, publish, functions and bundler.
+
+Netlify runs its first build on link. Watch it under **Deploys**; a green
+"Published" with `npm install` in the log means the dependencies resolved.
+
+**3. Set the API key.** Do this yourself — it's your secret. **Site configuration →
+Environment variables → Add a variable**, key `ANTHROPIC_API_KEY`. It is read
+server-side via `Netlify.env.get()` and never reaches the browser. Redeploy after
+adding it (**Deploys → Trigger deploy**) so the function picks it up.
 
 **3. First real test.** Nothing has run this code yet, so treat this as the actual
 first execution, not a formality:
