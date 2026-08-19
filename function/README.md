@@ -32,7 +32,20 @@ front end then shows the self-report result and says the check didn't complete.
 
 ## Deploy
 
-**Status: the site exists; the code has not been deployed yet.**
+**Status: the site exists and serves a placeholder. The rebuilt audit is in the
+repo at `public/index.html` but has NOT been deployed yet.**
+
+> **Deploying needs you.** There is no Node, no npx, no Netlify CLI and no git
+> remote on this machine, and installing them was ruled out. That leaves the
+> Git-based path below, which is the right long-term answer anyway: it keeps the
+> `npm install` for the function in Netlify's cloud, so no local Node is ever
+> needed. Steps 1 and 2 are the ones only you can do.
+
+**Netlify Forms is enabled** on the project (done via the Netlify connector).
+The audit posts to a form named `crg-audit`; a hidden static twin of the form
+lives in `public/index.html` so Netlify registers it at build time. After the
+first deploy, add a submission notification under
+Project configuration -> Forms -> Form notifications.
 
 | | |
 |---|---|
