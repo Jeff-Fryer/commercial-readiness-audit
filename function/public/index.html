@@ -543,9 +543,9 @@ body.is-embed .shell{box-shadow:none;}
 .check .scores{margin-top:8px; font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; color:var(--mut); text-transform:uppercase;}
 .check .scores b{color:var(--paper);}
 .cta{background:var(--azure); border-radius:var(--r-card); padding:26px 24px; margin-top:16px; text-align:center; color:var(--ink);}
-.cta .eyebrow{color:var(--ink); opacity:.72;}
+.cta .eyebrow{color:var(--ink);}          /* full ink: .72 opacity fell to 3.15:1 on azure */
 .cta-h{margin:10px 0 8px; color:var(--ink);}
-.cta-p{font-size:14px; color:rgba(0,34,68,.82); margin-bottom:16px;}
+.cta-p{font-size:14px; color:var(--ink); margin-bottom:16px;}   /* .82 alpha fell to 3.64:1 */
 .cta .btn-primary{background:var(--navy); border-color:var(--navy); color:var(--paper);}
 .cta .btn-primary:hover{background:#00306080; border-color:var(--navy);}
 .res-retake{margin-top:14px; text-align:center;}
