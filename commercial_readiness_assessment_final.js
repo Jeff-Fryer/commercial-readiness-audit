@@ -77,7 +77,7 @@ const QUESTIONS = [
   },
   {
     key: 'chargePartnerships', pillar: ['charge', 'partnerships'],
-    question: 'Does your commercial model make it easier for the right customer—and the right partner—to commit?',
+    question: 'Does your commercial model make it easier for the right customer, and the right partner, to commit?',
     answers: [
       'Every deal requires a new explanation of value, terms, and who brings us in',
       'Buyers see value, but commercial approval or market access often stalls the deal',
@@ -102,7 +102,7 @@ const WEBSITE_FIELD = {
   heading: 'What is your company website?',
   helper: 'We’ll compare your answers with the commercial story a first-time buyer can see on your public homepage. No login required.',
   primaryCTA: 'SEE MY COMMERCIAL READINESS SCORE',
-  skipCTA: 'Skip — show my result'
+  skipCTA: 'Skip, show my result'
 };
 
 /* ---------- 2. ANSWER AND WEBSITE EQUATIONS ---------- */
@@ -248,7 +248,7 @@ function evidenceNarrative(pillar, selfScore, websiteScore) {
 function firstFix(pillar) {
   const actions = {
     story: 'Define one buyer-led commercial story: named buyer, urgent problem, measurable system-level outcome, differentiated lane, and proof.',
-    sell: 'Build a repeatable path from technical interest to qualified evaluation, commercial commitment, and close that the team—not only the founder—can run.',
+    sell: 'Build a repeatable path from technical interest to qualified evaluation, commercial commitment, and close that the team, not only the founder, can run.',
     timingLane: 'Choose the buyer segment, use case, trigger event, and competitive alternative where urgency, authority, and a practical path to commitment are strongest.',
     charge: 'Define a commercial path that explains value, scope, quote or engagement structure, and the commitment required at each stage.',
     partnerships: 'Define which partner types create earlier buyer access, the joint value proposition, and the account-level motion required to turn access into opportunities.',
@@ -313,7 +313,7 @@ function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSigna
       scoreLabel: label(composite),
       weakestPillars: weakest.map(p => ({ pillar: PILLAR_NAME[p], score: Math.round(scores[p]) })),
       fixFirst: { pillar: PILLAR_NAME[weakest[0]], action: firstFix(weakest[0]) },
-      resultType: companyWebsite ? 'Self-assessment + buyer-facing evidence check' : 'Self-assessment result',
+      resultType: companyWebsite ? 'Self-reported result + buyer-facing evidence check' : 'Self-reported result',
       buyerFacingEvidence: companyWebsite
         ? evidenceChecks.length
           ? { status: 'gaps_found', checks: evidenceChecks }
@@ -333,7 +333,7 @@ function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSigna
   };
 }
 
-const CEO_COPY = `Your technology works. The question is whether your commercial system is ready to turn that technical proof into market demand. In 60 seconds, this assessment identifies the gap between what you have built and what buyers can understand, evaluate, approve, and buy. You will receive one Commercial Readiness Score, the two constraints holding traction back, and the first issue to fix—your story, sales motion, market lane, commercial path, partnerships, or internal alignment.`;
+const CEO_COPY = `Your technology works. The question is whether your commercial system is ready to turn that technical proof into market demand. In about 90 seconds, this audit identifies the gap between what you have built and what buyers can understand, evaluate, approve, and buy. You will receive one Commercial Readiness Score, the two constraints holding traction back, and the first issue to fix: your story, sales motion, market lane, commercial path, partnerships, or internal alignment.`;
 
 /* Browser-safe export. This file runs inside a static Squarespace Code Block:
    no bundler, no module system. Attach the public surface to `window`. */
