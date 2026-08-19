@@ -19,16 +19,18 @@
   --navy:#002244;
   --azure:#3B8EF0;
   --azure-hi:#3DA8FF;
+  --azure-text:#8FC4FF;      /* azure that can legally carry small text */
   --azure-soft:rgba(59,142,240,.16);
   --ink:#002244;
   --paper:#FCFCFC;
-  --dim:rgba(255,255,255,.72);
-  --mut:rgba(255,255,255,.52);
+  --dim:rgba(255,255,255,.78);
+  --mut:rgba(255,255,255,.62);
   --line:rgba(255,255,255,.14);
-  --line-hi:rgba(255,255,255,.28);
+  --line-hi:rgba(255,255,255,.34);
   --panel:rgba(255,255,255,.055);
   --panel-hi:rgba(255,255,255,.09);
-  --shell:linear-gradient(160deg,#0B3A66 0%,#1B5A9E 100%);
+  --shell:linear-gradient(160deg,#05213C 0%,#0B3560 100%);
+  --well:rgba(0,0,0,.35);    /* track behind a fill; dark, so azure reads against it */
 
   --band-blocked:#FF6B6B;
   --band-founder:#F5A524;
@@ -55,7 +57,7 @@ h1,h2,h3,h4,p,ul,li,figure{margin:0; padding:0;}
 button{appearance:none;-webkit-appearance:none;font-family:inherit;border:none;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 input{appearance:none;-webkit-appearance:none;font-family:inherit;}
 a{color:inherit;text-decoration:none;}
-:focus-visible{outline:2px solid var(--azure-hi); outline-offset:2px;}
+:focus-visible{outline:2px solid var(--paper); outline-offset:2px;}
 
 /* ==========================================================================
    PAGE CHROME
@@ -161,7 +163,7 @@ body.is-embed .shell{box-shadow:none;}
 /* eyebrow: mono, small caps, letter-spaced, with a • separator */
 .eyebrow{
   font-family:var(--mono); font-size:11px; font-weight:600;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--azure);
+  letter-spacing:.16em; text-transform:uppercase; color:var(--azure-text);
 }
 
 /* filled pill (header CTA) */
@@ -181,7 +183,7 @@ body.is-embed .shell{box-shadow:none;}
 /* glyph label: ✨ / 💬 before a secondary label */
 .glyph-label{
   font-family:var(--mono); font-size:11px; font-weight:600;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--azure);
+  letter-spacing:.14em; text-transform:uppercase; color:var(--azure-text);
 }
 
 /* headings */
@@ -242,7 +244,7 @@ body.is-embed .shell{box-shadow:none;}
 .intro-card p + p{margin-top:14px;}
 .intro-lede{font-size:17px; font-weight:600; color:var(--paper); line-height:1.5;}
 .intro-body{font-size:16px; color:var(--dim);}
-.intro-body .product{color:var(--azure-hi); font-weight:700;}
+.intro-body .product{color:var(--azure-text); font-weight:700;}
 .no-pressure{
   font-size:13.5px; color:var(--mut); line-height:1.55;
   max-width:56ch; margin:0 auto 32px; text-align:left;
@@ -279,7 +281,7 @@ body.is-embed .shell{box-shadow:none;}
 .glance-row:first-child{border-top:none; padding-top:0;}
 .glance-num{
   flex:0 0 auto; font-family:var(--mono); font-size:12px; font-weight:500;
-  letter-spacing:.06em; color:var(--azure-hi); width:22px;
+  letter-spacing:.06em; color:var(--azure-text); width:22px;
 }
 .glance-copy{display:block;}
 .glance-label{display:block; font-size:15px; font-weight:700; color:var(--paper); line-height:1.35;}
@@ -290,7 +292,7 @@ body.is-embed .shell{box-shadow:none;}
    ========================================================================== */
 .progress{display:flex; align-items:center; gap:12px; margin-bottom:28px;}
 .seg-track{flex:1 1 auto; display:flex; gap:4px;}
-.seg{height:6px; background:rgba(255,255,255,.13); border-radius:3px; overflow:hidden;}
+.seg{height:6px; background:var(--well); border-radius:3px; overflow:hidden;}
 .seg i{display:block; height:100%; width:0%; background:var(--azure); transition:width .3s ease;}
 .seg-label{flex:0 0 auto; font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--mut);}
 
@@ -309,7 +311,7 @@ body.is-embed .shell{box-shadow:none;}
 .ticks{display:flex; justify-content:space-between; margin-bottom:10px;}
 .tick{
   font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.06em;
-  color:var(--mut); background:rgba(255,255,255,.07);
+  color:var(--mut); background:var(--well);
   border:1px solid transparent; border-radius:999px; padding:2px 9px;
   transition:color .15s,background .15s,border-color .15s;
 }
@@ -318,7 +320,7 @@ body.is-embed .shell{box-shadow:none;}
 .slider-rail{position:relative; height:28px; display:flex; align-items:center;}
 .slider-track{
   position:absolute; left:0; right:0; height:8px; border-radius:4px;
-  background:rgba(255,255,255,.16); pointer-events:none;
+  background:var(--well); pointer-events:none;
 }
 .slider-fill{
   position:absolute; left:0; height:8px; border-radius:4px; width:40%;
@@ -329,7 +331,7 @@ body.is-embed .shell{box-shadow:none;}
   background:transparent; cursor:pointer;
 }
 .slider:focus{outline:none;}
-.slider:focus-visible{outline:2px solid var(--azure-hi); outline-offset:6px; border-radius:4px;}
+.slider:focus-visible{outline:2px solid var(--paper); outline-offset:6px; border-radius:4px;}
 .slider::-webkit-slider-runnable-track{height:28px; background:transparent;}
 .slider::-moz-range-track{height:28px; background:transparent;}
 .slider::-webkit-slider-thumb{
@@ -357,7 +359,7 @@ body.is-embed .shell{box-shadow:none;}
   font-family:var(--mono); font-size:10.5px; font-weight:500;
   letter-spacing:.1em; text-transform:uppercase; color:var(--mut);
 }
-.anchor-mid{color:var(--azure); flex:0 0 auto;}
+.anchor-mid{color:var(--azure-text); flex:0 0 auto;}
 .anchor-end{flex:1 1 0;}
 .anchor-end.right{text-align:right;}
 
@@ -419,16 +421,17 @@ body.is-embed .shell{box-shadow:none;}
 .field-label{
   display:block; font-size:12.5px; font-weight:600; color:var(--dim); margin-bottom:6px;
 }
-.field-label .req{color:var(--azure-hi);}
+.field-label .req{color:var(--azure-text);}
 .field{
   width:100%; background:rgba(0,0,0,.22); border:1.5px solid var(--line-hi);
   border-radius:var(--r-card); padding:14px 15px; color:var(--paper); font-size:16px;
   transition:border-color .15s;
 }
-.field::placeholder{color:rgba(255,255,255,.38);}
-.field:focus{outline:none; border-color:var(--azure);}
+.field::placeholder{color:rgba(255,255,255,.62);}
+.field:focus{border-color:var(--azure);}
+.field:focus-visible{outline:2px solid var(--paper); outline-offset:2px;}
 .field.is-bad{border-color:#FF8B8B;}
-.field-err{margin-top:6px; font-size:12.5px; color:#FFB4B4;}
+.field-err{margin-top:6px; font-size:12.5px; color:#FFC8C8;}
 .field-err:empty{display:none;}
 .optin{
   grid-column:1 / -1; display:flex; gap:11px; align-items:flex-start;
@@ -463,7 +466,7 @@ body.is-embed .shell{box-shadow:none;}
 .hero{text-align:center; padding:8px 0 4px;}
 .ring-wrap{position:relative; width:200px; height:200px; margin:0 auto;}
 .ring{width:200px; height:200px; transform:rotate(-90deg);}
-.ring-bg{fill:none; stroke:rgba(255,255,255,.13); stroke-width:12;}
+.ring-bg{fill:none; stroke:var(--well); stroke-width:12;}
 .ring-fg{
   fill:none; stroke:var(--azure); stroke-width:12; stroke-linecap:round;
   transition:stroke-dashoffset .9s cubic-bezier(.16,1,.3,1);
@@ -496,7 +499,7 @@ body.is-embed .shell{box-shadow:none;}
 .duo-card .eyebrow{display:block; margin-bottom:10px;}
 .duo-name{font-size:17px; font-weight:700; color:var(--paper); line-height:1.3;}
 .duo-score{font-family:var(--mono); font-size:12.5px; color:var(--dim); margin-top:5px;}
-.duo-card.is-fix .eyebrow{color:var(--band-founder);}
+.duo-card.is-fix .eyebrow{color:#FBEBD2;}   /* band amber is a fill colour, not a text colour */
 @media (max-width:640px){ .duo{grid-template-columns:1fr;} }
 
 /* section headings inside results */
@@ -506,12 +509,12 @@ body.is-embed .shell{box-shadow:none;}
 .bars{display:flex; flex-direction:column; gap:13px;}
 .brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--ui); font-size:13.5px; font-weight:600; color:var(--dim); margin-bottom:6px;}
 .bval{font-size:13px; color:var(--paper);}
-.btrack{height:10px; background:rgba(255,255,255,.1); border-radius:5px; overflow:hidden;}
+.btrack{height:10px; background:var(--well); border-radius:5px; overflow:hidden;}
 .bfill{display:block; height:100%; width:0%; background:var(--azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
 .brow.is-focus .brow-lab{color:var(--paper);}
 .focus-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--ink); background:var(--paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
 .fixfirst{font-size:14.5px; color:var(--dim); line-height:1.55;}
-.fixfirst b{display:block; color:var(--azure-hi); font-family:var(--ui); font-weight:700; font-size:14px; margin-bottom:6px;}
+.fixfirst b{display:block; color:var(--azure-text); font-family:var(--ui); font-weight:700; font-size:14px; margin-bottom:6px;}
 
 /* what you told me */
 .told{display:flex; flex-direction:column; gap:14px;}
@@ -521,7 +524,7 @@ body.is-embed .shell{box-shadow:none;}
   display:block; font-family:var(--mono); font-size:10px; font-weight:600;
   letter-spacing:.1em; text-transform:uppercase; color:var(--mut);
 }
-.told-val{display:block; font-family:var(--mono); font-size:13px; color:var(--azure-hi); margin-top:2px;}
+.told-val{display:block; font-family:var(--mono); font-size:13px; color:var(--azure-text); margin-top:2px;}
 .told-quote{flex:1 1 auto; font-size:15px; font-style:italic; color:var(--paper); line-height:1.45;}
 @media (max-width:640px){
   .told-row{flex-direction:column; gap:4px;}
@@ -535,7 +538,7 @@ body.is-embed .shell{box-shadow:none;}
 .insights p + p{margin-top:12px;}
 .insights b{color:var(--paper); font-weight:700;}
 .insight-block:empty{display:none;}
-.evtitle{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--azure-hi); margin-bottom:10px;}
+.evtitle{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--azure-text); margin-bottom:10px;}
 .evnote{font-size:13.5px; color:var(--dim);}
 .check{border-left:3px solid var(--paper); background:var(--panel-hi); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
 .check h4{font-family:var(--ui); font-weight:600; font-size:14px; margin-bottom:6px; color:var(--paper);}
@@ -724,7 +727,6 @@ body.is-embed .shell{box-shadow:none;}
       <section class="screen" id="s-stage">
         <div class="progress">
           <div class="seg-track" id="st-segs" aria-hidden="true"></div>
-          <span class="seg-label">6 of 6</span>
         </div>
 
         <div class="qhead">
@@ -773,7 +775,7 @@ body.is-embed .shell{box-shadow:none;}
               </div>
               <div class="form-row">
                 <label class="field-label" for="f-website">Company Website (optional but recommended)</label>
-                <input class="field" type="text" id="f-website" name="website" autocomplete="url" placeholder="yourcompany.com"
+                <input class="field" type="text" id="f-website" name="website" autocomplete="url" placeholder="e.g. yourcompany.com"
                        autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
               </div>
               <label class="optin" for="f-optin">
@@ -958,10 +960,19 @@ body.is-embed .shell{box-shadow:none;}
      CONFIG
      ========================================================================== */
   var CFG = {
-    // Set to true to bring the optional website step back into the flow.
-    // Nothing behind it has been removed: the fetch, the loading screen and the
-    // engine's buyer-facing evidence path are all still here and still wired up.
-    // This flag only controls whether the step is built into the DOM.
+    // The optional website step is OFF.
+    //
+    // What survives untouched: the scoring engine's WEBSITE_RUBRIC,
+    // publicEvidenceScore and reconcile path; the evidence block on the results
+    // screen; the Netlify function at netlify/functions/website-check.mts; and
+    // the step's markup, parked in the inert <template id="tpl-site">.
+    //
+    // What does NOT survive: the UI wiring. The rebuild dropped renderSiteStep,
+    // runWebsiteCheck and the URL validation, because step 16 of the brief
+    // required the URL input to be absent from the DOM and the accessibility
+    // tree entirely rather than merely hidden. Flipping this flag to true will
+    // therefore NOT restore the step on its own; the template still needs to be
+    // cloned in and wired up. Budget an hour, not a one-line change.
     websiteStepEnabled: false,
     functionUrl: "https://jf-commercial-readiness.netlify.app/api/website-check",
     calendlyUrl: "https://calendly.com/JeffFryer",
@@ -1412,7 +1423,7 @@ body.is-embed .shell{box-shadow:none;}
     $('q-slider').value = values[step];
     $('q-slider').setAttribute('aria-label', q.question);
     $('q-slider').setAttribute('aria-valuetext', values[step] + ' out of 100. ' + q.answers[bandIndex(values[step])]);
-    $('q-back').textContent = step === 0 ? '← Back to start' : '← Previous';
+    $('q-back').textContent = step === 0 ? '← Back to Start' : '← Previous';
     $('q-next').textContent = (step === Q.length - 1) ? 'Continue' : 'Next Question';
     syncSlider(values[step]);
     fillSegs($('q-segs'), step);
@@ -1570,7 +1581,7 @@ body.is-embed .shell{box-shadow:none;}
 
     var btn = $('capture-submit');
     btn.disabled = true;
-    btn.textContent = 'Unlocking...';
+    btn.textContent = 'Unlocking your score';
 
     var result = computeResult(null, null);
 
@@ -1740,7 +1751,7 @@ body.is-embed .shell{box-shadow:none;}
              '</div>';
     }).join('');
 
-    $('res-fixfirst').innerHTML = '<b>Fix first: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
+    $('res-fixfirst').innerHTML = '<b>Fix First: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
 
     var copy = BAND_COPY[band] || {};
     $('res-band-copy').innerHTML = ['what', 'soWhat', 'nowWhat']
@@ -1799,7 +1810,7 @@ body.is-embed .shell{box-shadow:none;}
 
   function renderFooter(companyWebsite) {
     var privacy = companyWebsite
-      ? 'Your answers are used only to write your read. The website address you entered was sent to our service to fetch and analyse your public homepage.'
+      ? 'Your answers are used only to write your read. The website address you entered was sent to our service to fetch and analyze your public homepage.'
       : 'Your answers are used only to write your read.';
     $('shell-foot').innerHTML =
       '<b>Jeff Fryer &middot; The Fryer Group &middot; jefffryer.com</b><br>' + esc(privacy);
