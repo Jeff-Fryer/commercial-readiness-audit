@@ -241,22 +241,114 @@ a{color:inherit;text-decoration:none;}
 /* ==========================================================================
    QUESTION SCREEN
    ========================================================================== */
-.qhead{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap;}
-.qtext{margin-bottom:22px;}
-.opts{display:flex; flex-direction:column; gap:9px;}
-.opt{
-  display:flex; gap:12px; align-items:center; width:100%; text-align:left;
+.qhead{display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:12px; flex-wrap:wrap;}
+.qpillar{color:var(--dim); margin-bottom:8px;}
+.qtext{margin-bottom:30px;}
+.qfoot{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:28px; padding-top:22px; border-top:1px solid var(--line);}
+
+/* ---- slider ---- */
+.slider-block{margin-bottom:26px;}
+
+/* tick pills sit ABOVE the track, matching the reference */
+.ticks{display:flex; justify-content:space-between; margin-bottom:10px;}
+.tick{
+  font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.06em;
+  color:var(--mut); background:rgba(255,255,255,.07);
+  border:1px solid transparent; border-radius:999px; padding:2px 9px;
+  transition:color .15s,background .15s,border-color .15s;
+}
+.tick.is-on{color:var(--paper); background:var(--azure-soft); border-color:var(--azure);}
+
+.slider-rail{position:relative; height:28px; display:flex; align-items:center;}
+.slider-track{
+  position:absolute; left:0; right:0; height:8px; border-radius:4px;
+  background:rgba(255,255,255,.16); pointer-events:none;
+}
+.slider-fill{
+  position:absolute; left:0; height:8px; border-radius:4px; width:40%;
+  background:var(--azure); pointer-events:none;
+}
+.slider{
+  position:relative; width:100%; height:28px; margin:0;
+  background:transparent; cursor:pointer;
+}
+.slider:focus{outline:none;}
+.slider:focus-visible{outline:2px solid var(--azure-hi); outline-offset:6px; border-radius:4px;}
+.slider::-webkit-slider-runnable-track{height:28px; background:transparent;}
+.slider::-moz-range-track{height:28px; background:transparent;}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:28px; height:28px; border-radius:50%;
+  background:var(--paper); border:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.45), 0 0 0 4px rgba(59,142,240,.28);
+  cursor:grab;
+}
+.slider::-moz-range-thumb{
+  width:28px; height:28px; border-radius:50%;
+  background:var(--paper); border:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.45), 0 0 0 4px rgba(59,142,240,.28);
+  cursor:grab;
+}
+.slider:active::-webkit-slider-thumb{cursor:grabbing;}
+.slider:active::-moz-range-thumb{cursor:grabbing;}
+/* 120ms settle on release; removed while dragging so the thumb tracks the finger */
+.slider-fill{transition:width .12s ease-out;}
+.slider-rail.is-dragging .slider-fill{transition:none;}
+
+.anchors{
+  display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+  margin-top:12px;
+  font-family:var(--mono); font-size:10.5px; font-weight:500;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--mut);
+}
+.anchor-mid{color:var(--azure); flex:0 0 auto;}
+.anchor-end{flex:1 1 0;}
+.anchor-end.right{text-align:right;}
+
+/* ---- live read ---- */
+.liveread{
+  display:flex; gap:14px; align-items:flex-start;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card);
+  padding:20px;
+}
+.liveread-glyph{
+  flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+  background:var(--panel-hi); display:grid; place-items:center; font-size:16px;
+}
+.liveread-main{flex:1 1 auto; min-width:0;}
+.liveread-top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
+.liveread-score{
+  font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em;
+  color:var(--paper); background:var(--azure-soft); border:1px solid var(--azure);
+  border-radius:999px; padding:3px 11px; white-space:nowrap;
+}
+.liveread-quote{
+  font-size:clamp(16px,2.6vw,19px); line-height:1.45; font-style:italic; color:var(--paper);
+}
+@media (max-width:640px){
+  .liveread{padding:16px; gap:10px;}
+  .liveread-glyph{width:32px; height:32px; font-size:14px;}
+  .anchors{font-size:9px; letter-spacing:.06em;}
+  .tick{padding:2px 6px; font-size:10px;}
+}
+
+/* ---- stage picker (unscored) ---- */
+.stage-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+.stage-opt{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  width:100%; text-align:left;
   background:var(--panel); border:1.5px solid var(--line); border-radius:var(--r-card);
-  padding:14px 16px; color:var(--dim); font-size:15px; line-height:1.4;
+  padding:16px; color:var(--dim); font-size:15px; font-weight:600; line-height:1.35;
   transition:border-color .15s,color .15s,background .15s;
 }
-.opt:hover{border-color:var(--azure); color:var(--paper);}
-.opt .dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--mut); display:grid; place-items:center;}
-.opt .dot i{width:10px; height:10px; border-radius:50%; background:var(--azure); transform:scale(0); transition:transform .15s;}
-.opt.is-sel{border-color:var(--azure); color:var(--paper); background:var(--azure-soft);}
-.opt.is-sel .dot{border-color:var(--azure);}
-.opt.is-sel .dot i{transform:scale(1);}
-.qfoot{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:26px; padding-top:22px; border-top:1px solid var(--line);}
+.stage-opt:hover{border-color:var(--azure); color:var(--paper);}
+.stage-opt .dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--mut); display:grid; place-items:center;}
+.stage-opt .dot i{width:10px; height:10px; border-radius:50%; background:var(--azure); transform:scale(0); transition:transform .15s;}
+.stage-opt.is-sel{border-color:var(--azure); color:var(--paper); background:var(--azure-soft);}
+.stage-opt.is-sel .dot{border-color:var(--azure);}
+.stage-opt.is-sel .dot i{transform:scale(1);}
+.stage-note{font-size:13px; color:var(--mut);}
+@media (max-width:640px){ .stage-grid{grid-template-columns:1fr;} }
 
 /* ==========================================================================
    LOADING
@@ -419,24 +511,72 @@ a{color:inherit;text-decoration:none;}
         <p class="trust">100% Free CEO Audit &bull; Built for semiconductor and deep tech founders</p>
       </section>
 
-      <!-- ================= SCREEN 1 · QUESTIONS =================
-           Phase 2 keeps the existing radio input so the flow stays working.
-           Phase 3 replaces it with the slider. -->
+      <!-- ================= SCREEN 1 · QUESTIONS ================= -->
       <section class="screen" id="s-quiz">
+        <div class="progress">
+          <div class="seg-track" id="q-segs" aria-hidden="true"></div>
+          <span class="seg-label" id="q-seglabel"></span>
+        </div>
+
         <div class="qhead">
           <span class="eyebrow" id="q-eyebrow"></span>
           <span class="tag" id="q-tag"></span>
         </div>
+        <h3 class="h3 qpillar" id="q-pillar"></h3>
         <h2 class="h2 qtext" id="q-text"></h2>
-        <div class="opts" id="q-opts" role="radiogroup" aria-labelledby="q-text"></div>
+
+        <div class="slider-block">
+          <div class="ticks" id="q-ticks" aria-hidden="true"></div>
+          <div class="slider-rail" id="q-rail">
+            <span class="slider-track" aria-hidden="true"></span>
+            <span class="slider-fill" id="q-fill" aria-hidden="true"></span>
+            <input type="range" class="slider" id="q-slider" min="0" max="100" step="20" value="40">
+          </div>
+          <div class="anchors">
+            <span class="anchor-end" id="q-anchor-lo"></span>
+            <span class="anchor-mid">Drag to assess</span>
+            <span class="anchor-end right" id="q-anchor-hi"></span>
+          </div>
+        </div>
+
+        <div class="liveread">
+          <div class="liveread-glyph" aria-hidden="true">&#128172;</div>
+          <div class="liveread-main">
+            <div class="liveread-top">
+              <span class="glyph-label">&#10024; Live Read</span>
+              <span class="liveread-score" id="q-score"></span>
+            </div>
+            <p class="liveread-quote" id="q-quote" aria-live="polite"></p>
+          </div>
+        </div>
+
         <div class="qfoot">
           <button type="button" class="link-arrow" id="q-back">&larr; Previous</button>
-          <button type="button" class="btn btn-primary" id="q-next" disabled>Next Question</button>
+          <button type="button" class="btn btn-primary" id="q-next">Next Question</button>
         </div>
       </section>
 
-      <!-- ================= SCREEN 2 · WEBSITE (feature-flagged off) ================= -->
-      <section class="screen" id="s-site"></section>
+      <!-- ================= SCREEN 2 · STAGE (unscored) ================= -->
+      <section class="screen" id="s-stage">
+        <div class="progress">
+          <div class="seg-track" id="st-segs" aria-hidden="true"></div>
+          <span class="seg-label">6 of 6</span>
+        </div>
+
+        <div class="qhead">
+          <span class="eyebrow">One Last Thing &bull; Stage</span>
+          <span class="tag">Part 7 &middot; Not scored</span>
+        </div>
+        <h2 class="h2 qtext">Where is the company today?</h2>
+
+        <div class="stage-grid" id="stage-grid" role="group" aria-label="Company stage"></div>
+        <p class="stage-note">Knowing your stage helps me tailor the written read.</p>
+
+        <div class="qfoot">
+          <button type="button" class="link-arrow" id="stage-back">&larr; Previous</button>
+          <button type="button" class="btn btn-primary" id="stage-next">Continue To Results</button>
+        </div>
+      </section>
 
       <!-- ================= SCREEN 3 · LOADING ================= -->
       <section class="screen" id="s-loading">
@@ -481,6 +621,33 @@ a{color:inherit;text-decoration:none;}
     </div><!-- /.shell-body -->
   </div><!-- /.shell -->
 </main>
+
+<!--
+  The optional website step. Kept as an inert <template> so that nothing inside it,
+  including the URL input, exists in the DOM or the accessibility tree while
+  CFG.websiteStepEnabled is false. Setting the flag to true clones it into place.
+  The engine's buyer-facing evidence path and the Netlify function are untouched.
+-->
+<template id="tpl-site">
+  <section class="screen" id="s-site">
+    <div class="qhead">
+      <span class="eyebrow" id="site-eyebrow"></span>
+    </div>
+    <h2 class="h2 qtext" id="site-heading"></h2>
+    <p class="loadsub" id="site-helper"></p>
+    <label class="sr" for="site-url">Company website</label>
+    <input type="url" id="site-url" class="field" placeholder="yourcompany.com"
+           autocomplete="url" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
+    <p class="field-err" id="site-url-err" role="alert"></p>
+    <div class="qfoot">
+      <button type="button" class="link-arrow" id="site-back">&larr; Previous</button>
+      <span>
+        <button type="button" class="btn btn-ghost" id="site-skip"></button>
+        <button type="button" class="btn btn-primary" id="site-go"></button>
+      </span>
+    </div>
+  </section>
+</template>
 <script>
 (function () {
   "use strict";
@@ -521,53 +688,69 @@ a{color:inherit;text-decoration:none;}
 
   const QUESTIONS = [
     {
-      key: 'story', pillar: ['story'],
+      key: 'story', pillarLabel: 'Your story',
       question: 'Can a buyer explain why they would buy from you after one conversation?',
+      anchors: ['Nobody repeats it', 'Buyers repeat it'],
       answers: [
-        'Different buyers hear different versions of what we do',
-        'They understand the technology, but not necessarily the business case',
-        'Most target buyers understand the value, with some explanation',
-        'They can clearly repeat our value and why we are different'
+        'Different buyers hear different versions of what we do.',
+        'They understand the technology, but not necessarily the business case.',
+        'Most target buyers understand the value, with some explanation.',
+        'They can clearly repeat our value and why we are different.'
       ]
     },
     {
-      key: 'sell', pillar: ['sell'],
+      key: 'sell', pillarLabel: 'How you sell',
       question: 'Can your team create and close the right deals without you personally driving every one?',
+      anchors: ['Runs through me', 'Runs without me'],
       answers: [
-        'Nearly every important deal still runs through me',
-        'The team can progress deals, but I step in to move them forward',
-        'The team runs most of the process; I join selectively',
-        'The sales motion works consistently without founder intervention'
+        'Nearly every important deal still runs through me.',
+        'The team can progress deals, but I step in to move them forward.',
+        'The team runs most of the process; I join selectively.',
+        'The sales motion works consistently without founder intervention.'
       ]
     },
     {
-      key: 'timingLane', pillar: ['timingLane'],
+      key: 'timingLane', pillarLabel: 'Timing and lane',
       question: 'Are you pursuing a buyer with an urgent reason and a clear path to buy now?',
+      anchors: ['Interest, no urgency', 'Funded, urgent, winning'],
       answers: [
-        'Interest is real, but urgency and budget are unclear',
-        'We have active conversations and evaluations, but buying is inconsistent',
-        'We know the segment, use case, and trigger that create demand',
-        'We repeatedly win a defined buyer with an urgent, funded need'
+        'Interest is real, but urgency and budget are unclear.',
+        'We have active conversations and evaluations, but buying is inconsistent.',
+        'We know the segment, use case, and trigger that create demand.',
+        'We repeatedly win a defined buyer with an urgent, funded need.'
       ]
     },
     {
-      key: 'chargePartnerships', pillar: ['charge', 'partnerships'],
-      question: 'Does your commercial model make it easier for the right customer, and the right partner, to commit?',
+      key: 'charge', pillarLabel: 'How you charge',
+      question: 'Does how you charge make it easy for the right customer to say yes?',
+      anchors: ['Every deal re-explained', 'Terms never slow it'],
       answers: [
-        'Every deal requires a new explanation of value, terms, and who brings us in',
-        'Buyers see value, but commercial approval or market access often stalls the deal',
-        'Our commercial path works for most target buyers and some partners create access',
-        'Buyers understand how to engage and partners reliably create qualified access'
+        'Every deal needs a fresh explanation of value and terms.',
+        'Buyers see the value, but commercial approval often stalls the deal.',
+        'Our commercial model works for most target buyers.',
+        'Buyers know how to engage and our commercial terms rarely slow a deal.'
       ]
     },
     {
-      key: 'alignment', pillar: ['alignment'],
+      key: 'partnerships', pillarLabel: 'Partnerships',
+      question: 'Are partners and design-ins bringing you into deals before the shortlist?',
+      anchors: ['Last to hear', 'In the room early'],
+      answers: [
+        'We are usually the last to hear about an opportunity.',
+        'A few partners mention us, but access is inconsistent.',
+        'Some partners reliably create qualified access.',
+        'Partners and design-ins routinely put us in the room early.'
+      ]
+    },
+    {
+      key: 'alignment', pillarLabel: 'One team, one story',
       question: 'Do engineering, sales, and marketing tell the same commercial story?',
+      anchors: ['Six stories', 'One story'],
       answers: [
-        'We describe the customer and value differently across the company',
-        'We broadly agree, but messages and priorities change by team or deal',
-        'We usually align on the customer, story, and commercial priorities',
-        'One shared story guides product decisions, selling, marketing, and partners'
+        'We describe the customer and value differently across the company.',
+        'We broadly agree, but messages and priorities change by team or deal.',
+        'We usually align on the customer, story, and commercial priorities.',
+        'One shared story guides product decisions, selling, marketing, and partners.'
       ]
     }
   ];
@@ -595,8 +778,8 @@ a{color:inherit;text-decoration:none;}
    *  0 = relevant material was extracted and contradicts the criterion;
    * null = not applicable or not extractable.
    *
-   * Never convert missing evidence into 0. Public pricing, named customer logos, public
-   * case studies, trials, self-serve checkout, and generic “book a demo” CTAs are NOT
+   * Never convert missing evidence into 0. Published commercial terms, named customer logos, public
+   * case studies, evaluation programmes, self-serve checkout, and generic “book a demo” CTAs are NOT
    * required. Signals can appear on the homepage, primary navigation, or a first-level
    * public resource clearly linked from the homepage.
    */
@@ -736,20 +919,20 @@ a{color:inherit;text-decoration:none;}
    * Main documented function.
    *
    * @param {object} input
-   * @param {object} input.answers {story, sell, timingLane, chargePartnerships, alignment}; each is 1..4.
+   * @param {object} input.answers {story, sell, timingLane, charge, partnerships, alignment}; each is a raw 0-100 pillar score.
    * @param {string|null} [input.companyWebsite] Optional public homepage URL; do not require it to score.
    * @param {object|null} [input.websiteSignals] Output of an extractor or reviewer using WEBSITE_RUBRIC.
    * @returns {object} `ui` is safe to render; `diagnostic` supports your CRM and Gap Analysis.
    */
   function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSignals = null }) {
-    const self = {
-      story: answerScore(answers.story),
-      sell: answerScore(answers.sell),
-      timingLane: answerScore(answers.timingLane),
-      charge: answerScore(answers.chargePartnerships),
-      partnerships: answerScore(answers.chargePartnerships),
-      alignment: answerScore(answers.alignment)
-    };
+    const self = {};
+    for (const pillar of PILLARS) {
+      const value = answers && answers[pillar];
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100) {
+        throw new Error(`answers.${pillar} must be a number from 0 through 100.`);
+      }
+      self[pillar] = value;
+    }
 
     const scores = { timingLane: self.timingLane, alignment: self.alignment };
     const publicEvidence = {};
@@ -776,8 +959,18 @@ a{color:inherit;text-decoration:none;}
     // Composite: C = [0.75A + 0.25H] (1-0.08V). The harmonic term makes bottlenecks matter.
     const composite = clamp((0.75 * arithmetic + 0.25 * harmonic) * (1 - 0.08 * variance));
 
-    const ordered = [...PILLARS].sort((a,b) => scores[a] - scores[b]);
-    const weakest = ordered.filter((p,i) => i < 2 || scores[p] <= scores[ordered[1]] + 5).slice(0,3);
+    /* Lowest score first. On a tie: alignment wins; then the higher weight wins;
+       then canonical PILLARS order, so the ordering is fully deterministic. */
+    const PILLAR_ORDER = new Map(PILLARS.map((p, i) => [p, i]));
+    const ranked = [...PILLARS].sort((a, b) => {
+      if (scores[a] !== scores[b]) return scores[a] - scores[b];
+      if (a === b) return 0;
+      if (a === 'alignment') return -1;
+      if (b === 'alignment') return 1;
+      if (WEIGHTS[a] !== WEIGHTS[b]) return WEIGHTS[b] - WEIGHTS[a];
+      return PILLAR_ORDER.get(a) - PILLAR_ORDER.get(b);
+    });
+    const weakest = ranked.slice(0, 2);
     const websiteCoverage = mean(Object.values(publicEvidence).map(e => e.coverage));
     const confidence = 100 * (0.33 + 0.30 * websiteCoverage + 0.15 * (1 - variance));
 
@@ -822,7 +1015,17 @@ a{color:inherit;text-decoration:none;}
      UI
      ========================================================================== */
   var E = window.CRA_ENGINE;
-  var SCREENS = ['s-intro', 's-quiz', 's-site', 's-loading', 's-results'];
+  var Q = E.QUESTIONS;
+  var SCREENS = ['s-intro', 's-quiz', 's-stage', 's-site', 's-loading', 's-results'];
+  var TICKS = ['00', '02', '04', '06', '08', '10'];
+  var STAGES = [
+    'Pre-revenue, first design-ins',
+    'Early revenue, founder-led sales',
+    'Scaling, building the sales team',
+    'Post-Series B, commercial build-out',
+    'Public or late-stage',
+    'Not sure'
+  ];
 
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) {
@@ -832,7 +1035,9 @@ a{color:inherit;text-decoration:none;}
   }
 
   /* ---------- state ---------- */
-  var picks = new Array(E.QUESTIONS.length).fill(-1);
+  var DEFAULT_VALUE = 40;                 // deliberately not the midpoint: 60 flatters
+  var values = Q.map(function () { return DEFAULT_VALUE; });
+  var stage = null;
   var step = 0;
   var params = new URLSearchParams(window.location.search);
   var DEBUG = params.get('cra_debug') === '1';
@@ -843,44 +1048,98 @@ a{color:inherit;text-decoration:none;}
       var el = $(s);
       if (el) el.classList.toggle('is-on', s === id);
     });
-    // Start Over joins the header pill from the first question onward.
     $('head-restart').hidden = (id === 's-intro');
   }
 
-  function renderQuestion() {
-    var q = E.QUESTIONS[step];
-    $('q-eyebrow').textContent = 'Question ' + (step + 1) + ' of ' + E.QUESTIONS.length;
-    $('q-tag').textContent = 'Part ' + (step + 1) + ' of ' + E.QUESTIONS.length;
-    $('q-text').textContent = q.question;
-    $('q-opts').innerHTML = q.answers.map(function (text, i) {
-      return '<button type="button" role="radio" aria-checked="' + (picks[step] === i ? 'true' : 'false') +
-             '" class="opt' + (picks[step] === i ? ' is-sel' : '') + '" data-i="' + i + '">' +
-             '<span class="dot"><i></i></span><span>' + esc(text) + '</span></button>';
+  /* ---------- progress: six segments, widths proportional to pillar weight ---------- */
+  function buildSegs(host) {
+    host.innerHTML = Q.map(function (q) {
+      return '<span class="seg" style="flex:' + E.WEIGHTS[q.key] + ' 1 0"><i></i></span>';
     }).join('');
-    $('q-back').style.visibility = step === 0 ? 'hidden' : 'visible';
-    $('q-next').disabled = picks[step] < 0;
-    var isLast = step === E.QUESTIONS.length - 1;
-    $('q-next').textContent =
-      (isLast && !CFG.websiteStepEnabled) ? 'Continue To Results' : 'Next Question';
+  }
+  function fillSegs(host, upto) {
+    var segs = host.querySelectorAll('.seg i');
+    for (var i = 0; i < segs.length; i++) {
+      segs[i].style.width = (i <= upto) ? '100%' : '0%';
+    }
+  }
+
+  /* ---------- live read band: 0-25 a, 26-50 b, 51-75 c, 76-100 d ---------- */
+  function bandIndex(v) {
+    if (v <= 25) return 0;
+    if (v <= 50) return 1;
+    if (v <= 75) return 2;
+    return 3;
+  }
+  var BAND_LETTER = ['a', 'b', 'c', 'd'];
+
+  /* ---------- slider ---------- */
+  var THUMB = 28;   // keep in sync with .slider::-webkit-slider-thumb
+
+  function buildTicks() {
+    $('q-ticks').innerHTML = TICKS.map(function (t) {
+      return '<span class="tick">' + t + '</span>';
+    }).join('');
+  }
+
+  function syncSlider(v) {
+    var q = Q[step];
+    // The native thumb travels between its own half-widths, so the fill has to
+    // stop at the thumb centre rather than at a flat percentage of the rail.
+    $('q-fill').style.width = 'calc(' + (THUMB / 2) + 'px + ' + (v / 100) + ' * (100% - ' + THUMB + 'px))';
+    $('q-score').textContent = v + ' / 100';
+    $('q-quote').textContent = '“' + q.answers[bandIndex(v)] + '”';
+    var ticks = $('q-ticks').children;
+    for (var i = 0; i < ticks.length; i++) {
+      ticks[i].classList.toggle('is-on', i * 20 === v);
+    }
+  }
+
+  function renderQuestion() {
+    var q = Q[step];
+    $('q-eyebrow').textContent = 'Question ' + (step + 1) + ' of ' + Q.length + ' • ' + q.pillarLabel;
+    $('q-tag').textContent = 'Part ' + (step + 1) + ' of ' + Q.length;
+    $('q-pillar').textContent = q.pillarLabel;
+    $('q-text').textContent = q.question;
+    $('q-anchor-lo').textContent = q.anchors[0];
+    $('q-anchor-hi').textContent = q.anchors[1];
+    $('q-slider').value = values[step];
+    $('q-slider').setAttribute('aria-label', q.question);
+    $('q-slider').setAttribute('aria-valuetext', values[step] + ' out of 100. ' + q.answers[bandIndex(values[step])]);
+    $('q-back').textContent = step === 0 ? '← Back to start' : '← Previous';
+    $('q-next').textContent = (step === Q.length - 1) ? 'Continue' : 'Next Question';
+    syncSlider(values[step]);
+    fillSegs($('q-segs'), step);
+    $('q-seglabel').textContent = (step + 1) + ' of ' + Q.length;
     show('s-quiz');
   }
 
+  $('q-slider').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    values[step] = v;
+    this.setAttribute('aria-valuetext', v + ' out of 100. ' + Q[step].answers[bandIndex(v)]);
+    syncSlider(v);
+  });
+  // The fill eases over 120ms on release, but tracks the finger exactly while dragging.
+  ['pointerdown', 'touchstart'].forEach(function (ev) {
+    $('q-slider').addEventListener(ev, function () { $('q-rail').classList.add('is-dragging'); });
+  });
+  ['pointerup', 'touchend', 'pointercancel', 'blur'].forEach(function (ev) {
+    $('q-slider').addEventListener(ev, function () { $('q-rail').classList.remove('is-dragging'); });
+  });
+  $('q-slider').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('q-next').click(); }
+  });
+
+  /* ---------- flow ---------- */
   $('intro-start').addEventListener('click', function () {
     step = 0;
     renderQuestion();
   });
 
-  $('q-opts').addEventListener('click', function (ev) {
-    var btn = ev.target.closest('.opt');
-    if (!btn) return;
-    picks[step] = parseInt(btn.getAttribute('data-i'), 10);
-    renderQuestion();
-  });
-
   $('q-next').addEventListener('click', function () {
-    if (picks[step] < 0) return;
-    if (step < E.QUESTIONS.length - 1) { step++; renderQuestion(); }
-    else { finish(null, null, false); }
+    if (step < Q.length - 1) { step++; renderQuestion(); }
+    else { renderStage(); }
   });
 
   $('q-back').addEventListener('click', function () {
@@ -888,8 +1147,38 @@ a{color:inherit;text-decoration:none;}
     else { show('s-intro'); }
   });
 
+  /* ---------- stage picker: single select, not required, not scored ---------- */
+  function renderStage() {
+    $('stage-grid').innerHTML = STAGES.map(function (label, i) {
+      return '<button type="button" class="stage-opt' + (stage === label ? ' is-sel' : '') +
+             '" aria-pressed="' + (stage === label ? 'true' : 'false') + '" data-i="' + i + '">' +
+             '<span>' + esc(label) + '</span><span class="dot"><i></i></span></button>';
+    }).join('');
+    fillSegs($('st-segs'), Q.length - 1);
+    show('s-stage');
+  }
+  buildSegs($('st-segs'));
+
+  $('stage-grid').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.stage-opt');
+    if (!btn) return;
+    var label = STAGES[parseInt(btn.getAttribute('data-i'), 10)];
+    stage = (stage === label) ? null : label;   // tapping the choice again clears it
+    renderStage();
+  });
+
+  $('stage-back').addEventListener('click', function () {
+    step = Q.length - 1;
+    renderQuestion();
+  });
+
+  $('stage-next').addEventListener('click', function () {
+    finish(null, null, false);
+  });
+
   function restart() {
-    picks = new Array(E.QUESTIONS.length).fill(-1);
+    values = Q.map(function () { return DEFAULT_VALUE; });
+    stage = null;
     step = 0;
     show('s-intro');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -900,7 +1189,7 @@ a{color:inherit;text-decoration:none;}
   /* ---------- results ---------- */
   function finish(companyWebsite, websiteSignals, fetchFailed) {
     var answers = {};
-    E.QUESTIONS.forEach(function (q, i) { answers[q.key] = picks[i] + 1; });
+    Q.forEach(function (q, i) { answers[q.key] = values[i]; });
 
     var result;
     try {
@@ -916,7 +1205,7 @@ a{color:inherit;text-decoration:none;}
       fetchFailed = false;
     }
 
-    if (DEBUG) console.log('[CRG] diagnostic', result.diagnostic);
+    if (DEBUG) console.log('[CRG] diagnostic', result.diagnostic, 'stage', stage);
     renderResults(result, fetchFailed);
   }
 
@@ -929,11 +1218,11 @@ a{color:inherit;text-decoration:none;}
     $('res-type').textContent = ui.resultType;
     $('res-book').setAttribute('href', CFG.calendlyUrl);
 
-    var weakNames = ui.weakestPillars.map(function (w) { return w.pillar; });
+    var focusNames = ui.weakestPillars.map(function (w) { return w.pillar; });
     var pillars = result.diagnostic.pillarScores;
     $('res-bars').innerHTML = Object.keys(pillars).map(function (key) {
       var p = pillars[key];
-      var isFocus = weakNames.indexOf(p.name) !== -1;
+      var isFocus = focusNames.indexOf(p.name) !== -1;
       return '<div class="brow' + (isFocus ? ' is-focus' : '') + '">' +
                '<div class="brow-lab"><span>' + esc(p.name) +
                (isFocus ? '<span class="focus-tag">FOCUS</span>' : '') + '</span>' +
@@ -1000,14 +1289,23 @@ a{color:inherit;text-decoration:none;}
       '<b>Jeff Fryer &middot; The Fryer Group &middot; jefffryer.com</b><br>' + esc(privacy);
   }
 
+  /* ---------- TODO (Phase 2 of the tool) ----------
+     A `reactions` layer: a second line under the live-read sentence naming the
+     business consequence of where the slider sits. Data shape is intended to be
+     QUESTIONS[i].reactions[bandIndex] and to render directly beneath #q-quote.
+     Not built yet, deliberately.
+     ------------------------------------------------ */
+
   /* ---------- init ---------- */
+  buildSegs($('q-segs'));
+  buildTicks();
   renderFooter(null);
   show('s-intro');
 
-  // Test hook: ?cra_answers=41141 preloads answers and jumps straight to the result.
-  var preset = params.get('cra_answers');
-  if (preset && new RegExp('^[1-4]{' + E.QUESTIONS.length + '}$').test(preset)) {
-    picks = preset.split('').map(function (d) { return parseInt(d, 10) - 1; });
+  // Test hook: ?crg=40,60,0,100,20,80 preloads the six sliders and jumps to results.
+  var preset = params.get('crg');
+  if (preset && /^\d{1,3}(,\d{1,3}){5}$/.test(preset)) {
+    values = preset.split(',').map(function (n) { return Math.max(0, Math.min(100, parseInt(n, 10))); });
     finish(null, null, false);
   }
 })();

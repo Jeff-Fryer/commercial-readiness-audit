@@ -46,53 +46,69 @@ const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
 const QUESTIONS = [
   {
-    key: 'story', pillar: ['story'],
+    key: 'story', pillarLabel: 'Your story',
     question: 'Can a buyer explain why they would buy from you after one conversation?',
+    anchors: ['Nobody repeats it', 'Buyers repeat it'],
     answers: [
-      'Different buyers hear different versions of what we do',
-      'They understand the technology, but not necessarily the business case',
-      'Most target buyers understand the value, with some explanation',
-      'They can clearly repeat our value and why we are different'
+      'Different buyers hear different versions of what we do.',
+      'They understand the technology, but not necessarily the business case.',
+      'Most target buyers understand the value, with some explanation.',
+      'They can clearly repeat our value and why we are different.'
     ]
   },
   {
-    key: 'sell', pillar: ['sell'],
+    key: 'sell', pillarLabel: 'How you sell',
     question: 'Can your team create and close the right deals without you personally driving every one?',
+    anchors: ['Runs through me', 'Runs without me'],
     answers: [
-      'Nearly every important deal still runs through me',
-      'The team can progress deals, but I step in to move them forward',
-      'The team runs most of the process; I join selectively',
-      'The sales motion works consistently without founder intervention'
+      'Nearly every important deal still runs through me.',
+      'The team can progress deals, but I step in to move them forward.',
+      'The team runs most of the process; I join selectively.',
+      'The sales motion works consistently without founder intervention.'
     ]
   },
   {
-    key: 'timingLane', pillar: ['timingLane'],
+    key: 'timingLane', pillarLabel: 'Timing and lane',
     question: 'Are you pursuing a buyer with an urgent reason and a clear path to buy now?',
+    anchors: ['Interest, no urgency', 'Funded, urgent, winning'],
     answers: [
-      'Interest is real, but urgency and budget are unclear',
-      'We have active conversations and evaluations, but buying is inconsistent',
-      'We know the segment, use case, and trigger that create demand',
-      'We repeatedly win a defined buyer with an urgent, funded need'
+      'Interest is real, but urgency and budget are unclear.',
+      'We have active conversations and evaluations, but buying is inconsistent.',
+      'We know the segment, use case, and trigger that create demand.',
+      'We repeatedly win a defined buyer with an urgent, funded need.'
     ]
   },
   {
-    key: 'chargePartnerships', pillar: ['charge', 'partnerships'],
-    question: 'Does your commercial model make it easier for the right customer, and the right partner, to commit?',
+    key: 'charge', pillarLabel: 'How you charge',
+    question: 'Does how you charge make it easy for the right customer to say yes?',
+    anchors: ['Every deal re-explained', 'Terms never slow it'],
     answers: [
-      'Every deal requires a new explanation of value, terms, and who brings us in',
-      'Buyers see value, but commercial approval or market access often stalls the deal',
-      'Our commercial path works for most target buyers and some partners create access',
-      'Buyers understand how to engage and partners reliably create qualified access'
+      'Every deal needs a fresh explanation of value and terms.',
+      'Buyers see the value, but commercial approval often stalls the deal.',
+      'Our commercial model works for most target buyers.',
+      'Buyers know how to engage and our commercial terms rarely slow a deal.'
     ]
   },
   {
-    key: 'alignment', pillar: ['alignment'],
+    key: 'partnerships', pillarLabel: 'Partnerships',
+    question: 'Are partners and design-ins bringing you into deals before the shortlist?',
+    anchors: ['Last to hear', 'In the room early'],
+    answers: [
+      'We are usually the last to hear about an opportunity.',
+      'A few partners mention us, but access is inconsistent.',
+      'Some partners reliably create qualified access.',
+      'Partners and design-ins routinely put us in the room early.'
+    ]
+  },
+  {
+    key: 'alignment', pillarLabel: 'One team, one story',
     question: 'Do engineering, sales, and marketing tell the same commercial story?',
+    anchors: ['Six stories', 'One story'],
     answers: [
-      'We describe the customer and value differently across the company',
-      'We broadly agree, but messages and priorities change by team or deal',
-      'We usually align on the customer, story, and commercial priorities',
-      'One shared story guides product decisions, selling, marketing, and partners'
+      'We describe the customer and value differently across the company.',
+      'We broadly agree, but messages and priorities change by team or deal.',
+      'We usually align on the customer, story, and commercial priorities.',
+      'One shared story guides product decisions, selling, marketing, and partners.'
     ]
   }
 ];
@@ -120,8 +136,8 @@ function answerScore(q) {
  *  0 = relevant material was extracted and contradicts the criterion;
  * null = not applicable or not extractable.
  *
- * Never convert missing evidence into 0. Public pricing, named customer logos, public
- * case studies, trials, self-serve checkout, and generic “book a demo” CTAs are NOT
+ * Never convert missing evidence into 0. Published commercial terms, named customer logos, public
+ * case studies, evaluation programmes, self-serve checkout, and generic “book a demo” CTAs are NOT
  * required. Signals can appear on the homepage, primary navigation, or a first-level
  * public resource clearly linked from the homepage.
  */
@@ -261,20 +277,20 @@ function firstFix(pillar) {
  * Main documented function.
  *
  * @param {object} input
- * @param {object} input.answers {story, sell, timingLane, chargePartnerships, alignment}; each is 1..4.
+ * @param {object} input.answers {story, sell, timingLane, charge, partnerships, alignment}; each is a raw 0-100 pillar score.
  * @param {string|null} [input.companyWebsite] Optional public homepage URL; do not require it to score.
  * @param {object|null} [input.websiteSignals] Output of an extractor or reviewer using WEBSITE_RUBRIC.
  * @returns {object} `ui` is safe to render; `diagnostic` supports your CRM and Gap Analysis.
  */
 function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSignals = null }) {
-  const self = {
-    story: answerScore(answers.story),
-    sell: answerScore(answers.sell),
-    timingLane: answerScore(answers.timingLane),
-    charge: answerScore(answers.chargePartnerships),
-    partnerships: answerScore(answers.chargePartnerships),
-    alignment: answerScore(answers.alignment)
-  };
+  const self = {};
+  for (const pillar of PILLARS) {
+    const value = answers && answers[pillar];
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100) {
+      throw new Error(`answers.${pillar} must be a number from 0 through 100.`);
+    }
+    self[pillar] = value;
+  }
 
   const scores = { timingLane: self.timingLane, alignment: self.alignment };
   const publicEvidence = {};
@@ -301,8 +317,18 @@ function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSigna
   // Composite: C = [0.75A + 0.25H] (1-0.08V). The harmonic term makes bottlenecks matter.
   const composite = clamp((0.75 * arithmetic + 0.25 * harmonic) * (1 - 0.08 * variance));
 
-  const ordered = [...PILLARS].sort((a,b) => scores[a] - scores[b]);
-  const weakest = ordered.filter((p,i) => i < 2 || scores[p] <= scores[ordered[1]] + 5).slice(0,3);
+  /* Lowest score first. On a tie: alignment wins; then the higher weight wins;
+     then canonical PILLARS order, so the ordering is fully deterministic. */
+  const PILLAR_ORDER = new Map(PILLARS.map((p, i) => [p, i]));
+  const ranked = [...PILLARS].sort((a, b) => {
+    if (scores[a] !== scores[b]) return scores[a] - scores[b];
+    if (a === b) return 0;
+    if (a === 'alignment') return -1;
+    if (b === 'alignment') return 1;
+    if (WEIGHTS[a] !== WEIGHTS[b]) return WEIGHTS[b] - WEIGHTS[a];
+    return PILLAR_ORDER.get(a) - PILLAR_ORDER.get(b);
+  });
+  const weakest = ranked.slice(0, 2);
   const websiteCoverage = mean(Object.values(publicEvidence).map(e => e.coverage));
   const confidence = 100 * (0.33 + 0.30 * websiteCoverage + 0.15 * (1 - variance));
 
