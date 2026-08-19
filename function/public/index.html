@@ -58,6 +58,55 @@ a{color:inherit;text-decoration:none;}
 :focus-visible{outline:2px solid var(--azure-hi); outline-offset:2px;}
 
 /* ==========================================================================
+   PAGE CHROME
+   Standalone the page reads as a page of jefffryer.com: navy ground, navy nav
+   and footer, white text, hairline rules. With ?embed=1 all of it is removed
+   and only the container renders, so the Squarespace iframe shows just the tool.
+   ========================================================================== */
+.page-nav{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  height:72px; padding:0 28px;
+  background:var(--navy); border-bottom:1px solid var(--line);
+}
+.wordmark{
+  font-family:var(--oz); font-weight:700; font-size:19px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--paper);
+}
+.nav-cta{
+  font-size:12.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--paper); padding:10px 2px; border-bottom:1px solid transparent;
+  transition:color .15s,border-color .15s;
+}
+.nav-cta:hover{color:var(--azure-hi); border-color:var(--azure-hi);}
+
+.page-foot{
+  background:var(--navy); border-top:1px solid var(--line);
+  padding:34px 28px 40px; text-align:center;
+}
+.foot-row{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:10px 26px; margin-bottom:14px;
+}
+.foot-row a{font-size:13px; color:var(--dim); transition:color .15s;}
+.foot-row a:hover{color:var(--paper);}
+.foot-row.is-secondary a{font-size:12.5px; color:var(--mut);}
+.foot-copy{margin-top:18px; font-size:12px; color:var(--mut);}
+@media (max-width:640px){
+  .page-nav{height:64px; padding:0 16px;}
+  .wordmark{font-size:17px;}
+  .nav-cta{font-size:11px;}
+  .page-foot{padding:28px 16px 34px;}
+  .foot-row{gap:8px 18px;}
+}
+
+/* embed mode: nothing but the container */
+body.is-embed{background:transparent;}
+body.is-embed .page-nav,
+body.is-embed .page-foot{display:none;}
+body.is-embed .stage{padding:0;}
+body.is-embed .shell{box-shadow:none;}
+
+/* ==========================================================================
    PAGE FRAME
    ========================================================================== */
 .stage{padding:48px 20px 72px;}
@@ -504,6 +553,11 @@ a{color:inherit;text-decoration:none;}
 </style>
 </head>
 <body>
+<nav class="page-nav">
+  <a class="wordmark" href="https://www.jefffryer.com">Jeff Fryer</a>
+  <a class="nav-cta" href="https://calendly.com/JeffFryer" target="_blank" rel="noopener">Book a Call</a>
+</nav>
+
 <main class="stage">
   <div class="shell">
 
@@ -748,6 +802,20 @@ a{color:inherit;text-decoration:none;}
     </div><!-- /.shell-body -->
   </div><!-- /.shell -->
 </main>
+
+<footer class="page-foot">
+  <div class="foot-row">
+    <a href="https://www.jefffryer.com/about">About</a>
+    <a href="https://www.jefffryer.com/case-studies">Case Studies</a>
+    <a href="https://www.jefffryer.com/privacy">Privacy</a>
+  </div>
+  <div class="foot-row is-secondary">
+    <a href="https://www.linkedin.com/in/jeff-fryer/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.jefffryer.com/contact">Contact</a>
+    <a href="https://calendly.com/JeffFryer" target="_blank" rel="noopener">Book a Call</a>
+  </div>
+  <p class="foot-copy">&copy; The Fryer Group 2026</p>
+</footer>
 
 <!--
   Netlify Forms needs to see a real, static form in the built HTML to register
@@ -1268,6 +1336,10 @@ a{color:inherit;text-decoration:none;}
   var step = 0;
   var params = new URLSearchParams(window.location.search);
   var DEBUG = params.get('cra_debug') === '1';
+
+  // ?embed=1 strips the nav, the footer and the page ground so the Squarespace
+  // iframe renders the container and nothing else.
+  if (params.get('embed') === '1') document.body.classList.add('is-embed');
 
   /* ---------- navigation ---------- */
   function show(id) {
