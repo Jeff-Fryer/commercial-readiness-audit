@@ -1,0 +1,3 @@
+# Documents the Squarespace-side redirect so the mapping lives in version control.
+# Harmless here: this host never serves /commercial-readiness-audit.
+/commercial-readiness-audit    /commercial-readiness-gap    301

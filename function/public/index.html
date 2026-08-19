@@ -351,6 +351,46 @@ a{color:inherit;text-decoration:none;}
 @media (max-width:640px){ .stage-grid{grid-template-columns:1fr;} }
 
 /* ==========================================================================
+   CAPTURE SCREEN
+   The reference centres a narrower inner card inside the container. So do we.
+   ========================================================================== */
+.capture{max-width:560px; margin:0 auto; text-align:center;}
+.capture .eyebrow{display:block; margin-bottom:12px;}
+.capture .h2{margin-bottom:12px;}
+.capture-sub{font-size:16px; color:var(--dim); margin-bottom:28px;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:left;}
+.form-row{grid-column:1 / -1;}
+.field-label{
+  display:block; font-size:12.5px; font-weight:600; color:var(--dim); margin-bottom:6px;
+}
+.field-label .req{color:var(--azure-hi);}
+.field{
+  width:100%; background:rgba(0,0,0,.22); border:1.5px solid var(--line-hi);
+  border-radius:var(--r-card); padding:14px 15px; color:var(--paper); font-size:16px;
+  transition:border-color .15s;
+}
+.field::placeholder{color:rgba(255,255,255,.38);}
+.field:focus{outline:none; border-color:var(--azure);}
+.field.is-bad{border-color:#FF8B8B;}
+.field-err{margin-top:6px; font-size:12.5px; color:#FFB4B4;}
+.field-err:empty{display:none;}
+.optin{
+  grid-column:1 / -1; display:flex; gap:11px; align-items:flex-start;
+  margin-top:6px; text-align:left; font-size:13.5px; color:var(--dim); line-height:1.45;
+  cursor:pointer;
+}
+.optin input{
+  flex:0 0 auto; width:20px; height:20px; margin:1px 0 0; cursor:pointer;
+  border:1.5px solid var(--line-hi); border-radius:4px; background:rgba(0,0,0,.22);
+  display:grid; place-items:center;
+}
+.optin input:checked{background:var(--azure); border-color:var(--azure);}
+.optin input:checked::after{content:'✓'; color:var(--ink); font-size:13px; font-weight:700; line-height:1;}
+.capture .btn-primary{margin-top:22px;}
+.capture-back{margin-top:14px;}
+@media (max-width:640px){ .form-grid{grid-template-columns:1fr;} }
+
+/* ==========================================================================
    LOADING
    ========================================================================== */
 .loadcard{text-align:center; padding:36px 20px;}
@@ -578,7 +618,56 @@ a{color:inherit;text-decoration:none;}
         </div>
       </section>
 
-      <!-- ================= SCREEN 3 · LOADING ================= -->
+      <!-- ================= SCREEN 3 · CAPTURE ================= -->
+      <section class="screen" id="s-capture">
+        <div class="capture">
+          <span class="eyebrow">Final Step &bull; Score Ready</span>
+          <h2 class="h2">Your Commercial Readiness Score is Calculated.</h2>
+          <p class="capture-sub">Where should I send your written gap read and Fix First summary?</p>
+
+          <form id="capture-form" novalidate>
+            <div class="form-grid">
+              <div>
+                <label class="field-label" for="f-first">First Name <span class="req">*</span></label>
+                <input class="field" type="text" id="f-first" name="firstName" autocomplete="given-name" placeholder="e.g. Jane">
+                <p class="field-err" id="e-first" role="alert"></p>
+              </div>
+              <div>
+                <label class="field-label" for="f-last">Last Name <span class="req">*</span></label>
+                <input class="field" type="text" id="f-last" name="lastName" autocomplete="family-name" placeholder="e.g. Okafor">
+                <p class="field-err" id="e-last" role="alert"></p>
+              </div>
+              <div class="form-row">
+                <label class="field-label" for="f-email">Work Email <span class="req">*</span></label>
+                <input class="field" type="email" id="f-email" name="email" autocomplete="email" placeholder="e.g. jane@yourcompany.com">
+                <p class="field-err" id="e-email" role="alert"></p>
+              </div>
+              <div class="form-row">
+                <label class="field-label" for="f-company">Company Name <span class="req">*</span></label>
+                <input class="field" type="text" id="f-company" name="company" autocomplete="organization" placeholder="e.g. Northgate Photonics">
+                <p class="field-err" id="e-company" role="alert"></p>
+              </div>
+              <div class="form-row">
+                <label class="field-label" for="f-website">Company Website (optional but recommended)</label>
+                <input class="field" type="text" id="f-website" name="website" autocomplete="url" placeholder="yourcompany.com"
+                       autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
+              </div>
+              <label class="optin" for="f-optin">
+                <input type="checkbox" id="f-optin" name="optin">
+                <span>I&rsquo;d like Jeff&rsquo;s notes on commercial readiness for semiconductor and deep tech CEOs.</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="capture-submit">Unlock My Commercial Readiness Report</button>
+          </form>
+
+          <div class="capture-back">
+            <button type="button" class="link-arrow" id="capture-back">&larr; Back to Questions</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4 · LOADING ================= -->
       <section class="screen" id="s-loading">
         <div class="panel loadcard">
           <div class="spinner" aria-hidden="true"></div>
@@ -621,6 +710,32 @@ a{color:inherit;text-decoration:none;}
     </div><!-- /.shell-body -->
   </div><!-- /.shell -->
 </main>
+
+<!--
+  Netlify Forms needs to see a real, static form in the built HTML to register
+  the form and its fields at deploy time. The visible form above is submitted
+  with fetch, so this hidden twin exists only for that build-time scan. Every
+  field name that gets POSTed must appear here or Netlify silently drops it.
+-->
+<form name="crg-audit" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="crg-audit">
+  <input type="text" name="bot-field">
+  <input type="text" name="firstName"><input type="text" name="lastName">
+  <input type="email" name="email"><input type="text" name="company">
+  <input type="text" name="website"><input type="text" name="optin">
+  <input type="text" name="stage">
+  <input type="text" name="score"><input type="text" name="band">
+  <input type="text" name="pillar_story"><input type="text" name="pillar_sell">
+  <input type="text" name="pillar_timingLane"><input type="text" name="pillar_charge">
+  <input type="text" name="pillar_partnerships"><input type="text" name="pillar_alignment">
+  <input type="text" name="slider_story"><input type="text" name="slider_sell">
+  <input type="text" name="slider_timingLane"><input type="text" name="slider_charge">
+  <input type="text" name="slider_partnerships"><input type="text" name="slider_alignment">
+  <input type="text" name="band_story"><input type="text" name="band_sell">
+  <input type="text" name="band_timingLane"><input type="text" name="band_charge">
+  <input type="text" name="band_partnerships"><input type="text" name="band_alignment">
+  <input type="text" name="fixFirst">
+</form>
 
 <!--
   The optional website step. Kept as an inert <template> so that nothing inside it,
@@ -1016,7 +1131,7 @@ a{color:inherit;text-decoration:none;}
      ========================================================================== */
   var E = window.CRA_ENGINE;
   var Q = E.QUESTIONS;
-  var SCREENS = ['s-intro', 's-quiz', 's-stage', 's-site', 's-loading', 's-results'];
+  var SCREENS = ['s-intro', 's-quiz', 's-stage', 's-capture', 's-site', 's-loading', 's-results'];
   var TICKS = ['00', '02', '04', '06', '08', '10'];
   var STAGES = [
     'Pre-revenue, first design-ins',
@@ -1173,13 +1288,122 @@ a{color:inherit;text-decoration:none;}
   });
 
   $('stage-next').addEventListener('click', function () {
-    finish(null, null, false);
+    show('s-capture');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ==========================================================================
+     CAPTURE
+     ========================================================================== */
+  var CONSUMER_DOMAINS = ['gmail.', 'yahoo.', 'hotmail.', 'outlook.', 'icloud.'];
+  var consumerWarned = false;
+
+  $('capture-back').addEventListener('click', function () {
+    renderStage();                       // stage selection is held in `stage`, so it survives
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  function setError(fieldId, errId, message) {
+    $(errId).textContent = message || '';
+    $(fieldId).classList.toggle('is-bad', !!message);
+    return !message;
+  }
+
+  function validate() {
+    var ok = true;
+    ok = setError('f-first', 'e-first', $('f-first').value.trim() ? '' : 'Please add your first name.') && ok;
+    ok = setError('f-last', 'e-last', $('f-last').value.trim() ? '' : 'Please add your last name.') && ok;
+    ok = setError('f-company', 'e-company', $('f-company').value.trim() ? '' : 'Please add your company name.') && ok;
+
+    var email = $('f-email').value.trim();
+    if (!email) {
+      ok = setError('f-email', 'e-email', 'Please add your work email.') && ok;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      ok = setError('f-email', 'e-email', 'That email address does not look complete.') && ok;
+    } else {
+      var domain = email.split('@')[1].toLowerCase();
+      var isConsumer = CONSUMER_DOMAINS.some(function (d) { return domain.indexOf(d) === 0; });
+      if (isConsumer && !consumerWarned) {
+        // Nudge once, then get out of the way: a second attempt goes through.
+        consumerWarned = true;
+        ok = setError('f-email', 'e-email', 'A work email helps me write the read for your company.') && ok;
+      } else {
+        setError('f-email', 'e-email', '');
+      }
+    }
+    return ok;
+  }
+
+  function buildPayload(result) {
+    var d = result.diagnostic;
+    var body = {
+      'form-name': 'crg-audit',
+      'bot-field': '',
+      firstName: $('f-first').value.trim(),
+      lastName: $('f-last').value.trim(),
+      email: $('f-email').value.trim(),
+      company: $('f-company').value.trim(),
+      website: $('f-website').value.trim(),
+      optin: $('f-optin').checked ? 'yes' : 'no',
+      stage: stage || '',
+      score: String(result.ui.compositeScore),
+      band: result.ui.scoreLabel,
+      fixFirst: result.ui.fixFirst.pillar
+    };
+    Q.forEach(function (q, i) {
+      body['pillar_' + q.key] = String(d.pillarScores[q.key].score);
+      body['slider_' + q.key] = String(values[i]);
+      body['band_' + q.key] = BAND_LETTER[bandIndex(values[i])];
+    });
+    return body;
+  }
+
+  function postLead(body) {
+    var encoded = Object.keys(body).map(function (k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(body[k]);
+    }).join('&');
+    return window.fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encoded
+    });
+  }
+
+  $('capture-form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!validate()) {
+      var bad = $('capture-form').querySelector('.field.is-bad');
+      if (bad) bad.focus();
+      return;
+    }
+
+    var btn = $('capture-submit');
+    btn.disabled = true;
+    btn.textContent = 'Unlocking...';
+
+    var result = computeResult(null, null);
+
+    // A CEO never loses their score because a form endpoint had a bad day.
+    postLead(buildPayload(result))
+      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); })
+      .catch(function (err) { console.warn('[CRG] lead capture failed:', err); })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = 'Unlock My Commercial Readiness Report';
+        renderResults(result, false);
+      });
   });
 
   function restart() {
     values = Q.map(function () { return DEFAULT_VALUE; });
     stage = null;
     step = 0;
+    consumerWarned = false;
+    $('capture-form').reset();
+    ['e-first', 'e-last', 'e-email', 'e-company'].forEach(function (id) { $(id).textContent = ''; });
+    Array.prototype.forEach.call($('capture-form').querySelectorAll('.field'), function (f) {
+      f.classList.remove('is-bad');
+    });
     show('s-intro');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1187,7 +1411,7 @@ a{color:inherit;text-decoration:none;}
   $('res-retake').addEventListener('click', restart);
 
   /* ---------- results ---------- */
-  function finish(companyWebsite, websiteSignals, fetchFailed) {
+  function computeResult(companyWebsite, websiteSignals) {
     var answers = {};
     Q.forEach(function (q, i) { answers[q.key] = values[i]; });
 
@@ -1202,11 +1426,14 @@ a{color:inherit;text-decoration:none;}
       // Last-resort guard: fall back to the self-report result rather than showing nothing.
       if (DEBUG) console.error('[CRG] scoring failed:', err);
       result = E.scoreCommercialReadiness({ answers: answers, companyWebsite: null, websiteSignals: null });
-      fetchFailed = false;
     }
 
     if (DEBUG) console.log('[CRG] diagnostic', result.diagnostic, 'stage', stage);
-    renderResults(result, fetchFailed);
+    return result;
+  }
+
+  function finish(companyWebsite, websiteSignals, fetchFailed) {
+    renderResults(computeResult(companyWebsite, websiteSignals), fetchFailed);
   }
 
   function renderResults(result, fetchFailed) {

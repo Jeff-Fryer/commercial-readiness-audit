@@ -19,3 +19,18 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# ---------------------------------------------------------------------------
+# Forms
+#
+# The audit posts leads to the Netlify form named `crg-audit`. Netlify registers
+# a form by scanning the deployed HTML at build time, so `function/public/index.html`
+# carries a hidden static twin of the visible form; every field name that gets
+# POSTed is declared there. The visible form is submitted with fetch, and a failed
+# post is swallowed on purpose: a CEO still gets their score.
+#
+# Form detection must be enabled once for the project, under
+# Project configuration -> Forms. Submission notifications (email to Jeff, or a
+# webhook into the CRM) are configured in the Netlify UI, not here: Netlify has
+# no netlify.toml key for form notifications.
+# ---------------------------------------------------------------------------
