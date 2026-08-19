@@ -5,210 +5,482 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commercial Readiness Audit | Jeff Fryer</title>
 <meta name="description" content="A 90-second diagnostic for semiconductor and deep tech CEOs: find which of the six parts of your commercial engine are behind, and what closing the gap is worth.">
-<meta name="robots" content="index,follow">
-</head>
-<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-#cra-app{
-  /* palette */
-  --cra-navy:#01040B; --cra-panel:#0B1526; --cra-panel2:#111E33; --cra-line:#1E2C45;
-  --cra-azure:#3B8EF0; --cra-azure-soft:rgba(59,142,240,.14); --cra-paper:#FCFCFC;
-  --cra-dim:#93A1B8; --cra-mut:#5F6C82;
-  --cra-oz:'Oswald','Arial Narrow',Impact,sans-serif;
-  --cra-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+/* ==========================================================================
+   TOKENS
+   Page navy, azure, heading font, button radius and button ink are the live
+   values read from jefffryer.com. IBM Plex Mono is the one addition: the live
+   site has no mono face, and the eyebrows, tick labels and numbers need one.
+   ========================================================================== */
+:root{
+  --navy:#002244;
+  --azure:#3B8EF0;
+  --azure-hi:#3DA8FF;
+  --azure-soft:rgba(59,142,240,.16);
+  --ink:#002244;
+  --paper:#FCFCFC;
+  --dim:rgba(255,255,255,.72);
+  --mut:rgba(255,255,255,.52);
+  --line:rgba(255,255,255,.14);
+  --line-hi:rgba(255,255,255,.28);
+  --panel:rgba(255,255,255,.055);
+  --panel-hi:rgba(255,255,255,.09);
+  --shell:linear-gradient(160deg,#0B3A66 0%,#1B5A9E 100%);
 
-  max-width:640px; margin:0 auto; padding:26px 18px 30px;
-  background:var(--cra-navy); color:var(--cra-paper);
-  font-family:var(--cra-ui); font-size:16px; line-height:1.5;
-  border-radius:12px; text-align:left;
+  --band-blocked:#FF6B6B;
+  --band-founder:#F5A524;
+  --band-emerging:#6FB4F5;
+  --band-ready:#3FBF7F;
+
+  --oz:'Oswald','Arial Narrow',sans-serif;
+  --ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --r-shell:24px;
+  --r-card:12px;
+  --r-btn:0px;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--navy); color:var(--paper);
+  font-family:var(--ui); font-size:16px; line-height:1.55;
   -webkit-font-smoothing:antialiased;
 }
-#cra-app *,#cra-app *::before,#cra-app *::after{box-sizing:border-box;}
-#cra-app h2,#cra-app p,#cra-app div,#cra-app ul,#cra-app li{margin:0; padding:0;}
-#cra-app button{appearance:none; -webkit-appearance:none; font-family:inherit; border:none; background:none; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;}
-#cra-app input{appearance:none; -webkit-appearance:none; font-family:inherit;}
-#cra-app a{text-decoration:none;}
+h1,h2,h3,h4,p,ul,li,figure{margin:0; padding:0;}
+button{appearance:none;-webkit-appearance:none;font-family:inherit;border:none;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+input{appearance:none;-webkit-appearance:none;font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+:focus-visible{outline:2px solid var(--azure-hi); outline-offset:2px;}
 
-/* header */
-#cra-app .cra-kicker{font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cra-azure); margin-bottom:8px;}
-#cra-app .cra-h1{font-family:var(--cra-oz); font-weight:700; font-size:clamp(24px,5.5vw,34px); line-height:1.06; text-transform:uppercase; letter-spacing:.01em; color:var(--cra-paper);}
-#cra-app .cra-h1 span{color:var(--cra-azure);}
-#cra-app .cra-lede{margin-top:10px; font-size:15px; color:var(--cra-dim);}
-#cra-app .cra-lede b{color:var(--cra-paper); font-weight:600;}
-
-/* progress */
-#cra-app .cra-progresswrap{margin-top:20px;}
-#cra-app .cra-plabel{display:flex; justify-content:space-between; font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--cra-mut); margin-bottom:6px;}
-#cra-app .cra-pbar{height:6px; background:var(--cra-panel2); border:1px solid var(--cra-line); border-radius:4px; overflow:hidden;}
-#cra-app .cra-pbar i{display:block; height:100%; width:0%; background:var(--cra-azure); transition:width .3s ease;}
-
-/* cards + steps */
-#cra-app .cra-card{background:var(--cra-panel); border:1px solid var(--cra-line); border-radius:10px; padding:20px 18px; margin-top:16px;}
-#cra-app .cra-step{display:none;}
-#cra-app .cra-step.cra-on{display:block;}
-
-/* questions */
-#cra-app .cra-qscale{font-family:var(--cra-oz); font-weight:600; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--cra-azure);}
-#cra-app .cra-qtext{font-family:var(--cra-oz); font-weight:600; font-size:clamp(20px,4.6vw,26px); line-height:1.22; margin-top:6px; color:var(--cra-paper);}
-#cra-app .cra-opts{margin-top:14px;}
-#cra-app .cra-opt{display:flex; gap:12px; align-items:center; width:100%; text-align:left; background:var(--cra-panel2); border:1.5px solid var(--cra-line); border-radius:9px; padding:14px 15px; margin-top:9px; color:var(--cra-dim); font-size:15px; line-height:1.35; transition:border-color .15s,color .15s,background .15s;}
-#cra-app .cra-opt:hover{border-color:var(--cra-azure); color:var(--cra-paper);}
-#cra-app .cra-opt:focus-visible{outline:2px solid var(--cra-azure); outline-offset:2px;}
-#cra-app .cra-opt .cra-dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--cra-mut); display:grid; place-items:center;}
-#cra-app .cra-opt .cra-dot i{width:10px; height:10px; border-radius:50%; background:var(--cra-azure); transform:scale(0); transition:transform .15s;}
-#cra-app .cra-opt.cra-sel{border-color:var(--cra-azure); color:var(--cra-paper); background:var(--cra-azure-soft);}
-#cra-app .cra-opt.cra-sel .cra-dot{border-color:var(--cra-azure);}
-#cra-app .cra-opt.cra-sel .cra-dot i{transform:scale(1);}
-
-/* buttons */
-#cra-app .cra-btn{display:block; width:100%; text-align:center; padding:14px 18px; margin-top:14px; background:var(--cra-azure); color:#fff; font-family:var(--cra-oz); font-weight:600; font-size:15px; letter-spacing:.07em; text-transform:uppercase; border-radius:8px;}
-#cra-app .cra-btn:disabled{opacity:.35; cursor:default;}
-#cra-app .cra-btn:active:not(:disabled){transform:translateY(1px);}
-#cra-app .cra-btn:focus-visible{outline:2px solid var(--cra-paper); outline-offset:2px;}
-#cra-app .cra-ghost{background:transparent; border:1.5px solid var(--cra-line); color:var(--cra-dim); font-size:13px; padding:11px;}
-#cra-app .cra-ghost:hover{border-color:var(--cra-azure); color:var(--cra-paper);}
-#cra-app .cra-tiny{font-size:12px; padding:9px; margin-top:8px;}
-#cra-app .cra-row2{display:flex; gap:10px;}
-#cra-app .cra-row2 .cra-btn{margin-top:12px;}
-
-/* website step */
-#cra-app .cra-helper{margin-top:10px; font-size:14px; color:var(--cra-dim);}
-#cra-app .cra-input{width:100%; margin-top:14px; background:var(--cra-panel2); border:1.5px solid var(--cra-line); border-radius:9px; padding:14px 15px; color:var(--cra-paper); font-size:16px;}
-#cra-app .cra-input::placeholder{color:var(--cra-mut);}
-#cra-app .cra-input:focus{outline:none; border-color:var(--cra-azure);}
-#cra-app .cra-err{margin-top:8px; font-size:13px; color:#FF9B9B; min-height:0;}
-
-/* loading */
-#cra-app .cra-loadcard{text-align:center; padding:34px 18px;}
-#cra-app .cra-spinner{width:30px; height:30px; margin:0 auto 16px; border:3px solid var(--cra-line); border-top-color:var(--cra-azure); border-radius:50%; animation:cra-spin 1s linear infinite;}
-@keyframes cra-spin{to{transform:rotate(360deg);}}
-#cra-app .cra-loadtitle{font-family:var(--cra-oz); font-weight:600; font-size:18px; text-transform:uppercase; letter-spacing:.05em;}
-#cra-app .cra-loadsub{margin-top:8px; font-size:13.5px; color:var(--cra-dim);}
-@media (prefers-reduced-motion:reduce){
-  #cra-app .cra-spinner{animation-duration:3s;}
-  #cra-app .cra-pbar i,#cra-app .cra-bfill{transition:none;}
+/* ==========================================================================
+   PAGE FRAME
+   ========================================================================== */
+.stage{padding:48px 20px 72px;}
+.shell{
+  max-width:720px; margin:0 auto;
+  background:var(--shell); border-radius:var(--r-shell);
+  box-shadow:0 24px 64px rgba(0,0,0,.36), 0 2px 0 rgba(255,255,255,.06) inset;
+  overflow:hidden;
+}
+.shell-body{padding:40px;}
+@media (max-width:640px){
+  .stage{padding:20px 12px 48px;}
+  .shell-body{padding:20px;}
 }
 
-/* results */
-#cra-app .cra-headline{font-family:var(--cra-oz); font-weight:600; font-size:clamp(17px,3.8vw,21px); line-height:1.25; text-align:center; color:var(--cra-paper);}
-#cra-app .cra-scorewrap{display:flex; align-items:baseline; justify-content:center; gap:6px; margin-top:14px;}
-#cra-app .cra-scorenum{font-family:var(--cra-oz); font-weight:700; font-size:clamp(54px,14vw,76px); line-height:1; color:var(--cra-azure);}
-#cra-app .cra-scoreof{font-family:var(--cra-oz); font-weight:600; font-size:16px; color:var(--cra-mut);}
-#cra-app .cra-label{text-align:center; margin-top:4px; font-family:var(--cra-oz); font-weight:700; font-size:clamp(18px,4.4vw,23px); text-transform:uppercase; letter-spacing:.04em;}
-#cra-app .cra-restype{text-align:center; margin-top:6px; font-size:12.5px; color:var(--cra-mut);}
+/* ==========================================================================
+   SHARED MICRO-PATTERNS
+   One set of classes, used identically on every screen.
+   ========================================================================== */
 
-#cra-app .cra-bars{margin-top:22px; padding-top:18px; border-top:1px solid var(--cra-line);}
-#cra-app .cra-brow{margin-top:12px;}
-#cra-app .cra-brow:first-child{margin-top:0;}
-#cra-app .cra-blab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--cra-oz); font-weight:600; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--cra-dim); margin-bottom:5px;}
-#cra-app .cra-bval{font-size:14px; color:var(--cra-paper);}
-#cra-app .cra-btrack{height:10px; background:var(--cra-panel2); border:1px solid var(--cra-line); border-radius:6px; overflow:hidden;}
-#cra-app .cra-bfill{display:block; height:100%; width:0%; background:var(--cra-azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
-#cra-app .cra-brow.cra-weak .cra-blab{color:var(--cra-paper);}
-#cra-app .cra-brow.cra-weak .cra-bfill{background:var(--cra-paper);}
-#cra-app .cra-tag{font-family:var(--cra-oz); font-size:10px; letter-spacing:.1em; color:var(--cra-navy); background:var(--cra-paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
+/* header bar */
+.shell-head{
+  display:flex; align-items:center; gap:14px;
+  padding:18px 40px; border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,.14);
+}
+.mark{
+  flex:0 0 auto; width:38px; height:38px; display:grid; place-items:center;
+  background:var(--azure); color:var(--ink);
+  font-family:var(--mono); font-weight:600; font-size:14px; letter-spacing:.02em;
+}
+.head-name{flex:1 1 auto; min-width:0;}
+.head-product{
+  font-family:var(--mono); font-size:10.5px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mut);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.head-by{font-size:13px; font-weight:500; color:var(--paper);}
+.head-right{flex:0 0 auto;}
+@media (max-width:640px){
+  .shell-head{padding:14px 20px; gap:10px;}
+  .head-product{font-size:9.5px; letter-spacing:.12em;}
+}
 
-#cra-app .cra-fixfirst{margin-top:20px; padding-top:14px; border-top:1px solid var(--cra-line); font-size:14px; color:var(--cra-dim);}
-#cra-app .cra-fixfirst b{display:block; color:var(--cra-azure); font-family:var(--cra-oz); text-transform:uppercase; letter-spacing:.07em; font-size:12px; margin-bottom:5px;}
+/* eyebrow: mono, small caps, letter-spaced, with a • separator */
+.eyebrow{
+  font-family:var(--mono); font-size:11px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--azure);
+}
 
-#cra-app .cra-evtitle{font-family:var(--cra-oz); font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--cra-azure); margin-bottom:10px;}
-#cra-app .cra-evnote{font-size:13.5px; color:var(--cra-dim);}
-#cra-app .cra-check{border-left:3px solid var(--cra-paper); background:var(--cra-panel2); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
-#cra-app .cra-check h4{font-family:var(--cra-oz); font-weight:600; font-size:14px; margin:0 0 6px; color:var(--cra-paper); text-transform:none; letter-spacing:0;}
-#cra-app .cra-check p{font-size:13.5px; color:var(--cra-dim);}
-#cra-app .cra-scores{margin-top:8px; font-family:var(--cra-oz); font-size:12px; letter-spacing:.05em; color:var(--cra-mut); text-transform:uppercase;}
-#cra-app .cra-scores b{color:var(--cra-paper);}
+/* filled pill (header CTA) */
+.pill{
+  display:inline-block; background:var(--azure); color:var(--ink);
+  font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  padding:8px 14px; border-radius:999px; white-space:nowrap;
+}
 
-#cra-app .cra-cta{background:var(--cra-azure); border-radius:10px; padding:20px 18px; margin-top:16px; text-align:center;}
-#cra-app .cra-cta .cra-ctah{font-family:var(--cra-oz); font-weight:700; font-size:19px; line-height:1.2; text-transform:uppercase; color:#fff;}
-#cra-app .cra-cta p{font-size:13.5px; margin-top:6px; color:#EAF2FF;}
-#cra-app .cra-book{display:inline-block; margin-top:12px; background:var(--cra-navy); color:#fff; font-family:var(--cra-oz); font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:14px; padding:13px 26px; border-radius:8px;}
-#cra-app .cra-book:hover{background:#0B1526;}
+/* outline tag ("Part 2 of 6") */
+.tag{
+  display:inline-block; font-family:var(--mono); font-size:11px; font-weight:500;
+  letter-spacing:.08em; color:var(--dim);
+  border:1px solid var(--line-hi); border-radius:999px; padding:4px 12px;
+}
 
-#cra-app .cra-keep{margin-top:12px;}
-#cra-app .cra-foot{margin-top:26px; padding-top:14px; border-top:1px solid var(--cra-line); font-size:11.5px; color:var(--cra-mut); line-height:1.65;}
-#cra-app .cra-foot b{color:var(--cra-dim);}
-#cra-app .cra-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+/* glyph label: ✨ / 💬 before a secondary label */
+.glyph-label{
+  font-family:var(--mono); font-size:11px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--azure);
+}
+
+/* headings */
+.h1{font-family:var(--oz); font-weight:700; font-size:clamp(30px,6.2vw,48px); line-height:1.04; text-transform:uppercase; letter-spacing:.01em;}
+.h1 .accent{color:var(--azure-hi);}
+.h2{font-family:var(--oz); font-weight:700; font-size:clamp(24px,4.8vw,34px); line-height:1.1; text-transform:uppercase; letter-spacing:.01em;}
+.h3{font-family:var(--oz); font-weight:600; font-size:clamp(18px,3.4vw,22px); line-height:1.2; text-transform:uppercase; letter-spacing:.03em;}
+
+/* buttons: square, Inter, all caps, letter-spaced (live jefffryer.com) */
+.btn{
+  display:inline-block; text-align:center; font-family:var(--ui);
+  font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:16px 30px; border-radius:var(--r-btn); border:1px solid transparent;
+  transition:background .15s,border-color .15s,color .15s,transform .06s;
+}
+.btn-primary{background:var(--azure); border-color:var(--azure); color:var(--ink);}
+.btn-primary:hover:not(:disabled){background:var(--azure-hi); border-color:var(--azure-hi);}
+.btn-primary:active:not(:disabled){transform:translateY(1px);}
+.btn-primary:disabled{opacity:.38; cursor:default;}
+.btn-ghost{background:transparent; border-color:var(--line-hi); color:var(--dim);}
+.btn-ghost:hover{border-color:var(--azure); color:var(--paper);}
+.btn-block{display:block; width:100%;}
+
+/* arrow text link */
+.link-arrow{
+  font-size:13px; font-weight:600; color:var(--dim);
+  padding:8px 2px; transition:color .15s;
+}
+.link-arrow:hover{color:var(--paper);}
+
+/* Start Over sits beside the pill from Q1 onward */
+.start-over{
+  font-size:12px; font-weight:600; color:var(--dim);
+  padding:8px 12px; border:1px solid var(--line-hi); border-radius:999px;
+  transition:color .15s,border-color .15s;
+}
+.start-over:hover{color:var(--paper); border-color:var(--azure);}
+.head-actions{display:flex; align-items:center; gap:10px;}
+
+/* two-part trust line */
+.trust{font-size:12.5px; color:var(--mut); text-align:center;}
+
+/* panels */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card); padding:24px;}
+@media (max-width:640px){ .panel{padding:18px;} }
+
+/* screens */
+.screen{display:none;}
+.screen.is-on{display:block;}
+
+/* ==========================================================================
+   INTRO
+   ========================================================================== */
+.intro{text-align:center;}
+.intro .eyebrow{display:block; margin-bottom:16px;}
+.intro .h1{margin-bottom:32px;}
+.intro-card{text-align:left; margin-bottom:28px;}
+.intro-card p + p{margin-top:14px;}
+.intro-lede{font-size:17px; font-weight:600; color:var(--paper); line-height:1.5;}
+.intro-body{font-size:16px; color:var(--dim);}
+.intro-body .product{color:var(--azure-hi); font-weight:700;}
+.no-pressure{
+  font-size:13.5px; color:var(--mut); line-height:1.55;
+  max-width:56ch; margin:0 auto 32px; text-align:left;
+}
+.no-pressure b{color:var(--dim); font-weight:600;}
+.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:36px;}
+.tile{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card);
+  padding:18px 14px; text-align:center;
+}
+.tile-glyph{font-size:20px; line-height:1; margin-bottom:10px;}
+.tile-label{
+  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--mut); margin-bottom:6px;
+}
+.tile-value{font-size:14px; font-weight:700; color:var(--paper); line-height:1.35;}
+.intro .btn-primary{margin-bottom:14px;}
+@media (max-width:640px){
+  .tiles{grid-template-columns:1fr; gap:10px;}
+  .tile{display:flex; align-items:center; gap:12px; text-align:left; padding:14px;}
+  .tile-glyph{margin-bottom:0;}
+  .tile-label{margin-bottom:2px;}
+}
+@media (min-width:641px){
+  .intro .btn-primary{min-width:380px;}
+}
+
+/* the parts at a glance */
+.glance{text-align:left; margin-bottom:36px;}
+.glance-title{display:block; margin-bottom:6px;}
+.glance-sub{font-size:13.5px; color:var(--mut); margin-bottom:18px;}
+.glance-list{list-style:none; display:flex; flex-direction:column;}
+.glance-row{display:flex; gap:14px; align-items:baseline; padding:13px 0; border-top:1px solid var(--line);}
+.glance-row:first-child{border-top:none; padding-top:0;}
+.glance-num{
+  flex:0 0 auto; font-family:var(--mono); font-size:12px; font-weight:500;
+  letter-spacing:.06em; color:var(--azure-hi); width:22px;
+}
+.glance-copy{display:block;}
+.glance-label{display:block; font-size:15px; font-weight:700; color:var(--paper); line-height:1.35;}
+.glance-q{display:block; font-size:14px; color:var(--mut); line-height:1.45; margin-top:2px;}
+
+/* ==========================================================================
+   PROGRESS
+   ========================================================================== */
+.progress{display:flex; align-items:center; gap:12px; margin-bottom:28px;}
+.seg-track{flex:1 1 auto; display:flex; gap:4px;}
+.seg{height:6px; background:rgba(255,255,255,.13); border-radius:3px; overflow:hidden;}
+.seg i{display:block; height:100%; width:0%; background:var(--azure); transition:width .3s ease;}
+.seg-label{flex:0 0 auto; font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--mut);}
+
+/* ==========================================================================
+   QUESTION SCREEN
+   ========================================================================== */
+.qhead{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap;}
+.qtext{margin-bottom:22px;}
+.opts{display:flex; flex-direction:column; gap:9px;}
+.opt{
+  display:flex; gap:12px; align-items:center; width:100%; text-align:left;
+  background:var(--panel); border:1.5px solid var(--line); border-radius:var(--r-card);
+  padding:14px 16px; color:var(--dim); font-size:15px; line-height:1.4;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.opt:hover{border-color:var(--azure); color:var(--paper);}
+.opt .dot{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:2px solid var(--mut); display:grid; place-items:center;}
+.opt .dot i{width:10px; height:10px; border-radius:50%; background:var(--azure); transform:scale(0); transition:transform .15s;}
+.opt.is-sel{border-color:var(--azure); color:var(--paper); background:var(--azure-soft);}
+.opt.is-sel .dot{border-color:var(--azure);}
+.opt.is-sel .dot i{transform:scale(1);}
+.qfoot{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:26px; padding-top:22px; border-top:1px solid var(--line);}
+
+/* ==========================================================================
+   LOADING
+   ========================================================================== */
+.loadcard{text-align:center; padding:36px 20px;}
+.spinner{width:30px; height:30px; margin:0 auto 16px; border:3px solid var(--line-hi); border-top-color:var(--azure); border-radius:50%; animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loadsub{margin-top:8px; font-size:13.5px; color:var(--dim);}
+
+/* ==========================================================================
+   RESULTS (Phase 5 rebuilds this properly)
+   ========================================================================== */
+.res-headline{font-family:var(--oz); font-weight:600; font-size:clamp(17px,3.6vw,21px); line-height:1.25; text-align:center; text-transform:uppercase;}
+.scorewrap{display:flex; align-items:baseline; justify-content:center; gap:6px; margin-top:14px;}
+.scorenum{font-family:var(--oz); font-weight:700; font-size:clamp(54px,13vw,76px); line-height:1; color:var(--azure-hi);}
+.scoreof{font-family:var(--mono); font-size:15px; color:var(--mut);}
+.res-band{text-align:center; margin-top:4px; font-family:var(--oz); font-weight:700; font-size:clamp(18px,4.2vw,23px); text-transform:uppercase; letter-spacing:.04em;}
+.res-type{text-align:center; margin-top:6px; font-family:var(--mono); font-size:11.5px; color:var(--mut);}
+.bars{margin-top:24px; padding-top:20px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:13px;}
+.brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--mono); font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); margin-bottom:6px;}
+.bval{font-size:13px; color:var(--paper);}
+.btrack{height:10px; background:rgba(255,255,255,.1); border-radius:5px; overflow:hidden;}
+.bfill{display:block; height:100%; width:0%; background:var(--azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
+.brow.is-focus .brow-lab{color:var(--paper);}
+.focus-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--ink); background:var(--paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
+.fixfirst{margin-top:22px; padding-top:16px; border-top:1px solid var(--line); font-size:14px; color:var(--dim);}
+.fixfirst b{display:block; color:var(--azure-hi); font-family:var(--mono); text-transform:uppercase; letter-spacing:.1em; font-size:11px; margin-bottom:6px;}
+.evtitle{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--azure-hi); margin-bottom:10px;}
+.evnote{font-size:13.5px; color:var(--dim);}
+.check{border-left:3px solid var(--paper); background:var(--panel-hi); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
+.check h4{font-family:var(--ui); font-weight:600; font-size:14px; margin-bottom:6px; color:var(--paper);}
+.check p{font-size:13.5px; color:var(--dim);}
+.check .scores{margin-top:8px; font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; color:var(--mut); text-transform:uppercase;}
+.check .scores b{color:var(--paper);}
+.cta{background:var(--azure); border-radius:var(--r-card); padding:26px 24px; margin-top:16px; text-align:center; color:var(--ink);}
+.cta .eyebrow{color:var(--ink); opacity:.72;}
+.cta-h{margin:10px 0 8px; color:var(--ink);}
+.cta-p{font-size:14px; color:rgba(0,34,68,.82); margin-bottom:16px;}
+.cta .btn-primary{background:var(--navy); border-color:var(--navy); color:var(--paper);}
+.cta .btn-primary:hover{background:#00306080; border-color:var(--navy);}
+.res-retake{margin-top:14px; text-align:center;}
+.shell-foot{margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--mut); line-height:1.7;}
+.shell-foot b{color:var(--dim);}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+
+@media (prefers-reduced-motion:reduce){
+  .spinner{animation-duration:3s;}
+  .seg i,.bfill{transition:none;}
+}
 </style>
+</head>
+<body>
+<main class="stage">
+  <div class="shell">
 
-<div id="cra-app">
-
-  <header>
-    <div class="cra-kicker">Semiconductor + deep tech CEOs</div>
-    <h2 class="cra-h1">Commercial <span>Readiness</span> Audit</h2>
-    <p class="cra-lede"><b>Six questions. About 90 seconds.</b> One clear score across all six parts.</p>
-  </header>
-
-  <div class="cra-progresswrap" id="cra-pw">
-    <div class="cra-plabel"><span id="cra-plab"></span><span id="cra-ppct"></span></div>
-    <div class="cra-pbar"><i id="cra-pfill"></i></div>
-  </div>
-
-  <section class="cra-step cra-on" id="cra-step-quiz">
-    <div class="cra-card">
-      <div class="cra-qscale" id="cra-qscale"></div>
-      <div class="cra-qtext" id="cra-qtext"></div>
-      <div class="cra-opts" id="cra-opts" role="radiogroup" aria-labelledby="cra-qtext"></div>
-      <div class="cra-row2">
-        <button type="button" class="cra-btn cra-ghost" id="cra-back">Back</button>
-        <button type="button" class="cra-btn" id="cra-next" disabled>Next</button>
+    <!-- header bar: identical on every screen -->
+    <header class="shell-head">
+      <div class="mark" aria-hidden="true">JF</div>
+      <div class="head-name">
+        <div class="head-product">Commercial Readiness Audit&trade;</div>
+        <div class="head-by">By The Fryer Group</div>
       </div>
-    </div>
-  </section>
-
-  <section class="cra-step" id="cra-step-site">
-    <div class="cra-card">
-      <div class="cra-qscale" id="cra-site-eyebrow"></div>
-      <div class="cra-qtext" id="cra-site-heading"></div>
-      <p class="cra-helper" id="cra-site-helper"></p>
-      <label class="cra-sr" for="cra-url">Company website</label>
-      <input type="url" id="cra-url" class="cra-input" placeholder="yourcompany.com"
-             autocomplete="url" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
-      <div class="cra-err" id="cra-url-err" role="alert"></div>
-      <button type="button" class="cra-btn" id="cra-site-go"></button>
-      <button type="button" class="cra-btn cra-ghost" id="cra-site-skip"></button>
-      <button type="button" class="cra-btn cra-ghost cra-tiny" id="cra-site-back">Back</button>
-    </div>
-  </section>
-
-  <section class="cra-step" id="cra-step-loading">
-    <div class="cra-card cra-loadcard">
-      <div class="cra-spinner"></div>
-      <div class="cra-loadtitle">Reading your homepage</div>
-      <div class="cra-loadsub" id="cra-loadsub">Comparing your answers with the commercial story a first-time buyer can see.</div>
-    </div>
-  </section>
-
-  <!-- This is a transparent, theory-driven index, not a validated predictive instrument. -->
-  <section class="cra-step" id="cra-step-results" aria-live="polite">
-    <div class="cra-card">
-      <div class="cra-headline" id="cra-headline"></div>
-      <div class="cra-scorewrap">
-        <div class="cra-scorenum" id="cra-score">0</div>
-        <div class="cra-scoreof">/ 100</div>
+      <div class="head-right">
+        <div class="head-actions">
+          <button type="button" class="start-over" id="head-restart" hidden>Start Over</button>
+          <span class="pill" id="head-pill">Free CEO Diagnostic</span>
+        </div>
       </div>
-      <div class="cra-label" id="cra-label"></div>
-      <div class="cra-restype" id="cra-restype"></div>
-      <div class="cra-bars" id="cra-bars"></div>
-      <div class="cra-fixfirst" id="cra-fixfirst"></div>
-    </div>
+    </header>
 
-    <div class="cra-card" id="cra-evidence"></div>
+    <div class="shell-body">
 
-    <div class="cra-cta">
-      <div class="cra-ctah">The score took a minute.<br>The gap analysis is the call.</div>
-      <p>30 minutes on your numbers: what closing the gap costs in time, people, and money.</p>
-      <a class="cra-book" id="cra-book" href="#" target="_blank" rel="noopener">Book a 30-minute call</a>
-    </div>
+      <!-- ================= SCREEN 0 · INTRO ================= -->
+      <section class="screen is-on intro" id="s-intro">
+        <span class="eyebrow">A Premium Commercial Diagnostic</span>
 
-    <div class="cra-keep">
-      <button type="button" class="cra-btn cra-ghost" id="cra-retake">Retake the audit</button>
-    </div>
-  </section>
+        <h1 class="h1">Where&rsquo;s the Gap in Your <span class="accent">Commercial Engine?</span></h1>
 
-  <div class="cra-foot" id="cra-foot"></div>
-</div>
+        <div class="panel intro-card">
+          <p class="intro-lede">Your technology works. Your board, your buyers, and your partners should be able to see that. But how much of the market is still going to a better-positioned competitor?</p>
+          <p class="intro-body">Take this quick 90-second <span class="product">Commercial Readiness Audit</span> to find which of the six parts of your commercial engine are behind, and what closing the gap is worth.</p>
+        </div>
 
+        <p class="no-pressure">&#10024; <b>No test pressure:</b> There are no right or wrong answers. Just move the slider to the point that best describes your company today.</p>
+
+        <div class="tiles">
+          <div class="tile">
+            <div class="tile-glyph" aria-hidden="true">&#9201;</div>
+            <div>
+              <div class="tile-label">Time Required</div>
+              <div class="tile-value">About 90 Seconds</div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-glyph" aria-hidden="true">&#128202;</div>
+            <div>
+              <div class="tile-label">Diagnostic Scope</div>
+              <div class="tile-value">6 Commercial Parts</div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-glyph" aria-hidden="true">&#128737;&#65039;</div>
+            <div>
+              <div class="tile-label">Consulting Deliverable</div>
+              <div class="tile-value">Instant Score &amp; Fix First Read</div>
+            </div>
+          </div>
+        </div>
+
+        <section class="panel glance" aria-labelledby="glance-title">
+          <h2 class="eyebrow glance-title" id="glance-title">The Parts At A Glance</h2>
+          <p class="glance-sub">Six parts. Each gets a question and a score.</p>
+          <ol class="glance-list">
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">01</span>
+              <span class="glance-copy">
+                <span class="glance-label">Your story</span>
+                <span class="glance-q">Can a buyer explain what you do after hearing it once?</span>
+              </span>
+            </li>
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">02</span>
+              <span class="glance-copy">
+                <span class="glance-label">How you sell</span>
+                <span class="glance-q">Does every deal still run through the founder?</span>
+              </span>
+            </li>
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">03</span>
+              <span class="glance-copy">
+                <span class="glance-label">Timing and lane</span>
+                <span class="glance-q">Is the market ready, do you own a category?</span>
+              </span>
+            </li>
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">04</span>
+              <span class="glance-copy">
+                <span class="glance-label">How you charge</span>
+                <span class="glance-q">Does your commercial model make it easy for a buyer to say yes?</span>
+              </span>
+            </li>
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">05</span>
+              <span class="glance-copy">
+                <span class="glance-label">Partnerships</span>
+                <span class="glance-q">Are you in the room before the shortlist?</span>
+              </span>
+            </li>
+            <li class="glance-row">
+              <span class="glance-num" aria-hidden="true">06</span>
+              <span class="glance-copy">
+                <span class="glance-label">One team, one story</span>
+                <span class="glance-q">Do eng, sales, and marketing agree?</span>
+              </span>
+            </li>
+          </ol>
+        </section>
+
+        <button type="button" class="btn btn-primary btn-block" id="intro-start">Start My Commercial Readiness Audit</button>
+        <p class="trust">100% Free CEO Audit &bull; Built for semiconductor and deep tech founders</p>
+      </section>
+
+      <!-- ================= SCREEN 1 · QUESTIONS =================
+           Phase 2 keeps the existing radio input so the flow stays working.
+           Phase 3 replaces it with the slider. -->
+      <section class="screen" id="s-quiz">
+        <div class="qhead">
+          <span class="eyebrow" id="q-eyebrow"></span>
+          <span class="tag" id="q-tag"></span>
+        </div>
+        <h2 class="h2 qtext" id="q-text"></h2>
+        <div class="opts" id="q-opts" role="radiogroup" aria-labelledby="q-text"></div>
+        <div class="qfoot">
+          <button type="button" class="link-arrow" id="q-back">&larr; Previous</button>
+          <button type="button" class="btn btn-primary" id="q-next" disabled>Next Question</button>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2 · WEBSITE (feature-flagged off) ================= -->
+      <section class="screen" id="s-site"></section>
+
+      <!-- ================= SCREEN 3 · LOADING ================= -->
+      <section class="screen" id="s-loading">
+        <div class="panel loadcard">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="h3">Reading your homepage</div>
+          <p class="loadsub">Comparing your answers with the commercial story a first-time buyer can see.</p>
+        </div>
+      </section>
+
+      <!-- This is a transparent, theory-driven index, not a validated predictive instrument. -->
+      <!-- ================= SCREEN 4 · RESULTS ================= -->
+      <section class="screen" id="s-results" aria-live="polite">
+        <div class="panel">
+          <p class="res-headline" id="res-headline"></p>
+          <div class="scorewrap">
+            <span class="scorenum" id="res-score">0</span>
+            <span class="scoreof">/ 100</span>
+          </div>
+          <p class="res-band" id="res-band"></p>
+          <p class="res-type" id="res-type"></p>
+          <div class="bars" id="res-bars"></div>
+          <div class="fixfirst" id="res-fixfirst"></div>
+        </div>
+
+        <div class="panel" id="res-evidence" style="margin-top:16px;"></div>
+
+        <div class="cta">
+          <span class="eyebrow">Next Step</span>
+          <h3 class="h3 cta-h">The score took a minute. The gap analysis is the call.</h3>
+          <p class="cta-p">Walk through your numbers with Jeff: what closing the gap costs in time, people, and money.</p>
+          <a class="btn btn-primary" id="res-book" href="#" target="_blank" rel="noopener">Book Time To Walk Through My Score</a>
+        </div>
+
+        <div class="res-retake">
+          <button type="button" class="link-arrow" id="res-retake">Retake the audit</button>
+        </div>
+      </section>
+
+      <p class="shell-foot" id="shell-foot"></p>
+
+    </div><!-- /.shell-body -->
+  </div><!-- /.shell -->
+</main>
 <script>
 (function () {
   "use strict";
@@ -216,11 +488,11 @@
   /* ==========================================================================
      CONFIG
      ========================================================================== */
-  var CRA_CONFIG = {
+  var CFG = {
     // Set to true to bring the optional website step back into the flow.
-    // Nothing behind it has been removed: the step markup, the fetch, the loading
-    // screen and the engine's buyer-facing evidence path are all still here and
-    // still wired up. This flag only controls whether the step is shown.
+    // Nothing behind it has been removed: the fetch, the loading screen and the
+    // engine's buyer-facing evidence path are all still here and still wired up.
+    // This flag only controls whether the step is built into the DOM.
     websiteStepEnabled: false,
     functionUrl: "https://jf-commercial-readiness.netlify.app/api/website-check",
     calendlyUrl: "https://calendly.com/JeffFryer",
@@ -546,9 +818,11 @@
      END ENGINE
      ========================================================================== */
 
+  /* ==========================================================================
+     UI
+     ========================================================================== */
   var E = window.CRA_ENGINE;
-  // One step per question, plus the website step only when it is enabled.
-  var TOTAL_STEPS = E.QUESTIONS.length + (CRA_CONFIG.websiteStepEnabled ? 1 : 0);
+  var SCREENS = ['s-intro', 's-quiz', 's-site', 's-loading', 's-results'];
 
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) {
@@ -564,165 +838,64 @@
   var DEBUG = params.get('cra_debug') === '1';
 
   /* ---------- navigation ---------- */
-  function showStep(id) {
-    ['cra-step-quiz', 'cra-step-site', 'cra-step-loading', 'cra-step-results'].forEach(function (s) {
-      $(s).classList.toggle('cra-on', s === id);
+  function show(id) {
+    SCREENS.forEach(function (s) {
+      var el = $(s);
+      if (el) el.classList.toggle('is-on', s === id);
     });
-  }
-
-  function setProgress(visible, index) {
-    $('cra-pw').style.display = visible ? 'block' : 'none';
-    if (!visible) return;
-    var pct = Math.round((index / TOTAL_STEPS) * 100);
-    $('cra-plab').textContent = (index + 1) + ' of ' + TOTAL_STEPS;
-    $('cra-ppct').textContent = pct + '%';
-    $('cra-pfill').style.width = pct + '%';
+    // Start Over joins the header pill from the first question onward.
+    $('head-restart').hidden = (id === 's-intro');
   }
 
   function renderQuestion() {
     var q = E.QUESTIONS[step];
-    $('cra-qscale').textContent = 'Question ' + (step + 1);
-    $('cra-qtext').textContent = q.question;
-    $('cra-opts').innerHTML = q.answers.map(function (text, i) {
+    $('q-eyebrow').textContent = 'Question ' + (step + 1) + ' of ' + E.QUESTIONS.length;
+    $('q-tag').textContent = 'Part ' + (step + 1) + ' of ' + E.QUESTIONS.length;
+    $('q-text').textContent = q.question;
+    $('q-opts').innerHTML = q.answers.map(function (text, i) {
       return '<button type="button" role="radio" aria-checked="' + (picks[step] === i ? 'true' : 'false') +
-             '" class="cra-opt' + (picks[step] === i ? ' cra-sel' : '') + '" data-i="' + i + '">' +
-             '<span class="cra-dot"><i></i></span><span>' + esc(text) + '</span></button>';
+             '" class="opt' + (picks[step] === i ? ' is-sel' : '') + '" data-i="' + i + '">' +
+             '<span class="dot"><i></i></span><span>' + esc(text) + '</span></button>';
     }).join('');
-    $('cra-back').style.visibility = step === 0 ? 'hidden' : 'visible';
-    $('cra-next').disabled = picks[step] < 0;
-    // On the final question the button submits rather than advances when the
-    // website step is switched off, so say so.
+    $('q-back').style.visibility = step === 0 ? 'hidden' : 'visible';
+    $('q-next').disabled = picks[step] < 0;
     var isLast = step === E.QUESTIONS.length - 1;
-    $('cra-next').textContent =
-      (isLast && !CRA_CONFIG.websiteStepEnabled) ? 'See my result' : 'Next';
-    setProgress(true, step);
-    showStep('cra-step-quiz');
+    $('q-next').textContent =
+      (isLast && !CFG.websiteStepEnabled) ? 'Continue To Results' : 'Next Question';
+    show('s-quiz');
   }
 
-  function renderSiteStep() {
-    var W = E.WEBSITE_FIELD;
-    $('cra-site-eyebrow').textContent = W.eyebrow;
-    $('cra-site-heading').textContent = W.heading;
-    $('cra-site-helper').textContent = W.helper;
-    $('cra-site-go').textContent = W.primaryCTA;
-    $('cra-site-skip').textContent = W.skipCTA;
-    setProgress(true, E.QUESTIONS.length);
-    showStep('cra-step-site');
-  }
+  $('intro-start').addEventListener('click', function () {
+    step = 0;
+    renderQuestion();
+  });
 
-  $('cra-opts').addEventListener('click', function (ev) {
-    var btn = ev.target.closest('.cra-opt');
+  $('q-opts').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.opt');
     if (!btn) return;
     picks[step] = parseInt(btn.getAttribute('data-i'), 10);
     renderQuestion();
   });
 
-  $('cra-next').addEventListener('click', function () {
+  $('q-next').addEventListener('click', function () {
     if (picks[step] < 0) return;
     if (step < E.QUESTIONS.length - 1) { step++; renderQuestion(); }
-    else if (CRA_CONFIG.websiteStepEnabled) { renderSiteStep(); }
-    // Website step off: score immediately with no URL. This is the same call the
-    // Skip button makes, so the scoring path is unchanged.
     else { finish(null, null, false); }
   });
 
-  $('cra-back').addEventListener('click', function () {
+  $('q-back').addEventListener('click', function () {
     if (step > 0) { step--; renderQuestion(); }
+    else { show('s-intro'); }
   });
 
-  $('cra-site-back').addEventListener('click', function () {
-    step = E.QUESTIONS.length - 1;
-    renderQuestion();
-  });
-
-  $('cra-site-skip').addEventListener('click', function () {
-    finish(null, null, false);
-  });
-
-  $('cra-site-go').addEventListener('click', function () {
-    var raw = $('cra-url').value.trim();
-    var url = normaliseUrl(raw);
-    if (!url) {
-      $('cra-url-err').textContent = 'Enter a web address, for example yourcompany.com';
-      return;
-    }
-    $('cra-url-err').textContent = '';
-    runWebsiteCheck(url);
-  });
-
-  $('cra-url').addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') { ev.preventDefault(); $('cra-site-go').click(); }
-  });
-
-  $('cra-retake').addEventListener('click', function () {
+  function restart() {
     picks = new Array(E.QUESTIONS.length).fill(-1);
     step = 0;
-    $('cra-url').value = '';
-    $('cra-url-err').textContent = '';
-    renderQuestion();
-    $('cra-app').scrollIntoView({ block: 'start', behavior: 'smooth' });
-  });
-
-  /* ---------- website check ---------- */
-  function normaliseUrl(raw) {
-    if (!raw) return null;
-    var candidate = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
-    var parsed;
-    try { parsed = new URL(candidate); } catch (e) { return null; }
-    if (!/^https?:$/.test(parsed.protocol)) return null;
-    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(parsed.hostname)) return null;
-    return parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname);
+    show('s-intro');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  function runWebsiteCheck(url) {
-    showStep('cra-step-loading');
-    setProgress(false);
-
-    // Offline test hook: ?cra_signals=strong|weak|sparse|empty
-    var stub = params.get('cra_signals');
-    if (stub) {
-      window.setTimeout(function () { finish(url, stubSignals(stub), false); }, 600);
-      return;
-    }
-
-    var controller = new AbortController();
-    var timer = window.setTimeout(function () { controller.abort(); }, CRA_CONFIG.fetchTimeoutMs);
-
-    window.fetch(CRA_CONFIG.functionUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: url }),
-      signal: controller.signal
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        window.clearTimeout(timer);
-        if (!data || !data.signals) { finish(url, null, true); return; }
-        finish(url, data.signals, false);
-      })
-      .catch(function (err) {
-        window.clearTimeout(timer);
-        if (DEBUG) console.warn('[CRA] website check failed:', err);
-        finish(url, null, true);
-      });
-  }
-
-  function stubSignals(mode) {
-    var out = {};
-    Object.keys(E.WEBSITE_RUBRIC).forEach(function (pillar) {
-      out[pillar] = {};
-      Object.keys(E.WEBSITE_RUBRIC[pillar]).forEach(function (crit, i) {
-        if (mode === 'strong') out[pillar][crit] = 1;
-        else if (mode === 'weak') out[pillar][crit] = 0;
-        else if (mode === 'sparse') out[pillar][crit] = i < 2 ? 1 : null;
-        else out[pillar][crit] = null;
-      });
-    });
-    return out;
-  }
+  $('head-restart').addEventListener('click', restart);
+  $('res-retake').addEventListener('click', restart);
 
   /* ---------- results ---------- */
   function finish(companyWebsite, websiteSignals, fetchFailed) {
@@ -738,50 +911,47 @@
       });
     } catch (err) {
       // Last-resort guard: fall back to the self-report result rather than showing nothing.
-      if (DEBUG) console.error('[CRA] scoring failed:', err);
+      if (DEBUG) console.error('[CRG] scoring failed:', err);
       result = E.scoreCommercialReadiness({ answers: answers, companyWebsite: null, websiteSignals: null });
       fetchFailed = false;
     }
 
-    if (DEBUG) console.log('[CRA] diagnostic', result.diagnostic);
-
+    if (DEBUG) console.log('[CRG] diagnostic', result.diagnostic);
     renderResults(result, fetchFailed);
   }
 
   function renderResults(result, fetchFailed) {
     var ui = result.ui;
 
-    $('cra-headline').textContent = ui.headline;
-    $('cra-score').textContent = ui.compositeScore;
-    $('cra-label').textContent = ui.scoreLabel;
-    $('cra-restype').textContent = ui.resultType;
-    $('cra-book').setAttribute('href', CRA_CONFIG.calendlyUrl);
+    $('res-headline').textContent = ui.headline;
+    $('res-score').textContent = ui.compositeScore;
+    $('res-band').textContent = ui.scoreLabel;
+    $('res-type').textContent = ui.resultType;
+    $('res-book').setAttribute('href', CFG.calendlyUrl);
 
-    // Six pillar bars, in engine order, with the weakest flagged.
     var weakNames = ui.weakestPillars.map(function (w) { return w.pillar; });
     var pillars = result.diagnostic.pillarScores;
-    $('cra-bars').innerHTML = Object.keys(pillars).map(function (key) {
+    $('res-bars').innerHTML = Object.keys(pillars).map(function (key) {
       var p = pillars[key];
-      var isWeak = weakNames.indexOf(p.name) !== -1;
-      return '<div class="cra-brow' + (isWeak ? ' cra-weak' : '') + '">' +
-               '<div class="cra-blab"><span>' + esc(p.name) +
-               (isWeak ? '<span class="cra-tag">FOCUS</span>' : '') + '</span>' +
-               '<span class="cra-bval">' + p.score + '</span></div>' +
-               '<div class="cra-btrack"><i class="cra-bfill" data-w="' + p.score + '"></i></div>' +
+      var isFocus = weakNames.indexOf(p.name) !== -1;
+      return '<div class="brow' + (isFocus ? ' is-focus' : '') + '">' +
+               '<div class="brow-lab"><span>' + esc(p.name) +
+               (isFocus ? '<span class="focus-tag">FOCUS</span>' : '') + '</span>' +
+               '<span class="bval">' + p.score + '</span></div>' +
+               '<div class="btrack"><i class="bfill" data-w="' + p.score + '"></i></div>' +
              '</div>';
     }).join('');
 
-    $('cra-fixfirst').innerHTML = '<b>Fix first: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
+    $('res-fixfirst').innerHTML = '<b>Fix first: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
 
     renderEvidence(ui.buyerFacingEvidence, fetchFailed);
     renderFooter(result.diagnostic.companyWebsite);
 
-    setProgress(false);
-    showStep('cra-step-results');
-    $('cra-app').scrollIntoView({ block: 'start', behavior: 'smooth' });
+    show('s-results');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     window.requestAnimationFrame(function () {
-      var fills = $('cra-bars').querySelectorAll('.cra-bfill');
+      var fills = $('res-bars').querySelectorAll('.bfill');
       for (var i = 0; i < fills.length; i++) {
         fills[i].style.width = fills[i].getAttribute('data-w') + '%';
       }
@@ -789,66 +959,58 @@
   }
 
   function renderEvidence(ev, fetchFailed) {
-    var box = $('cra-evidence');
+    var box = $('res-evidence');
 
-    // With the website step switched off, no evidence check was ever offered, so
-    // don't advertise one on the results screen. Hidden rather than deleted: this
-    // reverses itself the moment websiteStepEnabled goes back to true.
-    if (!CRA_CONFIG.websiteStepEnabled) {
-      box.style.display = 'none';
+    // With the website step switched off no evidence check was ever offered, so
+    // don't advertise one on the results screen.
+    if (!CFG.websiteStepEnabled) {
+      box.hidden = true;
       box.innerHTML = '';
       return;
     }
-    box.style.display = '';
+    box.hidden = false;
 
     if (ev.status === 'gaps_found') {
-      box.innerHTML = '<div class="cra-evtitle">Buyer-facing evidence check</div>' +
+      box.innerHTML = '<div class="evtitle">Buyer-facing evidence check</div>' +
         ev.checks.map(function (c) {
-          return '<div class="cra-check">' +
+          return '<div class="check">' +
                    '<h4>' + esc(c.title) + '</h4>' +
                    '<p>' + esc(c.body) + '</p>' +
-                   '<div class="cra-scores">You: <b>' + c.selfReportedScore + '</b> · ' +
+                   '<div class="scores">You: <b>' + c.selfReportedScore + '</b> &middot; ' +
                    'Publicly visible: <b>' + c.buyerFacingEvidenceScore + '</b></div>' +
                  '</div>';
         }).join('') +
-        '<div class="cra-evnote" style="margin-top:12px;">This compares your answers with what a first-time visitor can see. It is not a pass/fail website grade.</div>';
+        '<p class="evnote" style="margin-top:12px;">This compares your answers with what a first-time visitor can see. It is not a pass/fail website grade.</p>';
       return;
     }
 
-    // A failed or timed-out check reaches the engine as "no signals", which produces the
-    // same status as a genuinely inconclusive read. Say which one actually happened.
     var message = (fetchFailed && ev.status === 'no_material_gap_or_insufficient_evidence')
       ? 'We could not complete the website check this time. The result below is based on your answers alone.'
       : ev.message;
 
-    box.innerHTML = '<div class="cra-evtitle">Buyer-facing evidence check</div>' +
-                    '<div class="cra-evnote">' + esc(message) + '</div>';
+    box.innerHTML = '<div class="evtitle">Buyer-facing evidence check</div>' +
+                    '<p class="evnote">' + esc(message) + '</p>';
   }
 
   function renderFooter(companyWebsite) {
-    // Accurate on both paths: nothing is stored, but a submitted URL is sent to our
-    // service so the public homepage can be fetched and analysed.
     var privacy = companyWebsite
       ? 'Your answers are used only to write your read. The website address you entered was sent to our service to fetch and analyse your public homepage.'
       : 'Your answers are used only to write your read.';
-    $('cra-foot').innerHTML =
-      esc(privacy) +
-      '<br><br><b>Jeff Fryer · The Fryer Group · jefffryer.com</b>';
+    $('shell-foot').innerHTML =
+      '<b>Jeff Fryer &middot; The Fryer Group &middot; jefffryer.com</b><br>' + esc(privacy);
   }
 
   /* ---------- init ---------- */
-  renderQuestion();
+  renderFooter(null);
+  show('s-intro');
 
   // Test hook: ?cra_answers=41141 preloads answers and jumps straight to the result.
   var preset = params.get('cra_answers');
-  if (preset && /^[1-4]{5}$/.test(preset)) {
+  if (preset && new RegExp('^[1-4]{' + E.QUESTIONS.length + '}$').test(preset)) {
     picks = preset.split('').map(function (d) { return parseInt(d, 10) - 1; });
-    var presetStub = params.get('cra_signals');
-    if (presetStub) finish('https://example.com', stubSignals(presetStub), false);
-    else finish(null, null, false);
+    finish(null, null, false);
   }
 })();
 </script>
-
 </body>
 </html>
