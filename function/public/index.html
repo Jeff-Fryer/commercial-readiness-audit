@@ -147,8 +147,15 @@ body.is-embed .shell{box-shadow:none;}
 .head-by{font-size:13px; font-weight:500; color:var(--paper);}
 .head-right{flex:0 0 auto;}
 @media (max-width:640px){
-  .shell-head{padding:14px 20px; gap:10px;}
-  .head-product{font-size:9.5px; letter-spacing:.12em;}
+  /* The product name plus the pill will not fit on one line at 375px, and
+     squeezing them truncates the name. Drop the actions to their own row. */
+  .shell-head{padding:14px 20px; gap:10px; flex-wrap:wrap;}
+  .head-product{font-size:9.5px; letter-spacing:.1em;}
+  .head-by{white-space:nowrap;}
+  .head-right{flex:1 1 100%;}
+  .head-actions{justify-content:flex-start;}
+  .pill{font-size:10px; padding:7px 12px;}
+  .start-over{font-size:11px; padding:7px 11px;}
 }
 
 /* eyebrow: mono, small caps, letter-spaced, with a • separator */
