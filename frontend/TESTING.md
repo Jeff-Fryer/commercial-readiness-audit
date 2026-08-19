@@ -1,139 +1,60 @@
-# Testing checklist — before publishing
+# Testing checklist, before publishing
 
-> **The website step is currently switched off.** `CRA_CONFIG.websiteStepEnabled`
-> is `false`, so the flow runs Q1–Q5 → results and never asks for a URL. Cases 2,
-> 3, 5 and the degrade-path table below are therefore unreachable in the shipped
-> build — they are kept, not deleted, because they apply again the moment the flag
-> is flipped back to `true` (one line, near the top of the script block). Cases 1
-> and 4 are the ones that currently run.
+The tool is one file: `function/public/index.html`. Open it through a local
+server (query strings are needed for the debug hooks):
 
-Two things to know first:
+```
+cd function/public && python3 -m http.server 8765
+```
 
-- **Test on the published URL**, not the Squarespace editor preview. The preview
-  pane has been unreliable on this site, and it also strips query strings, which
-  the debug hooks below need.
-- The debug hooks are query parameters. They're inert without them — no code needs
-  removing before or after launch.
+## Debug hooks
 
 | Parameter | Effect |
 |---|---|
-| `?cra_debug=1` | Logs the full `diagnostic` object (flags, variance, `publicEvidence` coverage) to the browser console. |
-| `?cra_answers=41141` | Preloads five answers (digits 1–4, one per question) and jumps straight to results. |
-| `?cra_signals=strong\|weak\|sparse\|empty` | Stubs the website response locally — no function call, no API spend. |
+| `?crg=40,60,0,100,20,80` | Preloads the six sliders in pillar order (story, sell, timingLane, charge, partnerships, alignment) and jumps straight to results. Values are clamped to 0-100. |
+| `?cra_debug=1` | Logs the full `diagnostic` object (flags, variance, pillar scores) and the selected stage to the console. |
+| `?embed=1` | Renders embed mode: no page nav, no footer, no page background. This is what the Squarespace iframe loads. |
 
-Combine them: `?cra_answers=44444&cra_signals=weak&cra_debug=1`
+Combine them: `?crg=100,100,0,100,100,0&cra_debug=1`
 
----
+## The cases that must pass
 
-## The five required cases
+### 1. Scoring floor and ceiling
+- `?crg=0,0,0,0,0,0` shows **0**, band **Commercially blocked**, Fix First **One team, one story**.
+- `?crg=100,100,100,100,100,100` counts up to **100**, band **Commercially ready**.
 
-Already verified against the engine during the build; re-run after publishing to
-confirm the deployed page behaves the same.
+### 2. Fix First tie-break
+Lowest score wins. On a tie, `One team, one story` wins; otherwise the tied pillar
+with the higher weight wins; ties beyond that break in canonical pillar order.
+- `?crg=100,100,0,100,100,0` gives **43**, Fix First **One team, one story**
+  (tied at 0 with Timing and lane, alignment wins the tie), and fires
+  `COMMERCIAL_SYSTEM_INCONSISTENCY`.
+- `?crg=20,20,60,60,60,60` gives **43**, Fix First **Your story** (tied at 20 with
+  How you sell at equal weight, canonical order breaks it).
 
-### 1. Self-report only — no URL
-Answer five questions, click **Skip — show my result**.
+### 3. Untouched default
+Clicking straight through without moving anything gives **40**, band
+**Founder-dependent**, and fires `FOUNDER_DEPENDENCY_ALIGNMENT_RISK`.
 
-- Result appears with a composite score and six pillar bars
-- Evidence block reads *"Add your website in the Gap Analysis…"* (`status: not_requested`)
-- A "Fix first" recommendation is present
-- Footer says answers stay in your browser and are not sent anywhere
+### 4. Live read tracks the slider
+On any question, every stop changes the quoted sentence by band:
+0 and 20 -> option a, 40 -> b, 60 -> c, 80 and 100 -> d.
 
-### 2. Strong site
-`?cra_answers=22222&cra_signals=strong&cra_debug=1`
+### 5. Navigation holds state
+Previous from any question restores that question's slider position. Back from
+the capture screen returns to the stage picker with the stage still selected,
+and Previous from there returns to Q6 with its slider position.
 
-- No `*_BUYER_FACING_EVIDENCE_GAP` flags in the console `diagnostic`
-- Pillar scores nudge slightly **up**, capped at +5 (the `gap < 0` rule).
-  Verified: story self-report 33 → 38.
+### 6. Capture validation
+- Submitting empty shows inline errors on all four required fields.
+- A consumer address (gmail, yahoo, hotmail, outlook, icloud) is nudged once with
+  "A work email helps me write the read for your company." A second submit goes through.
+- If the form POST fails, the results screen still renders. This is deliberate.
 
-### 3. Weak site + confident answers
-`?cra_answers=44444&cra_signals=weak&cra_debug=1`
+### 7. The website step is gone, not hidden
+With `websiteStepEnabled: false` the URL input must not exist in the DOM at all:
+`document.querySelector('input[type=url]')` returns `null` on every screen.
 
-- Four gap flags fire; four evidence checks render with "You: N · Publicly visible: N"
-- Pillar scores pulled **down** — verified: story 100 → 55, composite 100 → 71
-- `timingLane` and `alignment` are unchanged (no public-evidence rubric exists for them)
-
-### 4. Contradictory answers — variance flag
-`?cra_answers=41141&cra_debug=1`
-
-- `diagnostic.contradictionVariance` = **60**
-- `diagnostic.flags` contains **`COMMERCIAL_SYSTEM_INCONSISTENCY`**
-  (and `FOUNDER_DEPENDENCY_ALIGNMENT_RISK`, since sell and alignment are both < 50)
-
-### 5. No extractable signal — nulls must not become zeros
-`?cra_answers=44444&cra_signals=empty&cra_debug=1`
-
-**This is the one that matters most.** Compare against case 1 with the same answers:
-
-- `publicEvidence.story.available` = `false`, `.score` = `null`
-- Composite is **identical** to the self-report-only result (verified: 100 = 100)
-- If the composite drops, nulls are being scored as zeros — stop and fix
-
-Also worth running: `?cra_answers=44444&cra_signals=sparse` — only 2.15 of the
-required 3.2 observed weight, so the pillar correctly falls back to self-report
-rather than scoring on thin evidence.
-
----
-
-## Degrade paths (verified during the build)
-
-| Scenario | Expected |
-|---|---|
-| Function unreachable / times out | Result still shows. Message: *"We could not complete the website check this time…"* — **not** the engine's "no material contradiction" wording, which would misattribute a technical failure to the site. |
-| Function returns a malformed payload | Same graceful path. |
-| Invalid URL typed | Inline error, no request sent, stays on the website step. |
-| Bare domain typed (`acme.com`) | Normalised to `https://acme.com` before sending. |
-
-Client abort is 25s, comfortably above the function's ~20s worst case.
-
----
-
-## Live function checks
-
-Once deployed, with a real URL (this does spend API credit):
-
-```bash
-curl -s -X POST https://<site>.netlify.app/api/website-check \
-  -H 'Content-Type: application/json' -H 'Origin: https://jefffryer.com' \
-  -d '{"url":"https://www.analog.com"}' | python3 -m json.tool | head -40
-```
-
-- All 40 keys present, values only `1` / `0` / `null`
-- A believable mix — **all-zeros is a red flag**, it usually means missing evidence
-  is being scored as contradiction rather than `null`
-- Check the logged duration: `npx netlify logs:function website-check`
-
-Security spot-checks (all should be rejected):
-
-```bash
-for u in http://127.0.0.1 http://169.254.169.254 http://localhost:8080; do
-  curl -s -X POST https://<site>.netlify.app/api/website-check \
-    -H 'Content-Type: application/json' -H 'Origin: https://jefffryer.com' \
-    -d "{\"url\":\"$u\"}"; echo; done
-```
-
-And that a disallowed origin is refused:
-
-```bash
-curl -s -X POST https://<site>.netlify.app/api/website-check \
-  -H 'Content-Type: application/json' -H 'Origin: https://evil.example' \
-  -d '{"url":"https://www.analog.com"}'
-```
-
----
-
-## Rendering
-
-- Mobile (375px) and desktop — the six pillar bars are horizontal rows, so the
-  long labels ("One team, one story") stay readable at any width
-- The block sits inside Squarespace's page; nothing outside `#cra-app` should change
-- Console clean of errors on load
-
----
-
-## Known, expected behaviour
-
-**Answering all 4s tags three pillars "FOCUS" at a score of 100.** With every pillar
-tied, the engine's `weakest` selection still returns three, and the UI renders what
-the engine reports. It's an artefact of a perfect tie, not a bug, and the render is
-deliberately faithful to `ui.weakestPillars` rather than second-guessing frozen
-scoring logic.
+### 8. No premature zero
+`#s-results` must not exist in the DOM until a score has been computed, so
+"0 / 100" never appears in page text on the intro or question screens.
