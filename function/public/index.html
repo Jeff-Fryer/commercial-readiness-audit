@@ -399,23 +399,86 @@ a{color:inherit;text-decoration:none;}
 .loadsub{margin-top:8px; font-size:13.5px; color:var(--dim);}
 
 /* ==========================================================================
-   RESULTS (Phase 5 rebuilds this properly)
+   RESULTS
    ========================================================================== */
-.res-headline{font-family:var(--oz); font-weight:600; font-size:clamp(17px,3.6vw,21px); line-height:1.25; text-align:center; text-transform:uppercase;}
-.scorewrap{display:flex; align-items:baseline; justify-content:center; gap:6px; margin-top:14px;}
-.scorenum{font-family:var(--oz); font-weight:700; font-size:clamp(54px,13vw,76px); line-height:1; color:var(--azure-hi);}
-.scoreof{font-family:var(--mono); font-size:15px; color:var(--mut);}
-.res-band{text-align:center; margin-top:4px; font-family:var(--oz); font-weight:700; font-size:clamp(18px,4.2vw,23px); text-transform:uppercase; letter-spacing:.04em;}
-.res-type{text-align:center; margin-top:6px; font-family:var(--mono); font-size:11.5px; color:var(--mut);}
-.bars{margin-top:24px; padding-top:20px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:13px;}
-.brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--mono); font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); margin-bottom:6px;}
+.res-head{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:22px; flex-wrap:wrap;}
+
+/* score hero: ring + count-up */
+.hero{text-align:center; padding:8px 0 4px;}
+.ring-wrap{position:relative; width:200px; height:200px; margin:0 auto;}
+.ring{width:200px; height:200px; transform:rotate(-90deg);}
+.ring-bg{fill:none; stroke:rgba(255,255,255,.13); stroke-width:12;}
+.ring-fg{
+  fill:none; stroke:var(--azure); stroke-width:12; stroke-linecap:round;
+  transition:stroke-dashoffset .9s cubic-bezier(.16,1,.3,1);
+}
+.ring-inner{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:2px;
+}
+.scorenum{font-family:var(--oz); font-weight:700; font-size:60px; line-height:1; color:var(--paper);}
+.scoreof{font-family:var(--mono); font-size:13px; color:var(--mut);}
+.band-pill{
+  display:inline-block; margin-top:18px; padding:8px 18px; border-radius:999px;
+  font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink); background:var(--azure-hi);
+}
+.band-blocked{background:var(--band-blocked);}
+.band-founder{background:var(--band-founder);}
+.band-emerging{background:var(--band-emerging);}
+.band-ready{background:var(--band-ready);}
+.blot{
+  max-width:52ch; margin:16px auto 0; text-align:center;
+  font-size:16px; line-height:1.5; color:var(--paper);
+}
+.blot:empty{display:none;}
+.res-type{text-align:center; margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--mut);}
+
+/* strongest / fix first */
+.duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:26px;}
+.duo-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card); padding:18px;}
+.duo-card .eyebrow{display:block; margin-bottom:10px;}
+.duo-name{font-size:17px; font-weight:700; color:var(--paper); line-height:1.3;}
+.duo-score{font-family:var(--mono); font-size:12.5px; color:var(--dim); margin-top:5px;}
+.duo-card.is-fix .eyebrow{color:var(--band-founder);}
+@media (max-width:640px){ .duo{grid-template-columns:1fr;} }
+
+/* section headings inside results */
+.res-section{margin-top:30px; padding-top:24px; border-top:1px solid var(--line);}
+.res-section > .eyebrow{display:block; margin-bottom:16px;}
+
+.bars{display:flex; flex-direction:column; gap:13px;}
+.brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--ui); font-size:13.5px; font-weight:600; color:var(--dim); margin-bottom:6px;}
 .bval{font-size:13px; color:var(--paper);}
 .btrack{height:10px; background:rgba(255,255,255,.1); border-radius:5px; overflow:hidden;}
 .bfill{display:block; height:100%; width:0%; background:var(--azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
 .brow.is-focus .brow-lab{color:var(--paper);}
 .focus-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--ink); background:var(--paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
-.fixfirst{margin-top:22px; padding-top:16px; border-top:1px solid var(--line); font-size:14px; color:var(--dim);}
-.fixfirst b{display:block; color:var(--azure-hi); font-family:var(--mono); text-transform:uppercase; letter-spacing:.1em; font-size:11px; margin-bottom:6px;}
+.fixfirst{font-size:14.5px; color:var(--dim); line-height:1.55;}
+.fixfirst b{display:block; color:var(--azure-hi); font-family:var(--ui); font-weight:700; font-size:14px; margin-bottom:6px;}
+
+/* what you told me */
+.told{display:flex; flex-direction:column; gap:14px;}
+.told-row{display:flex; gap:14px; align-items:baseline;}
+.told-meta{flex:0 0 auto; width:150px;}
+.told-pillar{
+  display:block; font-family:var(--mono); font-size:10px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--mut);
+}
+.told-val{display:block; font-family:var(--mono); font-size:13px; color:var(--azure-hi); margin-top:2px;}
+.told-quote{flex:1 1 auto; font-size:15px; font-style:italic; color:var(--paper); line-height:1.45;}
+@media (max-width:640px){
+  .told-row{flex-direction:column; gap:4px;}
+  .told-meta{width:auto;}
+  .told-pillar{display:inline;}
+  .told-val{display:inline; margin-left:8px;}
+}
+
+/* customized insights */
+.insights p{font-size:14.5px; color:var(--dim); line-height:1.6;}
+.insights p + p{margin-top:12px;}
+.insights b{color:var(--paper); font-weight:700;}
+.insight-block:empty{display:none;}
 .evtitle{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--azure-hi); margin-bottom:10px;}
 .evnote{font-size:13.5px; color:var(--dim);}
 .check{border-left:3px solid var(--paper); background:var(--panel-hi); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
@@ -676,34 +739,9 @@ a{color:inherit;text-decoration:none;}
         </div>
       </section>
 
-      <!-- This is a transparent, theory-driven index, not a validated predictive instrument. -->
-      <!-- ================= SCREEN 4 · RESULTS ================= -->
-      <section class="screen" id="s-results" aria-live="polite">
-        <div class="panel">
-          <p class="res-headline" id="res-headline"></p>
-          <div class="scorewrap">
-            <span class="scorenum" id="res-score">0</span>
-            <span class="scoreof">/ 100</span>
-          </div>
-          <p class="res-band" id="res-band"></p>
-          <p class="res-type" id="res-type"></p>
-          <div class="bars" id="res-bars"></div>
-          <div class="fixfirst" id="res-fixfirst"></div>
-        </div>
-
-        <div class="panel" id="res-evidence" style="margin-top:16px;"></div>
-
-        <div class="cta">
-          <span class="eyebrow">Next Step</span>
-          <h3 class="h3 cta-h">The score took a minute. The gap analysis is the call.</h3>
-          <p class="cta-p">Walk through your numbers with Jeff: what closing the gap costs in time, people, and money.</p>
-          <a class="btn btn-primary" id="res-book" href="#" target="_blank" rel="noopener">Book Time To Walk Through My Score</a>
-        </div>
-
-        <div class="res-retake">
-          <button type="button" class="link-arrow" id="res-retake">Retake the audit</button>
-        </div>
-      </section>
+      <!-- Results are cloned in from #tpl-results only once a score exists, so
+           "0 / 100" is never present in the page text. -->
+      <div id="results-mount"></div>
 
       <p class="shell-foot" id="shell-foot"></p>
 
@@ -736,6 +774,80 @@ a{color:inherit;text-decoration:none;}
   <input type="text" name="band_partnerships"><input type="text" name="band_alignment">
   <input type="text" name="fixFirst">
 </form>
+
+<!--
+  This is a transparent, theory-driven index, not a validated predictive instrument.
+-->
+<template id="tpl-results">
+  <section class="screen is-on" id="s-results" aria-live="polite">
+    <div class="res-head">
+      <span class="eyebrow">Your Results &bull; Commercial Readiness Score</span>
+      <span class="tag">Score ready</span>
+    </div>
+
+    <div class="panel">
+      <div class="hero">
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+            <circle class="ring-fg" id="res-ring" cx="100" cy="100" r="88"></circle>
+          </svg>
+          <div class="ring-inner">
+            <span class="scorenum" id="res-score"></span>
+            <span class="scoreof">/ 100</span>
+          </div>
+        </div>
+        <span class="band-pill" id="res-band"></span>
+        <!-- BLOT: one-sentence bottom line per band. Copy pending from Jeff. -->
+        <p class="blot" id="res-blot"></p>
+        <p class="res-type" id="res-type"></p>
+      </div>
+
+      <div class="duo">
+        <div class="duo-card">
+          <span class="eyebrow">Strongest Part</span>
+          <div class="duo-name" id="res-best-name"></div>
+          <div class="duo-score" id="res-best-score"></div>
+        </div>
+        <div class="duo-card is-fix">
+          <span class="eyebrow">Fix First</span>
+          <div class="duo-name" id="res-fix-name"></div>
+          <div class="duo-score" id="res-fix-score"></div>
+        </div>
+      </div>
+
+      <div class="res-section">
+        <span class="eyebrow">The Six Parts</span>
+        <div class="bars" id="res-bars"></div>
+      </div>
+
+      <div class="res-section">
+        <span class="eyebrow">&#10024; What You Told Me</span>
+        <div class="told" id="res-told"></div>
+      </div>
+
+      <div class="res-section insights">
+        <span class="eyebrow">&#10024; Customized Insights</span>
+        <div class="fixfirst" id="res-fixfirst"></div>
+        <!-- What / So What / Now What for the band. Copy pending from Jeff. -->
+        <div class="insight-block" id="res-band-copy"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="res-evidence" style="margin-top:16px;"></div>
+
+    <div class="cta">
+      <span class="eyebrow">Next Step</span>
+      <h3 class="h3 cta-h">The score took a minute. The gap analysis is the call.</h3>
+      <p class="cta-p">Walk through your numbers with Jeff: what closing the gap costs in time, people, and money.</p>
+      <a class="btn btn-primary" id="res-book" href="#" target="_blank" rel="noopener">Book Time To Walk Through My Score</a>
+    </div>
+
+    <div class="res-retake">
+      <button type="button" class="link-arrow" id="res-retake">Retake the audit</button>
+    </div>
+  </section>
+</template>
 
 <!--
   The optional website step. Kept as an inert <template> so that nothing inside it,
@@ -1404,11 +1516,11 @@ a{color:inherit;text-decoration:none;}
     Array.prototype.forEach.call($('capture-form').querySelectorAll('.field'), function (f) {
       f.classList.remove('is-bad');
     });
+    $('results-mount').innerHTML = '';
     show('s-intro');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   $('head-restart').addEventListener('click', restart);
-  $('res-retake').addEventListener('click', restart);
 
   /* ---------- results ---------- */
   function computeResult(companyWebsite, websiteSignals) {
@@ -1436,19 +1548,101 @@ a{color:inherit;text-decoration:none;}
     renderResults(computeResult(companyWebsite, websiteSignals), fetchFailed);
   }
 
+  /* Band presentation. BAND_COPY is intentionally empty: the BLOT line and the
+     What / So What / Now What blocks are Jeff's copy and have not landed yet.
+     An empty entry renders nothing at all rather than a placeholder. */
+  var BAND_CLASS = {
+    'Commercially blocked': 'band-blocked',
+    'Founder-dependent': 'band-founder',
+    'Emerging repeatability': 'band-emerging',
+    'Commercially ready': 'band-ready'
+  };
+  var BAND_COPY = {
+    'Commercially blocked':   { blot: '', what: '', soWhat: '', nowWhat: '' },
+    'Founder-dependent':      { blot: '', what: '', soWhat: '', nowWhat: '' },
+    'Emerging repeatability': { blot: '', what: '', soWhat: '', nowWhat: '' },
+    'Commercially ready':     { blot: '', what: '', soWhat: '', nowWhat: '' }
+  };
+
+  var RING_R = 88;
+  var RING_C = 2 * Math.PI * RING_R;
+
+  /* requestAnimationFrame is paused in a background tab, so anything that only
+     ever runs inside it never runs for someone who opens the page in a tab they
+     are not looking at. Fall back to running immediately when hidden. */
+  function nextFrame(fn) {
+    if (document.hidden) fn();
+    else window.requestAnimationFrame(fn);
+  }
+
+  function animateScore(target) {
+    var ring = $('res-ring');
+    var num = $('res-score');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var finalOffset = RING_C * (1 - target / 100);
+
+    ring.style.strokeDasharray = RING_C;
+
+    if (reduce || document.hidden) {
+      ring.style.transition = 'none';
+      ring.style.strokeDashoffset = finalOffset;
+      num.textContent = target;
+      return;
+    }
+
+    ring.style.strokeDashoffset = RING_C;
+    num.textContent = 0;
+
+    // Ring and number run on the same 900ms curve so they land together.
+    window.requestAnimationFrame(function () { ring.style.strokeDashoffset = finalOffset; });
+
+    var start = null, DUR = 900;
+    function tick(ts) {
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / DUR);
+      var eased = 1 - Math.pow(1 - t, 3);           // ease-out cubic
+      num.textContent = Math.round(target * eased);
+      if (t < 1) window.requestAnimationFrame(tick);
+      else num.textContent = target;
+    }
+    window.requestAnimationFrame(tick);
+  }
+
   function renderResults(result, fetchFailed) {
     var ui = result.ui;
+    var d = result.diagnostic;
 
-    $('res-headline').textContent = ui.headline;
+    // Build the results screen only now that a score exists.
+    var mount = $('results-mount');
+    mount.innerHTML = '';
+    mount.appendChild(document.getElementById('tpl-results').content.cloneNode(true));
+
+    // Written synchronously so a correct score is on screen even if the
+    // animation never gets a frame. animateScore rewinds it to 0 to count up.
     $('res-score').textContent = ui.compositeScore;
-    $('res-band').textContent = ui.scoreLabel;
+
+    var band = ui.scoreLabel;
+    $('res-band').textContent = band;
+    $('res-band').className = 'band-pill ' + (BAND_CLASS[band] || '');
+    $('res-blot').textContent = (BAND_COPY[band] && BAND_COPY[band].blot) || '';
     $('res-type').textContent = ui.resultType;
     $('res-book').setAttribute('href', CFG.calendlyUrl);
+    $('res-retake').addEventListener('click', restart);
 
+    // strongest and Fix First
+    var byScore = Q.map(function (q) {
+      return { name: d.pillarScores[q.key].name, score: d.pillarScores[q.key].score };
+    }).sort(function (a, b) { return b.score - a.score; });
+    $('res-best-name').textContent = byScore[0].name;
+    $('res-best-score').textContent = byScore[0].score + ' / 100';
+    $('res-fix-name').textContent = ui.fixFirst.pillar;
+    var fixScore = byScore.filter(function (p) { return p.name === ui.fixFirst.pillar; })[0];
+    $('res-fix-score').textContent = (fixScore ? fixScore.score : 0) + ' / 100';
+
+    // six-part breakdown, FOCUS on the lowest two
     var focusNames = ui.weakestPillars.map(function (w) { return w.pillar; });
-    var pillars = result.diagnostic.pillarScores;
-    $('res-bars').innerHTML = Object.keys(pillars).map(function (key) {
-      var p = pillars[key];
+    $('res-bars').innerHTML = Q.map(function (q) {
+      var p = d.pillarScores[q.key];
       var isFocus = focusNames.indexOf(p.name) !== -1;
       return '<div class="brow' + (isFocus ? ' is-focus' : '') + '">' +
                '<div class="brow-lab"><span>' + esc(p.name) +
@@ -1458,19 +1652,35 @@ a{color:inherit;text-decoration:none;}
              '</div>';
     }).join('');
 
+    // what you told me: the six sentences the sliders actually landed on
+    $('res-told').innerHTML = Q.map(function (q, i) {
+      return '<div class="told-row">' +
+               '<span class="told-meta"><span class="told-pillar">' + esc(q.pillarLabel) + '</span>' +
+               '<span class="told-val">' + values[i] + ' / 100</span></span>' +
+               '<span class="told-quote">“' + esc(q.answers[bandIndex(values[i])]) + '”</span>' +
+             '</div>';
+    }).join('');
+
     $('res-fixfirst').innerHTML = '<b>Fix first: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
 
+    var copy = BAND_COPY[band] || {};
+    $('res-band-copy').innerHTML = ['what', 'soWhat', 'nowWhat']
+      .filter(function (k) { return copy[k]; })
+      .map(function (k) { return '<p>' + copy[k] + '</p>'; })
+      .join('');
+
     renderEvidence(ui.buyerFacingEvidence, fetchFailed);
-    renderFooter(result.diagnostic.companyWebsite);
+    renderFooter(d.companyWebsite);
 
     show('s-results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    window.requestAnimationFrame(function () {
+    nextFrame(function () {
       var fills = $('res-bars').querySelectorAll('.bfill');
       for (var i = 0; i < fills.length; i++) {
         fills[i].style.width = fills[i].getAttribute('data-w') + '%';
       }
+      animateScore(ui.compositeScore);
     });
   }
 
