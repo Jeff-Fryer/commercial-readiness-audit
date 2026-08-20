@@ -493,6 +493,17 @@ body.is-embed .shell{box-shadow:none;}
 .blot:empty{display:none;}
 .res-type{text-align:center; margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--mut);}
 
+/* results action row */
+.res-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+.res-action{
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--ui); font-size:12.5px; font-weight:600; color:var(--dim);
+  border:1px solid var(--line-hi); border-radius:999px; padding:8px 14px;
+  transition:color .15s,border-color .15s;
+}
+.res-action:hover{color:var(--paper); border-color:var(--azure);}
+.res-action-note{font-size:12.5px; color:var(--azure-text);}
+
 /* strongest / fix first */
 .duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:26px;}
 .duo-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card); padding:18px;}
@@ -537,7 +548,10 @@ body.is-embed .shell{box-shadow:none;}
 .insights p{font-size:14.5px; color:var(--dim); line-height:1.6;}
 .insights p + p{margin-top:12px;}
 .insights b{color:var(--paper); font-weight:700;}
-.insight-block:empty{display:none;}
+/* Fix First names the weakest pillar; the band block explains the overall
+   score. Two different ideas, so they get a rule between them. */
+.insight-block{margin-top:20px; padding-top:18px; border-top:1px solid var(--line);}
+.insight-block:empty{display:none; margin:0; padding:0; border:0;}
 .evtitle{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--azure-text); margin-bottom:10px;}
 .evnote{font-size:13.5px; color:var(--dim);}
 .check{border-left:3px solid var(--paper); background:var(--panel-hi); border-radius:0 6px 6px 0; padding:12px 14px; margin-top:10px;}
@@ -555,6 +569,41 @@ body.is-embed .shell{box-shadow:none;}
 .shell-foot{margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--mut); line-height:1.7;}
 .shell-foot b{color:var(--dim);}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+
+/* ==========================================================================
+   PRINT
+   A CEO who can put their score in a board deck shows the tool to other people.
+   Paper is white, so the whole palette inverts: dark ink on white, no gradient,
+   no chrome, no controls, and no CTA card.
+   ========================================================================== */
+@media print{
+  @page{ margin:16mm; }
+  body{background:#fff !important; color:#111 !important;}
+  .page-nav,.page-foot,.res-actions,.cta,.res-retake,.shell-head{display:none !important;}
+  .stage{padding:0 !important;}
+  .shell{
+    background:#fff !important; box-shadow:none !important;
+    border-radius:0 !important; max-width:none !important;
+  }
+  .shell-body{padding:0 !important;}
+  .h1,.h2,.h3,.scorenum,.duo-name,.told-quote,.insights b,.bval,.blot{color:#111 !important;}
+  .eyebrow,.glyph-label,.told-val,.fixfirst b{color:#1B5A9E !important;}
+  .tag,.res-type,.duo-score,.told-pillar,.shell-foot,.brow-lab,.fixfirst,.insights p{color:#444 !important;}
+  .panel,.duo-card{background:#fff !important; border:1px solid #bbb !important;}
+  .res-section{border-top:1px solid #bbb !important;}
+  .btrack{background:#e4e4e4 !important;}
+  .bfill{background:#1B5A9E !important;}
+  .ring-bg{stroke:#e4e4e4 !important;}
+  .ring-fg{stroke:#1B5A9E !important; transition:none !important;}
+  .band-pill{
+    color:#111 !important; background:#fff !important;
+    border:2px solid #111 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .focus-tag{background:#111 !important; color:#fff !important;}
+  .shell-foot{display:block !important; border-top:1px solid #bbb !important;}
+  /* keep a section and its heading together on one sheet */
+  .res-section,.duo-card,.told-row{break-inside:avoid; page-break-inside:avoid;}
+}
 
 @media (prefers-reduced-motion:reduce){
   .spinner{animation-duration:3s;}
@@ -862,6 +911,16 @@ body.is-embed .shell{box-shadow:none;}
       <span class="tag">Score ready</span>
     </div>
 
+    <div class="res-actions">
+      <button type="button" class="res-action" id="res-share">
+        <span aria-hidden="true">&#128279;</span> Share
+      </button>
+      <button type="button" class="res-action" id="res-print">
+        <span aria-hidden="true">&#128424;</span> Save PDF / Print
+      </button>
+      <span class="res-action-note" id="res-share-note" role="status"></span>
+    </div>
+
     <div class="panel">
       <div class="hero">
         <div class="ring-wrap">
@@ -904,7 +963,7 @@ body.is-embed .shell{box-shadow:none;}
       </div>
 
       <div class="res-section insights">
-        <span class="eyebrow">&#10024; Customized Insights</span>
+        <span class="eyebrow">&#10024; Your Fix First Read</span>
         <div class="fixfirst" id="res-fixfirst"></div>
         <!-- What / So What / Now What for the band. Copy pending from Jeff. -->
         <div class="insight-block" id="res-band-copy"></div>
@@ -1638,9 +1697,12 @@ body.is-embed .shell{box-shadow:none;}
     renderResults(computeResult(companyWebsite, websiteSignals), fetchFailed);
   }
 
-  /* Band presentation. BAND_COPY is intentionally empty: the BLOT line and the
-     What / So What / Now What blocks are Jeff's copy and have not landed yet.
-     An empty entry renders nothing at all rather than a placeholder. */
+  /* Band presentation.
+     BAND_COPY is intentionally empty. Each band's BLOT line and its
+     What / So What / Now What are ONE unit and land together: the BLOT is the
+     hook, the three paragraphs are the analysis it promises. bandCopyReady()
+     below enforces that, so a band with a BLOT but no analysis renders nothing
+     at all rather than shipping a bare hook with a hole underneath it. */
   var BAND_CLASS = {
     'Commercially blocked': 'band-blocked',
     'Founder-dependent': 'band-founder',
@@ -1648,11 +1710,37 @@ body.is-embed .shell{box-shadow:none;}
     'Commercially ready': 'band-ready'
   };
   var BAND_COPY = {
-    'Commercially blocked':   { blot: '', what: '', soWhat: '', nowWhat: '' },
-    'Founder-dependent':      { blot: '', what: '', soWhat: '', nowWhat: '' },
-    'Emerging repeatability': { blot: '', what: '', soWhat: '', nowWhat: '' },
-    'Commercially ready':     { blot: '', what: '', soWhat: '', nowWhat: '' }
+    'Commercially blocked': {
+      blot: 'Your technology works. Your sales don’t reflect that yet.',
+      what: 'More than one part of your commercial engine is missing. Deals only move when you’re personally in the room. The pitch changes depending on who’s giving it. Nobody outside engineering could explain what you do in one sentence.',
+      soWhat: 'Every deal that depends on you is a deal that stops when you’re busy, out sick, or fundraising. That slows your sales cycle and it shows up at your next raise: investors read this as risk, and risk shows up as a lower number.',
+      nowWhat: 'Fix one thing first, not all six. Most companies here get the fastest win from two parts: a story a buyer can repeat back correctly, and a sales process that still works when you’re not the one running it.'
+    },
+    'Founder-dependent': {
+      blot: 'The business runs. It only runs because you’re pushing it.',
+      what: 'A part or two of your engine works well, usually your story or your sense of timing. But sales, partnerships, and internal alignment still run through you. Nothing here works without you in the loop.',
+      soWhat: 'You can win deals. You can’t win two at once. Every new customer takes as much of your time as the last one, so growth stays capped at whatever you can personally carry. That’s expensive, and it’s hard to hand off or sell.',
+      nowWhat: 'Build the parts that don’t need you in the room: a sales process that runs on its own, and partners who bring you in before the deal is already decided. Getting your team telling one story is usually the fastest way to make everything else easier.'
+    },
+    'Emerging repeatability': {
+      blot: 'Most of your engine runs on its own. One weak spot is holding you back.',
+      what: 'Four or five parts of your commercial engine work without you now. Usually one is still shaky, often partnerships or how you charge, and it’s inconsistent even though the rest has settled.',
+      soWhat: 'You’re closing real business, but you’re leaving some on the table: deals partners could have brought you into early, or conversations about terms that stall instead of closing. That’s the gap between a good quarter and a great one.',
+      nowWhat: 'Fix the one thing that’s still weak instead of polishing what already works. At this stage, fixing that one part usually makes the rest run better too.'
+    },
+    'Commercially ready': {
+      blot: 'Your engine can carry growth on its own. The question now is how much growth it can carry.',
+      what: 'All six parts are working and reinforcing each other. New revenue doesn’t need you to step in personally anymore.',
+      soWhat: 'The risk here isn’t your engine, it’s your ceiling. Can your team and systems handle real volume, or are you about to outgrow what got you here? That’s harder to see from inside the company than from outside it.',
+      nowWhat: 'Stress-test the engine before you need to. A short outside read on where it strains first is worth more now than at any earlier stage, because you’re too close to see it yourself.'
+    }
   };
+
+  // All four pieces, or none of them.
+  function bandCopyReady(band) {
+    var c = BAND_COPY[band];
+    return !!(c && c.blot && c.what && c.soWhat && c.nowWhat);
+  }
 
   var RING_R = 88;
   var RING_C = 2 * Math.PI * RING_R;
@@ -1714,7 +1802,7 @@ body.is-embed .shell{box-shadow:none;}
     var band = ui.scoreLabel;
     $('res-band').textContent = band;
     $('res-band').className = 'band-pill ' + (BAND_CLASS[band] || '');
-    $('res-blot').textContent = (BAND_COPY[band] && BAND_COPY[band].blot) || '';
+    $('res-blot').textContent = bandCopyReady(band) ? BAND_COPY[band].blot : '';
     $('res-type').textContent = ui.resultType;
     $('res-book').setAttribute('href', CFG.calendlyUrl);
     $('res-retake').addEventListener('click', restart);
@@ -1753,11 +1841,13 @@ body.is-embed .shell{box-shadow:none;}
 
     $('res-fixfirst').innerHTML = '<b>Fix First: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
 
-    var copy = BAND_COPY[band] || {};
-    $('res-band-copy').innerHTML = ['what', 'soWhat', 'nowWhat']
-      .filter(function (k) { return copy[k]; })
-      .map(function (k) { return '<p>' + copy[k] + '</p>'; })
-      .join('');
+    $('res-band-copy').innerHTML = bandCopyReady(band)
+      ? ['what', 'soWhat', 'nowWhat'].map(function (k) {
+          return '<p>' + BAND_COPY[band][k] + '</p>';
+        }).join('')
+      : '';
+
+    wireResultActions();
 
     renderEvidence(ui.buyerFacingEvidence, fetchFailed);
     renderFooter(d.companyWebsite);
@@ -1771,6 +1861,35 @@ body.is-embed .shell{box-shadow:none;}
         fills[i].style.width = fills[i].getAttribute('data-w') + '%';
       }
       animateScore(ui.compositeScore);
+    });
+  }
+
+  /* Share hands over a link that reproduces this exact result, so a CEO can put
+     their score in front of a board or a co-founder. Print is left to the OS
+     dialog, which is also where "Save as PDF" lives on both macOS and Windows. */
+  function shareUrl() {
+    return window.location.origin + window.location.pathname + '?crg=' + values.join(',');
+  }
+
+  function wireResultActions() {
+    $('res-print').addEventListener('click', function () { window.print(); });
+
+    $('res-share').addEventListener('click', function () {
+      var url = shareUrl();
+      var note = $('res-share-note');
+      if (navigator.share) {
+        navigator.share({ title: 'My Commercial Readiness Score', url: url })
+          .catch(function () { /* the person dismissed the sheet */ });
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          note.textContent = 'Link copied';
+          window.setTimeout(function () { note.textContent = ''; }, 2600);
+        }).catch(function () { note.textContent = url; });
+        return;
+      }
+      note.textContent = url;
     });
   }
 
