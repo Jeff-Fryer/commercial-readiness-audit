@@ -67,7 +67,7 @@ a{color:inherit;text-decoration:none;}
    ========================================================================== */
 .page-nav{
   display:flex; align-items:center; justify-content:space-between; gap:20px;
-  height:72px; padding:0 28px;
+  height:60px; padding:0 28px;
   background:var(--navy); border-bottom:1px solid var(--line);
 }
 .wordmark{
@@ -111,14 +111,14 @@ body.is-embed .shell{box-shadow:none;}
 /* ==========================================================================
    PAGE FRAME
    ========================================================================== */
-.stage{padding:36px 20px 72px;}
+.stage{padding:20px 20px 64px;}
 .shell{
   max-width:720px; margin:0 auto;
   background:var(--shell); border-radius:var(--r-shell);
   box-shadow:0 24px 64px rgba(0,0,0,.36), 0 2px 0 rgba(255,255,255,.06) inset;
   overflow:hidden;
 }
-.shell-body{padding:40px;}
+.shell-body{padding:28px 40px 36px;}
 @media (max-width:640px){
   .stage{padding:20px 12px 48px;}
   .shell-body{padding:20px;}
@@ -132,7 +132,7 @@ body.is-embed .shell{box-shadow:none;}
 /* header bar */
 .shell-head{
   display:flex; align-items:center; gap:14px;
-  padding:18px 40px; border-bottom:1px solid var(--line);
+  padding:13px 40px; border-bottom:1px solid var(--line);
   background:rgba(0,0,0,.14);
 }
 .mark{
@@ -187,7 +187,7 @@ body.is-embed .shell{box-shadow:none;}
 }
 
 /* headings */
-.h1{font-family:var(--oz); font-weight:700; font-size:clamp(30px,6.2vw,48px); line-height:1.04; text-transform:uppercase; letter-spacing:.01em;}
+.h1{font-family:var(--oz); font-weight:700; font-size:clamp(28px,5.4vw,40px); line-height:1.03; text-transform:uppercase; letter-spacing:.01em;}
 .h1 .accent{color:var(--azure-hi);}
 .h2{font-family:var(--oz); font-weight:700; font-size:clamp(24px,4.8vw,34px); line-height:1.1; text-transform:uppercase; letter-spacing:.01em;}
 .h3{font-family:var(--oz); font-weight:600; font-size:clamp(18px,3.4vw,22px); line-height:1.2; text-transform:uppercase; letter-spacing:.03em;}
@@ -196,7 +196,7 @@ body.is-embed .shell{box-shadow:none;}
 .btn{
   display:inline-block; text-align:center; font-family:var(--ui);
   font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  padding:16px 30px; border-radius:var(--r-btn); border:1px solid transparent;
+  padding:14px 30px; border-radius:var(--r-btn); border:1px solid transparent;
   transition:background .15s,border-color .15s,color .15s,transform .06s;
 }
 .btn-primary{background:var(--azure); border-color:var(--azure); color:var(--ink);}
@@ -238,25 +238,25 @@ body.is-embed .shell{box-shadow:none;}
    INTRO
    ========================================================================== */
 .intro{text-align:center;}
-.intro .eyebrow{display:block; margin-bottom:12px;}
-.intro .h1{margin-bottom:26px;}
-.intro-card{text-align:left; margin-bottom:24px;}
-.intro-card p + p{margin-top:14px;}
-.intro-lede{font-size:17px; font-weight:600; color:var(--paper); line-height:1.5;}
-.intro-body{font-size:16px; color:var(--dim);}
+.intro .eyebrow{display:block; margin-bottom:10px;}
+.intro .h1{margin-bottom:20px;}
+.intro-card{text-align:left; margin-bottom:18px; padding:20px;}
+.intro-card p + p{margin-top:10px;}
+.intro-lede{font-size:16px; font-weight:600; color:var(--paper); line-height:1.42;}
+.intro-body{font-size:15px; color:var(--dim); line-height:1.45;}
 .intro-body .product{color:var(--azure-text); font-weight:700;}
 /* sits inside the body card, under a hairline, the way the reference does it */
 .no-pressure{
   font-size:13.5px; color:var(--mut); line-height:1.5;
-  margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
+  margin-top:11px; padding-top:11px; border-top:1px solid var(--line);
 }
 .no-pressure b{color:var(--dim); font-weight:600;}
 /* icon left, text right: roughly half the height of a stacked tile */
-.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px;}
+.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;}
 .tile{
   display:flex; align-items:center; gap:12px; text-align:left;
   background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card);
-  padding:14px;
+  padding:11px 12px;
 }
 .tile-glyph{flex:0 0 auto; font-size:20px; line-height:1;}
 .tile-label{
