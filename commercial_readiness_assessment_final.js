@@ -81,7 +81,7 @@ const QUESTIONS = [
   {
     key: 'charge', pillarLabel: 'How you charge',
     question: 'Does how you charge make it easy for the right customer to say yes?',
-    anchors: ['Every deal re-explained', 'Terms never slow it'],
+    anchors: ['Terms re-argued every deal', 'Terms never slow a deal'],
     answers: [
       'Every deal needs a fresh explanation of value and terms.',
       'Buyers see the value, but commercial approval often stalls the deal.',
@@ -103,7 +103,7 @@ const QUESTIONS = [
   {
     key: 'alignment', pillarLabel: 'One team, one story',
     question: 'Do engineering, sales, and marketing tell the same commercial story?',
-    anchors: ['Six stories', 'One story'],
+    anchors: ['Every team its own story', 'One story'],
     answers: [
       'We describe the customer and value differently across the company.',
       'We broadly agree, but messages and priorities change by team or deal.',
