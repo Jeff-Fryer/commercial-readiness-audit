@@ -912,7 +912,10 @@ body.is-embed .shell{box-shadow:none;}
   <input type="text" name="band_story"><input type="text" name="band_sell">
   <input type="text" name="band_timingLane"><input type="text" name="band_charge">
   <input type="text" name="band_partnerships"><input type="text" name="band_alignment">
-  <input type="text" name="fixFirst">
+  <input type="text" name="fixFirst"><input type="text" name="fixFirstAction">
+  <input type="text" name="told_story"><input type="text" name="told_sell">
+  <input type="text" name="told_timingLane"><input type="text" name="told_charge">
+  <input type="text" name="told_partnerships"><input type="text" name="told_alignment">
 </form>
 
 <!--
@@ -1635,12 +1638,16 @@ body.is-embed .shell{box-shadow:none;}
       stage: stage || '',
       score: String(result.ui.compositeScore),
       band: result.ui.scoreLabel,
-      fixFirst: result.ui.fixFirst.pillar
+      fixFirst: result.ui.fixFirst.pillar,
+      fixFirstAction: result.ui.fixFirst.action
     };
     Q.forEach(function (q, i) {
       body['pillar_' + q.key] = String(d.pillarScores[q.key].score);
       body['slider_' + q.key] = String(values[i]);
       body['band_' + q.key] = BAND_LETTER[bandIndex(values[i])];
+      // the sentence they actually landed on, so the emailed report is built
+      // from the submission alone and never drifts from the copy in this file
+      body['told_' + q.key] = q.answers[bandIndex(values[i])];
     });
     return body;
   }
