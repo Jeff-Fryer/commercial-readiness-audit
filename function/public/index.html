@@ -111,7 +111,7 @@ body.is-embed .shell{box-shadow:none;}
 /* ==========================================================================
    PAGE FRAME
    ========================================================================== */
-.stage{padding:48px 20px 72px;}
+.stage{padding:36px 20px 72px;}
 .shell{
   max-width:720px; margin:0 auto;
   background:var(--shell); border-radius:var(--r-shell);
@@ -238,35 +238,36 @@ body.is-embed .shell{box-shadow:none;}
    INTRO
    ========================================================================== */
 .intro{text-align:center;}
-.intro .eyebrow{display:block; margin-bottom:16px;}
-.intro .h1{margin-bottom:32px;}
-.intro-card{text-align:left; margin-bottom:28px;}
+.intro .eyebrow{display:block; margin-bottom:12px;}
+.intro .h1{margin-bottom:26px;}
+.intro-card{text-align:left; margin-bottom:24px;}
 .intro-card p + p{margin-top:14px;}
 .intro-lede{font-size:17px; font-weight:600; color:var(--paper); line-height:1.5;}
 .intro-body{font-size:16px; color:var(--dim);}
 .intro-body .product{color:var(--azure-text); font-weight:700;}
+/* sits inside the body card, under a hairline, the way the reference does it */
 .no-pressure{
-  font-size:13.5px; color:var(--mut); line-height:1.55;
-  max-width:56ch; margin:0 auto 32px; text-align:left;
+  font-size:13.5px; color:var(--mut); line-height:1.5;
+  margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
 }
 .no-pressure b{color:var(--dim); font-weight:600;}
-.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:36px;}
+/* icon left, text right: roughly half the height of a stacked tile */
+.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px;}
 .tile{
+  display:flex; align-items:center; gap:12px; text-align:left;
   background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card);
-  padding:18px 14px; text-align:center;
+  padding:14px;
 }
-.tile-glyph{font-size:20px; line-height:1; margin-bottom:10px;}
+.tile-glyph{flex:0 0 auto; font-size:20px; line-height:1;}
 .tile-label{
-  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--mut); margin-bottom:6px;
+  font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--mut); margin-bottom:4px; white-space:nowrap;
 }
-.tile-value{font-size:14px; font-weight:700; color:var(--paper); line-height:1.35;}
+.tile-value{font-size:13.5px; font-weight:700; color:var(--paper); line-height:1.3;}
 .intro .btn-primary{margin-bottom:14px;}
 @media (max-width:640px){
   .tiles{grid-template-columns:1fr; gap:10px;}
-  .tile{display:flex; align-items:center; gap:12px; text-align:left; padding:14px;}
-  .tile-glyph{margin-bottom:0;}
-  .tile-label{margin-bottom:2px;}
+  .tile-label{white-space:normal;}
 }
 @media (min-width:641px){
   .intro .btn-primary{min-width:380px;}
@@ -493,6 +494,19 @@ body.is-embed .shell{box-shadow:none;}
 .blot:empty{display:none;}
 .res-type{text-align:center; margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--mut);}
 
+/* untouched-sliders notice */
+.unscored{
+  margin-top:22px; padding:22px; text-align:center;
+  background:var(--panel); border:1px solid var(--line-hi); border-radius:var(--r-card);
+}
+.unscored .eyebrow{display:block; margin-bottom:10px;}
+.unscored-line{
+  max-width:52ch; margin:0 auto 18px; font-size:15.5px; line-height:1.55; color:var(--paper);
+}
+/* with nothing answered, every diagnostic block is an artifact of the defaults */
+.is-unscored .duo,
+.is-unscored .res-section{display:none;}
+
 /* results action row */
 .res-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
 .res-action{
@@ -646,9 +660,8 @@ body.is-embed .shell{box-shadow:none;}
         <div class="panel intro-card">
           <p class="intro-lede">Your technology works. Your board, your buyers, and your partners should be able to see that. But how much of the market is still going to a better-positioned competitor?</p>
           <p class="intro-body">Take this quick 90-second <span class="product">Commercial Readiness Audit</span> to find which of the six parts of your commercial engine are behind, and what closing the gap is worth.</p>
+          <p class="no-pressure">&#10024; <b>No test pressure:</b> There are no right or wrong answers. Just move the slider to the point that best describes your company today.</p>
         </div>
-
-        <p class="no-pressure">&#10024; <b>No test pressure:</b> There are no right or wrong answers. Just move the slider to the point that best describes your company today.</p>
 
         <div class="tiles">
           <div class="tile">
@@ -938,6 +951,16 @@ body.is-embed .shell{box-shadow:none;}
         <!-- BLOT: one-sentence bottom line per band. Copy pending from Jeff. -->
         <p class="blot" id="res-blot"></p>
         <p class="res-type" id="res-type"></p>
+      </div>
+
+      <!-- Shown only when the visitor moved no sliders at all. The score is
+           still arithmetic, but it is the midpoint of the scale rather than a
+           read on their business, and saying so is worth more than a confident
+           diagnosis nobody earned. -->
+      <div class="unscored" id="res-unscored" hidden>
+        <span class="eyebrow">No answers yet</span>
+        <p class="unscored-line">You clicked through without moving any sliders, so this is the midpoint of the scale, not a read on your business. Set the six and the score will mean something.</p>
+        <button type="button" class="btn btn-primary" id="res-redo">Set The Six Sliders</button>
       </div>
 
       <div class="duo">
@@ -1410,6 +1433,7 @@ body.is-embed .shell{box-shadow:none;}
   /* ---------- state ---------- */
   var DEFAULT_VALUE = 40;                 // deliberately not the midpoint: 60 flatters
   var values = Q.map(function () { return DEFAULT_VALUE; });
+  var touched = Q.map(function () { return false; });
   var stage = null;
   var step = 0;
   var params = new URLSearchParams(window.location.search);
@@ -1494,6 +1518,7 @@ body.is-embed .shell{box-shadow:none;}
   $('q-slider').addEventListener('input', function () {
     var v = parseInt(this.value, 10);
     values[step] = v;
+    touched[step] = true;
     this.setAttribute('aria-valuetext', v + ' out of 100. ' + Q[step].answers[bandIndex(v)]);
     syncSlider(v);
   });
@@ -1658,6 +1683,7 @@ body.is-embed .shell{box-shadow:none;}
 
   function restart() {
     values = Q.map(function () { return DEFAULT_VALUE; });
+    touched = Q.map(function () { return false; });
     stage = null;
     step = 0;
     consumerWarned = false;
@@ -1847,6 +1873,22 @@ body.is-embed .shell{box-shadow:none;}
           return '<p>' + BAND_COPY[band][k] + '</p>';
         }).join('')
       : '';
+
+    // Nothing moved means nothing was said. Show the number, drop the diagnosis.
+    var answered = touched.filter(Boolean).length;
+    var section = $('s-results');
+    $('res-unscored').hidden = answered > 0;
+    section.classList.toggle('is-unscored', answered === 0);
+    if (answered === 0) {
+      $('res-band').textContent = 'Midpoint, not a read';
+      $('res-band').className = 'band-pill';
+      $('res-blot').textContent = '';
+      $('res-redo').addEventListener('click', function () {
+        step = 0;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
 
     wireResultActions();
 
