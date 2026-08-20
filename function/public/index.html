@@ -273,7 +273,7 @@ body.is-embed .shell{box-shadow:none;}
 }
 
 /* the parts at a glance */
-.glance{text-align:left; margin-bottom:36px;}
+.glance{text-align:left; margin-top:40px;}
 .glance-title{display:block; margin-bottom:6px;}
 .glance-sub{font-size:13.5px; color:var(--mut); margin-bottom:18px;}
 .glance-list{list-style:none; display:flex; flex-direction:column;}
@@ -674,6 +674,10 @@ body.is-embed .shell{box-shadow:none;}
           </div>
         </div>
 
+
+        <button type="button" class="btn btn-primary btn-block" id="intro-start">Start My Commercial Readiness Audit</button>
+        <p class="trust">100% Free CEO Audit &bull; Built for semiconductor and deep tech founders</p>
+
         <section class="panel glance" aria-labelledby="glance-title">
           <h2 class="eyebrow glance-title" id="glance-title">The Parts At A Glance</h2>
           <p class="glance-sub">Six parts. Each gets a question and a score.</p>
@@ -722,9 +726,6 @@ body.is-embed .shell{box-shadow:none;}
             </li>
           </ol>
         </section>
-
-        <button type="button" class="btn btn-primary btn-block" id="intro-start">Start My Commercial Readiness Audit</button>
-        <p class="trust">100% Free CEO Audit &bull; Built for semiconductor and deep tech founders</p>
       </section>
 
       <!-- ================= SCREEN 1 · QUESTIONS ================= -->
@@ -1929,8 +1930,8 @@ body.is-embed .shell{box-shadow:none;}
 
   function renderFooter(companyWebsite) {
     var privacy = companyWebsite
-      ? 'Your answers are used only to write your read. The website address you entered was sent to our service to fetch and analyze your public homepage.'
-      : 'Your answers are used only to write your read.';
+      ? 'Your answers are sent with your details when you request your report, and are used only to write it. The website address you entered was sent to our service to fetch and analyze your public homepage.'
+      : 'Your answers are sent with your details when you request your report, and are used only to write it.';
     $('shell-foot').innerHTML =
       '<b>Jeff Fryer &middot; The Fryer Group &middot; jefffryer.com</b><br>' + esc(privacy);
   }
