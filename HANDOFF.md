@@ -2,9 +2,10 @@
 
 Last updated: 2026-08-21. Written for whoever picks this up next.
 
-The tool is **built, deployed, and working**. What remains is a short list of
-Squarespace link fixes on jefffryer.com. Read "Outstanding work" and "Do not
-repeat these mistakes" before touching anything.
+The tool is **built, deployed, and working**, and the Squarespace link cleanup
+on jefffryer.com is finished and verified. There is no open work. Read "Do not
+repeat these mistakes" before touching anything, and re-run
+`scripts/verify-links.sh` rather than trusting section 5 to still be current.
 
 ---
 
@@ -122,64 +123,37 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 
 ## 5. Outstanding work
 
-All of it is on Squarespace. Nothing in the repo is pending.
+**Nothing is outstanding.** The three Squarespace items that were open earlier
+on 2026-08-21 are all closed and verified.
 
-**State confirmed 2026-08-21** by reading the URL Mappings textarea (25 lines)
-and crawling the live site with `scripts/verify-links.sh`. All three items below
-are still outstanding, and the crawl found no others. The two counts reconcile:
-the "seven things" broken by disabling `/commercial-readiness-gap` are the six
-internal links in 5c plus the `/resources` redirect in 5b.
-
-### 5a. Add one URL mapping (highest priority)
-
-`/commercial-readiness-gap` was disabled, which broke **seven** things. One line
-fixes all of them.
-
-Settings → Developer Tools → **URL Mappings**, add:
-
-```
-/commercial-readiness-gap -> /commercial-readiness-audit 301
-```
-
-That box already holds ~30 live redirects. Add a line; change nothing else.
-
-### 5b. Fix existing mapping line 17
-
-Currently `/resources -> /commercial-readiness-gap 301`, which points at the
-disabled page. Change the target to `/commercial-readiness-audit`.
-
-It is genuinely line 17 of 25 today, but adding 5a at the top shifts it. Find it
-by searching for `/resources`, not by counting.
-
-Note that no live check can confirm 5b once 5a is in place: `/resources` reaches
-the audit page either directly or by chaining through the new redirect. **The
-URL Mappings textarea is the only ground truth for 5a and 5b.** Read it back
-after editing.
-
-### 5c. Repoint six internal links
-
-These still point at the disabled gap page. 5a makes them work via redirect, but
-they should point directly.
-
-| Page | Anchor text |
+| Was | State |
 |---|---|
-| `/advanced-packaging-foundry` | See the six parts of your commercial engine → |
-| `/developer-pipeline` | same |
-| `/digital-practice` | same |
-| `/global-semiconductor-repositioning` | same |
-| `/venture-ecosystem-launch` | same |
-| `/blog/six-reasons-design-wins-arent-turning-into-revenue` | Commercial Readiness Gap |
+| 5a. Add `/commercial-readiness-gap -> /commercial-readiness-audit 301` | **Done.** The redirect returns 200 and lands on the audit page. |
+| 5b. Retarget the `/resources` mapping off the disabled gap page | **Done.** Confirmed by reading the URL Mappings textarea, which is the only ground truth for this one. A live fetch cannot tell 5b from a chain through 5a. |
+| 5c. Repoint six internal links off the gap page | **Done.** All six now link directly to `/commercial-readiness-audit` with their anchor text intact. |
 
-All → `/commercial-readiness-audit`.
+A full crawl of the sitemap on 2026-08-21 came back clean: 33 pages, zero
+STALE, zero UNKNOWN-TYPO?, zero FETCHFAIL, zero split links. Re-run
+`scripts/verify-links.sh` before believing this section is still true.
 
-*Not* broken, leave alone: "Inside the Commercial Readiness Gap" on
+One link is *correctly* left alone: "Inside the Commercial Readiness Gap" on
 `/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` points at a
-blog post whose slug merely contains that phrase.
+blog post whose slug merely contains the phrase, not at the retired page. The
+verifier flags it `OK-BLOGSLUG` so nobody "fixes" it.
 
-### 5d. Optional, previously flagged, not approved
+### 5d. Optional, flagged, never approved
+
+Jeff has seen all of these and has not asked for them. Do not do them unbidden.
 
 - The footer LinkedIn link has **no accessible name** — screen readers announce
   "link" with no destination. Needs an `aria-label`.
+- Squarespace structured data is stale: the DefinedTerm schema still says
+  "six layers", which is banned jargon, and `knowsAbout` still lists
+  "Commercial Readiness Gap" and "growth-stage semiconductor companies".
+- Meta descriptions on `/about` and `/contact`, and three references on
+  `/privacy`, still use retired wording.
+- `/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` describes a
+  "five-minute self-check". The audit takes 90 seconds.
 - `/commercial-gap` (a third, long-form page) was disabled. Nothing linked to it.
 
 ---
