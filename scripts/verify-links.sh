@@ -68,20 +68,28 @@ printf '%-22s %-42s %s\n' FLAG PAGE 'HREF | ANCHOR TEXT'
 for p in $paths; do
   html=$(fetch "$p") || { printf '%-22s %s\n' FETCHFAIL "$p"; continue; }
 
-  # Put every anchor that mentions "commercial" on its own line, then split the
-  # opening tag from the text that follows it. Text stops at the next tag, so a
-  # nested <span> yields empty text - which is itself worth seeing.
+  # Break the document so each </a> ends a line, then match whole anchors. This
+  # keeps nested markup inside the match, so a link whose text is wrapped in
+  # <strong> or <span> still yields its real text rather than an empty string
+  # (an empty string here used to masquerade as a split link).
   printf '%s' "$html" \
     | tr -d '\n' \
-    | grep -oE '<a[^>]+href="[^"]*[Cc]ommercial[^"]*"[^>]*>[^<]*' \
+    | sed 's|</a>|</a>\n|g' \
+    | grep -oE '<a[^>]+href="[^"]*[Cc]ommercial[^"]*"[^>]*>.*</a>' \
     | while IFS= read -r a; do
-        href=$(printf '%s' "$a" | sed -n 's|.*href="\([^"]*\)".*|\1|p')
-        text=$(printf '%s' "$a" | sed 's|^<a[^>]*>||' \
+        href=$(printf '%s' "$a" | sed -n 's|^<a[^>]*href="\([^"]*\)".*|\1|p')
+        text=$(printf '%s' "$a" \
+               | sed -e 's|^<a[^>]*>||' -e 's|</a>$||' -e 's|<[^>]*>||g' \
                | tr -s ' \t' ' ' | sed -e 's|^ *||' -e 's| *$||')
         # normalise to a path: drop origin, query, fragment, trailing slash
         u=${href#"$SITE"}; u=${u#http*://*/}; u=${u%%\?*}; u=${u%%#*}
         case $u in /*) ;; *) u="/$u" ;; esac
         [ "$u" != "/" ] && u=${u%/}
+
+        # Blog category archives are internal taxonomy nav. Several are named
+        # "Commercial ...", which matched the commercial filter and produced
+        # ~40 UNKNOWN-TYPO? rows that buried the real signal.
+        case $u in /blog/category/*) continue ;; esac
 
         if   [ "$u" = "$AUDIT" ];     then flag=OK
         elif [ "$u" = "$GOOD_BLOG" ]; then flag=OK-BLOGSLUG
@@ -89,7 +97,8 @@ for p in $paths; do
         else flag=UNKNOWN-TYPO?
         fi
 
-        # split-link detector, and empty text = nested markup or a bare icon
+        # Split-link detector. Now that inner tags are stripped above, short text
+        # really is short text: the "Commercial Audi" + "t" signature.
         [ "${#text}" -le 2 ] && flag="$flag+SPLIT?"
 
         printf '%-22s %-42s %s | "%s"\n' "$flag" "$p" "$u" "$text"
