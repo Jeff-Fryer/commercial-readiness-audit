@@ -2,9 +2,10 @@
 
 Last updated: 2026-08-21. Written for whoever picks this up next.
 
-The tool is **built, deployed, and working**. What remains is a short list of
-Squarespace link fixes on jefffryer.com. Read "Outstanding work" and "Do not
-repeat these mistakes" before touching anything.
+The tool is **built, deployed, and working**, and the Squarespace link cleanup
+on jefffryer.com is finished and verified. There is no open work. Read "Do not
+repeat these mistakes" before touching anything, and re-run
+`scripts/verify-links.sh` rather than trusting section 5 to still be current.
 
 ---
 
@@ -122,69 +123,37 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 
 ## 5. Outstanding work
 
-All of it is on Squarespace. Nothing in the repo is pending.
+**Nothing is outstanding.** The three Squarespace items that were open earlier
+on 2026-08-21 are all closed and verified.
 
-**5a, 5b and 5c are DONE and verified (2026-08-21).** The URL Mappings box now
-holds 26 lines with zero targets pointing at a retired page, and a crawl of all
-33 pages found zero stale links, zero typo'd URLs and zero split links. The
-counts reconciled throughout: the "seven things" broken by disabling
-`/commercial-readiness-gap` were the six internal links in 5c plus the
-`/resources` redirect in 5b.
-
-Left deliberately: `/commercial-gap` still 404s. It has zero inbound links.
-
-Only 5d remains, and it was never approved.
-
-### 5a. Add one URL mapping (highest priority)
-
-`/commercial-readiness-gap` was disabled, which broke **seven** things. One line
-fixes all of them.
-
-Settings → Developer Tools → **URL Mappings**, add:
-
-```
-/commercial-readiness-gap -> /commercial-readiness-audit 301
-```
-
-That box already holds ~30 live redirects. Add a line; change nothing else.
-
-### 5b. Fix existing mapping line 17
-
-Currently `/resources -> /commercial-readiness-gap 301`, which points at the
-disabled page. Change the target to `/commercial-readiness-audit`.
-
-It is genuinely line 17 of 25 today, but adding 5a at the top shifts it. Find it
-by searching for `/resources`, not by counting.
-
-Note that no live check can confirm 5b once 5a is in place: `/resources` reaches
-the audit page either directly or by chaining through the new redirect. **The
-URL Mappings textarea is the only ground truth for 5a and 5b.** Read it back
-after editing.
-
-### 5c. Repoint six internal links
-
-These still point at the disabled gap page. 5a makes them work via redirect, but
-they should point directly.
-
-| Page | Anchor text |
+| Was | State |
 |---|---|
-| `/advanced-packaging-foundry` | See the six parts of your commercial engine → |
-| `/developer-pipeline` | same |
-| `/digital-practice` | same |
-| `/global-semiconductor-repositioning` | same |
-| `/venture-ecosystem-launch` | same |
-| `/blog/six-reasons-design-wins-arent-turning-into-revenue` | Commercial Readiness Gap |
+| 5a. Add `/commercial-readiness-gap -> /commercial-readiness-audit 301` | **Done.** The redirect returns 200 and lands on the audit page. |
+| 5b. Retarget the `/resources` mapping off the disabled gap page | **Done.** Confirmed by reading the URL Mappings textarea, which is the only ground truth for this one. A live fetch cannot tell 5b from a chain through 5a. |
+| 5c. Repoint six internal links off the gap page | **Done.** All six now link directly to `/commercial-readiness-audit` with their anchor text intact. |
 
-All → `/commercial-readiness-audit`.
+A full crawl of the sitemap on 2026-08-21 came back clean: 33 pages, zero
+STALE, zero UNKNOWN-TYPO?, zero FETCHFAIL, zero split links. Re-run
+`scripts/verify-links.sh` before believing this section is still true.
 
-*Not* broken, leave alone: "Inside the Commercial Readiness Gap" on
+One link is *correctly* left alone: "Inside the Commercial Readiness Gap" on
 `/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` points at a
-blog post whose slug merely contains that phrase.
+blog post whose slug merely contains the phrase, not at the retired page. The
+verifier flags it `OK-BLOGSLUG` so nobody "fixes" it.
 
-### 5d. Optional, previously flagged, not approved
+### 5d. Optional, flagged, never approved
+
+Jeff has seen all of these and has not asked for them. Do not do them unbidden.
 
 - The footer LinkedIn link has **no accessible name** — screen readers announce
   "link" with no destination. Needs an `aria-label`.
+- Squarespace structured data is stale: the DefinedTerm schema still says
+  "six layers", which is banned jargon, and `knowsAbout` still lists
+  "Commercial Readiness Gap" and "growth-stage semiconductor companies".
+- Meta descriptions on `/about` and `/contact`, and three references on
+  `/privacy`, still use retired wording.
+- `/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` describes a
+  "five-minute self-check". The audit takes 90 seconds.
 - `/commercial-gap` (a third, long-form page) was disabled. Nothing linked to it.
 
 ---
@@ -234,27 +203,33 @@ split-link failure (mode 2 below): "Commercial Audi" + "t" is two anchors whose
 hrefs both look plausible. A page carrying two links to the audit page is the
 signature of that bug, and a count-only crawl reads it as two healthy links.
 
-Three bugs were found in the first version of this script by running it against
-the real site. All are fixed; the lesson is that **fixture tests that feed the
-script pre-made paths never exercise the sitemap parser at all**, which is where
-two of the three lived:
+The first version of this script had three bugs, all found by running it against
+the real site and none caught by the fixture tests, because **those fixtures fed
+the script pre-made paths and never exercised the sitemap parser** — where two of
+the three lived:
 
 - `tr '>' '>\n'` is a **no-op**. `tr` truncates SET2 to SET1's length, so it maps
   `>` to `>` and inserts nothing. It only appeared to work because this sitemap
-  happens to be one `<loc>` per line; a minified sitemap would have yielded one
-  path and reported a clean site. Now uses `grep -o '<loc>[^<]*</loc>'`.
-- A capture of `[^<]*` stops at the `<`, so `sed s|.*<loc>\(...\)|\1|` left
+  happens to be one `<loc>` per line; a minified sitemap would have yielded a
+  single path and reported a clean site. Now uses `grep -o '<loc>[^<]*</loc>'`.
+- A capture of `[^<]*` stops at the `<`, so `sed 's|.*<loc>\(...\)|\1|'` left
   `</loc>` glued to every path and all 33 fetches failed. Match the closing tag
   explicitly so the whole line is replaced.
 - Anchor text must be read with inner tags stripped. `<a ...><strong>Take the
   ...</strong></a>` yielded empty text and tripped the split detector, so every
-  bolded link read as a broken one. Split on `</a>` first, then strip all tags.
+  bolded link read as broken. Split on `</a>` first, then strip all tags.
+
+`SITE` is overridable so the whole script can be run against a local fixture
+server. Use it: an end-to-end run on a minified sitemap is the only thing that
+would have caught bug one.
 
 Three matching traps when grepping for links:
 
-- Exclude `/blog/category/` and `/blog/tag/`. Squarespace archive URLs like
+- Exclude `/blog/category/` and `/blog/tag/`. Squarespace archive URLs such as
   `/blog/category/Commercial+Readiness` matched the typo check ~40 times and
-  buried the real rows.
+  buried the real rows. They are classified `OK-ARCHIVE` and counted in the
+  summary rather than skipped: a verification tool should not silently drop rows,
+  or a future `/blog/category/Commercial-Audt` disappears with them.
 
 - Match on the **path**, not on a substring. Grepping for "commercial" also hits
   `static1.squarespace.com` image URLs that happen to contain the word, which
