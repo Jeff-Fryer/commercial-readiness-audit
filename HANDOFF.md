@@ -124,6 +124,12 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 
 All of it is on Squarespace. Nothing in the repo is pending.
 
+**State confirmed 2026-08-21** by reading the URL Mappings textarea (25 lines)
+and crawling the live site with `scripts/verify-links.sh`. All three items below
+are still outstanding, and the crawl found no others. The two counts reconcile:
+the "seven things" broken by disabling `/commercial-readiness-gap` are the six
+internal links in 5c plus the `/resources` redirect in 5b.
+
 ### 5a. Add one URL mapping (highest priority)
 
 `/commercial-readiness-gap` was disabled, which broke **seven** things. One line
@@ -141,6 +147,14 @@ That box already holds ~30 live redirects. Add a line; change nothing else.
 
 Currently `/resources -> /commercial-readiness-gap 301`, which points at the
 disabled page. Change the target to `/commercial-readiness-audit`.
+
+It is genuinely line 17 of 25 today, but adding 5a at the top shifts it. Find it
+by searching for `/resources`, not by counting.
+
+Note that no live check can confirm 5b once 5a is in place: `/resources` reaches
+the audit page either directly or by chaining through the new redirect. **The
+URL Mappings textarea is the only ground truth for 5a and 5b.** Read it back
+after editing.
 
 ### 5c. Repoint six internal links
 
@@ -200,13 +214,32 @@ stale redirect on line 17 of URL Mappings. Read the **live published page**, nev
 the Squarespace editor preview — the preview has repeatedly shown content that
 was not what published.
 
-Useful pattern, run from a tab on the site (same-origin `fetch` works):
+Run `scripts/verify-links.sh`. It crawls the sitemap, traces the redirects for
+the retired pages, and prints the href **and the anchor text** of every link
+mentioning "commercial", flagging stale targets, typo'd URLs, and split links.
+It needs curl only, so it runs anywhere with network access.
 
-```js
-const xml = await (await fetch('/sitemap.xml')).text();
-const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]).pathname);
-// then fetch each and grep hrefs / text
 ```
+./scripts/verify-links.sh                    # whole sitemap
+./scripts/verify-links.sh /some/page         # one page
+```
+
+Always report anchor **text**, not just href counts. Href alone cannot see the
+split-link failure (mode 2 below): "Commercial Audi" + "t" is two anchors whose
+hrefs both look plausible. A page carrying two links to the audit page is the
+signature of that bug, and a count-only crawl reads it as two healthy links.
+
+### Two environment traps
+
+- **In-page `fetch()` crawling is unreliable here.** Crawling the 34-page
+  sitemap from the browser console timed out against the renderer twice
+  (2026-08-21). `curl` did the same job instantly. Use the script.
+- **Claude Code on the web cannot reach this site at all.** The remote
+  container's egress policy answers 403 to CONNECT for every host, including
+  `www.jefffryer.com` and the Netlify URL, and the `claude-in-chrome` connector
+  does not exist there. Verification has to run from a machine with real network
+  access, or the artifacts have to be pasted into the session. A remote session
+  can still audit pasted text, which is enough for 5a and 5b.
 
 ---
 
