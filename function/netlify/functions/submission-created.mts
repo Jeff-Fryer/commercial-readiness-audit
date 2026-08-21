@@ -38,8 +38,17 @@ const BCC = "jeff@jefffryer.com";
 
 const FORM_NAME = "crg-audit";
 
-/** Used to link the reader back to their own live result. */
-const SITE_URL = "https://jf-commercial-readiness.netlify.app";
+/**
+ * Where a lead is sent to read their own result. This is the Squarespace page,
+ * not the Netlify origin this function is deployed to. The audit runs inside an
+ * iframe on that page; the iframe copies the parent's query string onto its own
+ * src, which is what carries `?crg=` across the frame boundary.
+ *
+ * The Netlify URL still serves the audit and must stay reachable, but it is
+ * never the URL a person is handed. `www` is the canonical host on Squarespace,
+ * so linking the apex would cost every reader a 301.
+ */
+const SITE_URL = "https://www.jefffryer.com/commercial-readiness-audit";
 
 /** Engine order. Labels match PILLAR_NAME in the scoring engine exactly. */
 const PILLARS = [
@@ -61,7 +70,9 @@ type Submission = Record<string, string | undefined>;
 function reportLink(d: Submission): string {
   const values = PILLARS.map((p) => d[`slider_${p.key}`] ?? "");
   if (values.some((v) => v === "")) return SITE_URL;
-  return `${SITE_URL}/?crg=${values.join(",")}`;
+  // No slash before the `?`. Squarespace 301s `/page/` to `/page`, and a
+  // redirect on the one link the email exists to deliver is worth avoiding.
+  return `${SITE_URL}?crg=${values.join(",")}`;
 }
 
 /* --------------------------------------------------------------- helpers --- */

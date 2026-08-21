@@ -1,3 +1,19 @@
-# Documents the Squarespace-side redirect so the mapping lives in version control.
-# Harmless here: this host never serves /commercial-readiness-audit.
-/commercial-readiness-audit    /commercial-readiness-gap    301
+# Netlify redirects for jf-commercial-readiness.
+#
+# THE NETLIFY URL IS NEVER REDIRECTED. It is the iframe source for
+# www.jefffryer.com/commercial-readiness-audit and has to keep serving the audit
+# on its own. Sending it to Squarespace would put the page inside itself.
+#
+# The Squarespace-side redirects are NOT configured here. They live in
+# Squarespace under Settings -> Developer Tools -> URL Mappings, because that is
+# the host that serves those paths. They are recorded in HANDOFF.md so the
+# mapping is in version control somewhere.
+#
+# This file is intentionally left with no rules. It previously carried
+#
+#     /commercial-readiness-audit    /commercial-readiness-gap    301
+#
+# which pointed the wrong way: /commercial-readiness-gap is the retired page and
+# /commercial-readiness-audit is the live one. It never fired, because this host
+# does not serve either path, so the reversal was invisible. Anyone reading it as
+# documentation would have taken the retired page for the canonical one.

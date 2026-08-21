@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commercial Readiness Audit | Jeff Fryer</title>
 <meta name="description" content="A 90-second diagnostic for semiconductor and deep tech CEOs: find which of the six parts of your commercial engine are behind, and what closing the gap is worth.">
+
+<!-- This origin serves the audit but is not its address. The page a person is
+     given is the Squarespace one, which embeds this file in an iframe. Without
+     a canonical, a search engine indexes the netlify.app URL and a shared link
+     unfurls under it, which is the thing this whole change exists to stop.
+     Deliberately not `noindex`: canonical consolidates the two into the public
+     URL, whereas noindex would just drop the page and index neither. -->
+<link rel="canonical" href="https://www.jefffryer.com/commercial-readiness-audit">
+<meta property="og:url" content="https://www.jefffryer.com/commercial-readiness-audit">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Commercial Readiness Audit | Jeff Fryer">
+<meta property="og:description" content="A 90-second diagnostic for semiconductor and deep tech CEOs: find which of the six parts of your commercial engine are behind, and what closing the gap is worth.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1449,6 +1461,15 @@ body.is-embed .shell{box-shadow:none;}
     });
   }
 
+  /* The public address of this audit. Not window.location: this file is served
+     from Netlify, but a person is only ever handed the Squarespace page, which
+     embeds it in an iframe. Every outbound link the tool generates has to use
+     this, or a CEO forwards a netlify.app URL to their board.
+
+     Keep it in step with SITE_URL in submission-created.mts, which builds the
+     same link for the emailed report. */
+  var PUBLIC_URL = 'https://www.jefffryer.com/commercial-readiness-audit';
+
   /* ---------- state ---------- */
   var DEFAULT_VALUE = 40;                 // deliberately not the midpoint: 60 flatters
   var values = Q.map(function () { return DEFAULT_VALUE; });
@@ -1935,7 +1956,7 @@ body.is-embed .shell{box-shadow:none;}
      their score in front of a board or a co-founder. Print is left to the OS
      dialog, which is also where "Save as PDF" lives on both macOS and Windows. */
   function shareUrl() {
-    return window.location.origin + window.location.pathname + '?crg=' + values.join(',');
+    return PUBLIC_URL + '?crg=' + values.join(',');
   }
 
   function wireResultActions() {
@@ -2008,6 +2029,82 @@ body.is-embed .shell{box-shadow:none;}
      QUESTIONS[i].reactions[bandIndex] and to render directly beneath #q-quote.
      Not built yet, deliberately.
      ------------------------------------------------ */
+
+  /* ---------- embed: report our height to the Squarespace parent ----------
+
+     An iframe does not size itself to its content, so the parent has to be told.
+     The alternative is a fixed pixel height, which either clips the results
+     screen on a phone or leaves a slab of dead space under the intro.
+
+     The parent speaks first. It posts `cra:hello`, and only then does this reply
+     with heights, addressed to the origin that message actually came from. The
+     obvious alternative, posting heights at a list of candidate origins and
+     letting the wrong ones fail, works but makes the browser log a warning for
+     every non-matching origin on every report. That is a stream of console noise
+     on a live page, and it hides real errors.
+
+     Waiting to be spoken to also means an unknown page that frames the audit
+     gets nothing at all, and that no message is sent anywhere until a parent has
+     proved which origin it is on.
+
+     If the handshake never arrives, nothing is posted and the parent's
+     viewport-height CSS carries the layout. That is the intended failure mode. */
+  var EMBED_PARENTS = [
+    'https://www.jefffryer.com',
+    'https://jefffryer.com',
+    'https://jefffryer.squarespace.com'
+  ];
+  var embedParent = null;
+
+  /* Measured off body, not documentElement.scrollHeight, and this is not a
+     matter of taste. The parent sets the frame to whatever height we last
+     reported, which becomes this document's viewport height, and scrollHeight
+     can never report less than the viewport. So scrollHeight ratchets: it
+     follows the content up and then refuses to come back down. Read the results
+     screen at 2392px, hit restart, and the intro would sit in a frame still
+     2392px tall with a slab of dead space under it.
+
+     body has margin:0 here, but the margins are added rather than assumed: a
+     bounding rect excludes them, and a stray margin would otherwise show up as a
+     clipped final line. */
+  function contentHeight() {
+    var cs = window.getComputedStyle(document.body);
+    return document.body.getBoundingClientRect().height
+      + parseFloat(cs.marginTop || 0)
+      + parseFloat(cs.marginBottom || 0);
+  }
+
+  function reportHeight() {
+    if (!embedParent) return;
+    var h = Math.ceil(contentHeight());
+    if (!isFinite(h) || h <= 0) return;
+    window.parent.postMessage({ type: 'cra:height', height: h }, embedParent);
+  }
+
+  if (window.parent !== window) {
+    window.addEventListener('message', function (e) {
+      if (EMBED_PARENTS.indexOf(e.origin) === -1) return;
+      if (!e.data || e.data.type !== 'cra:hello') return;
+
+      // The parent repeats the hello until a height comes back, because there is
+      // no moment at which a cross-origin frame is known to be listening. So
+      // several can land before the first reply is applied. Answer every one,
+      // but only ever wire the observers once.
+      var first = !embedParent;
+      embedParent = e.origin;
+      if (!first) { reportHeight(); return; }
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(reportHeight).observe(document.body);
+      } else {
+        // Safari before 13.1. Height changes when a person moves to the next
+        // question, so a slow poll is enough and costs nothing perceptible.
+        window.setInterval(reportHeight, 500);
+      }
+      window.addEventListener('resize', reportHeight);
+      reportHeight();
+    });
+  }
 
   /* ---------- init ---------- */
   buildSegs($('q-segs'));

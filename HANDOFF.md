@@ -2,9 +2,15 @@
 
 Last updated: 2026-08-21. Written for whoever picks this up next.
 
-The tool is **built, deployed, and working**, and the Squarespace link cleanup
-on jefffryer.com is finished and verified. There is no open work. Read "Do not
-repeat these mistakes" before touching anything, and re-run
+The tool is **built, deployed, and working**. Every outbound link it generates
+now points at `www.jefffryer.com/commercial-readiness-audit` rather than at the
+Netlify URL, and the Squarespace page embeds it in an iframe.
+
+**One thing is open**, and it is not a code change: the Code Block has to be
+pasted into Squarespace by hand and Jeff has to click through the result. See
+section 5.
+
+Read "Do not repeat these mistakes" before touching anything, and re-run
 `scripts/verify-links.sh` rather than trusting section 5 to still be current.
 
 ---
@@ -15,8 +21,13 @@ A single-page self-assessment for semiconductor and deep tech CEOs. Six slider
 questions across six commercial pillars, a lead-capture step, an on-screen
 result, and an emailed summary.
 
-**Live:** https://jf-commercial-readiness.netlify.app
-**Embedded at:** https://www.jefffryer.com/commercial-readiness-audit
+**Public address:** https://www.jefffryer.com/commercial-readiness-audit
+**Served from:** https://jf-commercial-readiness.netlify.app (the iframe source)
+
+The Netlify URL is infrastructure, not an address. Nothing the tool generates
+points at it: the emailed report, the Share button and the canonical tag all use
+the jefffryer.com URL. It has to stay reachable and un-redirected, because it is
+what the iframe loads.
 
 ---
 
@@ -28,6 +39,9 @@ result, and an emailed summary.
 | The whole tool | `function/public/index.html` (one file, inline CSS + JS) |
 | Scoring engine, source of truth | `commercial_readiness_assessment_final.js` |
 | Email function | `function/netlify/functions/submission-created.mts` |
+| Squarespace Code Block (the live page) | `frontend/squarespace-embed-code-block.html` |
+| What Jeff has to do in the admin | `frontend/SQUARESPACE-EMBED-STEPS.md` |
+| Embed test (needs Node + Playwright) | `scripts/embed-test/` |
 | Website-read function (unused, flag off) | `function/netlify/functions/website-check.mts` |
 | GitHub | `Jeff-Fryer/commercial-readiness-audit` (public) |
 | Netlify project | `jf-commercial-readiness`, site id `c4fab0db-5ecb-428d-af9f-75373f118c81` |
@@ -85,6 +99,30 @@ If you edit the engine, mirror the change into
   notice instead. This is deliberate. Do not "fix" it.
 - `?embed=1` strips nav, footer and page background. Squarespace uses it.
 
+### The embed contract, and why it is not just an iframe
+
+The audit is served from Netlify and displayed inside an iframe on the
+Squarespace page. Two things cross that boundary, and both will look like
+mysterious breakage if you do not know they exist.
+
+- **`?crg=` has to be copied in.** The emailed report links to the *Squarespace*
+  URL. An iframe does not inherit its parent's query string, so the Code Block
+  reads `?crg=` off the parent and writes it onto the iframe `src`. Delete that
+  script and every report link ever sent renders "Midpoint, not a read".
+- **Height has to be posted out.** An iframe does not size to its content. The
+  parent posts `cra:hello`, the audit replies with `cra:height` on every content
+  change, the parent follows it. The parent speaks first on purpose: the audit
+  cannot know which of Jeff's hosts it is on, and guessing at a list of origins
+  makes the browser log a warning for every wrong guess, on every report.
+
+Height is measured from **`document.body.getBoundingClientRect()`**, never
+`documentElement.scrollHeight`. This is not stylistic. The parent sets the frame
+to whatever height was last reported, which becomes the audit's viewport height,
+and `scrollHeight` can never return less than the viewport. It therefore ratchets:
+it follows content up and refuses to come back down. On a phone that left the
+intro screen sitting in a 3034px frame. `scripts/embed-test/` has the regression
+test.
+
 ### Copy rules that are enforced
 
 No em dashes in user-facing copy. Never the words "leak" or "pricing". No SaaS
@@ -111,6 +149,12 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
   Resend to the lead, BCC `jeff@jefffryer.com`, reply-to the same.
 - Sends from `jeff@mail.jefffryer.com`. Domain is verified in Resend.
   `RESEND_API_KEY` is set in Netlify env (Builds, Functions, Runtime).
+- The link back points at `www.jefffryer.com/commercial-readiness-audit?crg=...`,
+  built from `SITE_URL` in `submission-created.mts`. `PUBLIC_URL` in
+  `index.html` builds the same link for the Share button. **Keep the two in
+  step.** `www` and no trailing slash before the `?` are both deliberate: the
+  apex and the slashed form each cost the reader a 301 on the one link the email
+  exists to deliver.
 - The email deliberately contains only score, band, Fix First and a **link back**
   to the full result. It carries no copy of its own: the audit posts the six
   sentences and the Fix First action as form fields, so changing copy in
@@ -123,8 +167,35 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 
 ## 5. Outstanding work
 
-**Nothing is outstanding.** The three Squarespace items that were open earlier
-on 2026-08-21 are all closed and verified.
+### Open: paste the Code Block, then Jeff signs off
+
+The repo side of the embed and domain work is finished and tested. What remains
+is in the Squarespace admin and, per section 6, is done by Jeff rather than by an
+agent through the connector.
+
+`frontend/SQUARESPACE-EMBED-STEPS.md` has the exact steps, the exact SEO strings,
+and the verification commands. In short:
+
+| # | Step | Where |
+|---|---|---|
+| 1 | Replace the page content with one Code Block holding `frontend/squarespace-embed-code-block.html` | `/commercial-readiness-audit` |
+| 2 | Set SEO Title to `Commercial Readiness Audit` and the description given in the steps file | Page settings -> SEO |
+| 3 | Confirm (do not re-add) the `/commercial-readiness-gap` 301 | Settings -> Developer Tools -> URL Mappings |
+| 4 | Run a real submission and open the link in the email | phone and laptop |
+
+**Jeff has not signed off yet.** He wants to click through the embedded version
+himself before this is called done.
+
+Two things that will bite whoever does step 1:
+
+- Paste the **whole** file. The `<script>` is what carries `?crg=` into the frame
+  and what sizes the frame. Without it the page looks fine on a first visit and
+  silently breaks every emailed report.
+- Do not put `| Jeff Fryer` in the SEO Title. Squarespace appends the site title
+  and the site-wide Code Injection carries a title dedup script on top of that.
+  Doubled titles are a failure this site has already had.
+
+### Closed earlier on 2026-08-21
 
 | Was | State |
 |---|---|

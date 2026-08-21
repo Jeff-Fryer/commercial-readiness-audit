@@ -1,0 +1,157 @@
+<!--
+  COMMERCIAL READINESS AUDIT — Squarespace 7.1 Code Block
+  =======================================================
+
+  WHAT THIS IS
+  Paste this whole file into a single Code Block on
+  www.jefffryer.com/commercial-readiness-audit, replacing whatever that page
+  currently holds. It embeds the live Netlify build in an iframe. The audit
+  itself is not in here, which is the point: the tool ships from the repo and
+  this page never needs editing again.
+
+  This supersedes frontend/commercial-readiness-code-block.html, which pasted
+  the entire tool into Squarespace. Do not use both.
+
+  WHAT IT HAS TO DO, BEYOND SHOWING AN IFRAME
+  1. Carry `?crg=` across the frame boundary. The emailed report links to THIS
+     page with `?crg=20,40,...` on it. The query string lands on the Squarespace
+     URL, not on the iframe, so the iframe would load with no answers and the
+     audit would honestly report "Midpoint, not a read". The script below copies
+     the parameter onto the iframe src. Removing it silently breaks every link
+     in every report already sent.
+  2. Follow the content height. An iframe does not size to its content. The
+     audit posts its height on every change; this listens and follows. Without
+     it the results screen is clipped on a phone.
+
+  If the script is blocked, the iframe still renders at one viewport tall and
+  scrolls internally. Degraded, not broken.
+-->
+
+<div id="cra-embed">
+  <iframe
+    id="cra-embed-frame"
+    title="Commercial Readiness Audit"
+    src="https://jf-commercial-readiness.netlify.app/?embed=1"
+    loading="eager"
+    scrolling="auto"
+    allow="clipboard-write; web-share"
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+
+<style>
+  /* Everything is scoped to #cra-embed. No html/body/* selectors, so this
+     cannot reach Squarespace's own layout. */
+  #cra-embed {
+    width: 100%;
+    /* Squarespace wraps a Code Block in a padded content column. The audit
+       draws its own dark shell edge to edge, so break out of that column and
+       let it run the full width of the section on a phone, where 32px of
+       Squarespace padding is a real chunk of a 390px screen. */
+    max-width: 100%;
+    margin: 0 auto;
+    line-height: 0;   /* kills the descender gap under a replaced element */
+  }
+
+  #cra-embed-frame {
+    display: block;
+    width: 100%;
+    border: 0;
+    /* The starting height, and the permanent height if the script never runs.
+       A viewport unit rather than a pixel count: one screenful is never
+       absurd on any device, and the iframe scrolls internally to reach the
+       rest. The script replaces this with the true content height, usually
+       within a frame or two of load. */
+    height: 100vh;
+    /* Once the real height is known the frame can be shorter than a screen on
+       the intro step, so no min-height is imposed. */
+    background: transparent;
+    /* Height changes are driven by a person moving to the next question, so
+       animate them. Instant jumps read as a page flash. */
+    transition: height .28s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #cra-embed-frame { transition: none; }
+  }
+</style>
+
+<script>
+(function () {
+  var ORIGIN = 'https://jf-commercial-readiness.netlify.app';
+  var frame = document.getElementById('cra-embed-frame');
+  if (!frame) return;
+
+  /* ---------- 1. carry the query string into the frame ----------
+
+     Only parameters the audit actually reads are forwarded, and `crg` is
+     validated against the same shape the audit validates against: six integers
+     of one to three digits. Anything else is dropped rather than passed
+     through, so a hand-edited or truncated link degrades to a clean audit
+     rather than reaching the tool as junk. Squarespace campaign parameters and
+     anything else on the URL are left where they are. */
+  var CRG = /^\d{1,3}(,\d{1,3}){5}$/;
+
+  function frameSrc() {
+    var here = new URLSearchParams(window.location.search);
+    var out = 'embed=1';
+
+    var crg = here.get('crg');
+    if (crg && CRG.test(crg)) out += '&crg=' + encodeURIComponent(crg);
+
+    if (here.get('cra_debug') === '1') out += '&cra_debug=1';
+
+    return ORIGIN + '/?' + out;
+  }
+
+  var wanted = frameSrc();
+  if (frame.getAttribute('src') !== wanted) frame.setAttribute('src', wanted);
+
+  /* A person arriving from the emailed report is coming to read a specific
+     result, not the page heading above it. Put the frame on screen. Deferred to
+     load so Squarespace has finished its own layout first, and skipped entirely
+     when there is no result to show. */
+  if (wanted.indexOf('&crg=') !== -1) {
+    window.addEventListener('load', function () {
+      window.setTimeout(function () {
+        frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    });
+  }
+
+  /* ---------- 2. follow the content height ----------
+
+     The origin check is the whole security model on the way in: any page can
+     postMessage into this window, and without it any of them could resize the
+     frame. Height is also sanity-bounded, so a bad number cannot collapse the
+     frame to nothing or stretch the page to a mile. */
+  window.addEventListener('message', function (e) {
+    if (e.origin !== ORIGIN) return;
+
+    var d = e.data;
+    if (!d || d.type !== 'cra:height') return;
+
+    var h = Number(d.height);
+    if (!isFinite(h) || h < 200 || h > 20000) return;
+
+    frame.style.height = Math.ceil(h) + 'px';
+  });
+
+  /* This page speaks first. The audit does not know which of Jeff's hosts it is
+     embedded on, and guessing would make the browser log a warning for every
+     wrong guess. The hello tells it, and it replies to this exact origin.
+
+     Repeated because there is no reliable moment at which a cross-origin frame
+     is known to be listening: the iframe load event fires when the document
+     loads, not when its script has bound a handler, and Squarespace may have
+     swapped this page in after its own load. Cheap, and it stops as soon as the
+     first height arrives. */
+  var greetings = 0;
+  var hello = window.setInterval(function () {
+    if (frame.style.height || ++greetings > 40) {
+      window.clearInterval(hello);
+      return;
+    }
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'cra:hello' }, ORIGIN);
+  }, 150);
+})();
+</script>
