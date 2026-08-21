@@ -463,6 +463,8 @@ body.is-embed .shell{box-shadow:none;}
    ========================================================================== */
 .res-head{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:22px; flex-wrap:wrap;}
 
+.exec-summary{display:block; text-align:center; margin-bottom:18px;}
+
 /* score hero: ring + count-up */
 .hero{text-align:center; padding:8px 0 4px;}
 .ring-wrap{position:relative; width:200px; height:200px; margin:0 auto;}
@@ -505,6 +507,7 @@ body.is-embed .shell{box-shadow:none;}
 }
 /* with nothing answered, every diagnostic block is an artifact of the defaults */
 .is-unscored .duo,
+.is-unscored .exec-summary,
 .is-unscored .res-section{display:none;}
 
 /* results action row */
@@ -939,6 +942,7 @@ body.is-embed .shell{box-shadow:none;}
     </div>
 
     <div class="panel">
+      <span class="eyebrow exec-summary">Executive Assessment Summary</span>
       <div class="hero">
         <div class="ring-wrap">
           <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
@@ -2002,6 +2006,10 @@ body.is-embed .shell{box-shadow:none;}
   var preset = params.get('crg');
   if (preset && /^\d{1,3}(,\d{1,3}){5}$/.test(preset)) {
     values = preset.split(',').map(function (n) { return Math.max(0, Math.min(100, parseInt(n, 10))); });
+    // These came from a real submission: the Share link and the emailed report
+    // both use ?crg=. They are answers, not untouched defaults, so the result
+    // must render in full rather than as "midpoint, not a read".
+    touched = Q.map(function () { return true; });
     finish(null, null, false);
   }
 })();

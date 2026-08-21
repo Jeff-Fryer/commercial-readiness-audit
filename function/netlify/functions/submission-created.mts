@@ -8,14 +8,18 @@
  * server side, the send cannot be triggered by anyone hitting an endpoint, and a
  * submission can never be emailed twice because the browser is not involved.
  *
- * It sends the same report the visitor just saw on screen: score, band, the six
- * pillar scores, the six sentences they landed on, and the Fix First pillar with
- * its action. Jeff is blind-copied on every send.
+ * It sends the headline only: score, band, and the Fix First pillar with its
+ * action. The six pillar scores and the six sentences stay on screen, and the
+ * email links back to the live result instead of reproducing it, so reading the
+ * full breakdown means returning to the tool. Jeff is blind-copied on every send.
  *
- * The report copy is NOT duplicated here. The audit posts the six sentences and
- * the Fix First action as form fields, so this function only ever formats what
- * the submission already contains. Change the copy in public/index.html and the
- * email follows automatically.
+ * The report copy is NOT duplicated here. The audit posts the Fix First action as
+ * a form field, so this function only ever formats what the submission already
+ * contains. Change the copy in public/index.html and the email follows.
+ *
+ * The submission still stores the six sentences (told_*) and every pillar score.
+ * They are simply not rendered in the email; they remain in Netlify Forms so the
+ * lead record is complete.
  *
  * Failure policy: log and return 200. A non-2xx makes Netlify retry the event,
  * which would risk sending the same person the same report several times. A lead
@@ -34,6 +38,9 @@ const BCC = "jeff@jefffryer.com";
 
 const FORM_NAME = "crg-audit";
 
+/** Used to link the reader back to their own live result. */
+const SITE_URL = "https://jf-commercial-readiness.netlify.app";
+
 /** Engine order. Labels match PILLAR_NAME in the scoring engine exactly. */
 const PILLARS = [
   { key: "story", label: "Your story" },
@@ -45,6 +52,17 @@ const PILLARS = [
 ] as const;
 
 type Submission = Record<string, string | undefined>;
+
+/**
+ * The audit reads six slider values off `?crg=`, so the same parameter rebuilds
+ * the exact result this person just saw. A bare site URL would make them retake
+ * the audit to see the breakdown the email is pointing at.
+ */
+function reportLink(d: Submission): string {
+  const values = PILLARS.map((p) => d[`slider_${p.key}`] ?? "");
+  if (values.some((v) => v === "")) return SITE_URL;
+  return `${SITE_URL}/?crg=${values.join(",")}`;
+}
 
 /* --------------------------------------------------------------- helpers --- */
 
@@ -65,28 +83,17 @@ function subject(d: Submission): string {
 }
 
 function plainText(d: Submission): string {
-  const rows = PILLARS.map(
-    (p) => `  ${p.label.padEnd(22)} ${String(d[`pillar_${p.key}`] ?? "").padStart(3)} / 100`
-  ).join("\n");
-
-  const told = PILLARS.map(
-    (p) => `  ${p.label}\n  ${d[`slider_${p.key}`]} / 100\n  "${d[`told_${p.key}`]}"\n`
-  ).join("\n");
-
   return [
     `${d.firstName}, here is your Commercial Readiness Score.`,
     ``,
     `SCORE: ${d.score} / 100`,
     `BAND: ${d.band}`,
     ``,
-    `THE SIX PARTS`,
-    rows,
-    ``,
     `FIX FIRST: ${d.fixFirst}`,
     `${d.fixFirstAction}`,
     ``,
-    `WHAT YOU TOLD ME`,
-    told,
+    `Your full six-part breakdown: ${reportLink(d)}`,
+    ``,
     `The score took a minute. The gap analysis is the call.`,
     `Book time to walk through your numbers: https://calendly.com/JeffFryer`,
     ``,
@@ -98,37 +105,6 @@ function html(d: Submission): string {
   const ink = "#002244";
   const azure = "#1B5A9E";
   const rule = "1px solid #dfe5ec";
-
-  const bars = PILLARS.map((p) => {
-    const score = Number(d[`pillar_${p.key}`] ?? 0);
-    const isFix = d.fixFirst === p.label;
-    return `
-      <tr>
-        <td style="padding:7px 0;font:600 14px/1.4 Helvetica,Arial,sans-serif;color:${ink};">
-          ${esc(p.label)}${isFix ? ' <span style="font:700 10px/1 Helvetica,Arial,sans-serif;color:#fff;background:' + ink + ';padding:3px 6px;border-radius:3px;">FIX FIRST</span>' : ""}
-        </td>
-        <td width="140" style="padding:7px 0;">
-          <div style="background:#e7ecf2;border-radius:4px;height:8px;">
-            <div style="background:${azure};border-radius:4px;height:8px;width:${Math.max(2, score)}%;"></div>
-          </div>
-        </td>
-        <td width="56" align="right" style="padding:7px 0;font:400 13px/1.4 Menlo,Consolas,monospace;color:#5a6b7d;">${esc(score)}</td>
-      </tr>`;
-  }).join("");
-
-  const told = PILLARS.map(
-    (p) => `
-      <tr>
-        <td style="padding:10px 0;border-top:${rule};">
-          <div style="font:600 10px/1.4 Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:#7b8a99;">
-            ${esc(p.label)} &nbsp; ${esc(d[`slider_${p.key}`])} / 100
-          </div>
-          <div style="margin-top:4px;font:italic 400 15px/1.5 Georgia,serif;color:${ink};">
-            &ldquo;${esc(d[`told_${p.key}`])}&rdquo;
-          </div>
-        </td>
-      </tr>`
-  ).join("");
 
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:#f4f6f9;">
@@ -152,24 +128,19 @@ function html(d: Submission): string {
     </div>
   </td></tr>
 
-  <tr><td style="padding-top:26px;font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;">
-    The six parts
-  </td></tr>
-  <tr><td style="padding-top:6px;"><table width="100%" cellpadding="0" cellspacing="0">${bars}</table></td></tr>
-
-  <tr><td style="padding-top:26px;border-top:${rule};">
-    <div style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;padding-top:18px;">Your Fix First read</div>
+  <tr><td style="padding-top:28px;border-top:${rule};">
+    <div style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;padding-top:20px;">Your Fix First read</div>
     <div style="margin-top:8px;font:700 16px/1.4 Helvetica,Arial,sans-serif;color:${ink};">Fix First: ${esc(d.fixFirst)}</div>
     <div style="margin-top:6px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">${esc(d.fixFirstAction)}</div>
   </td></tr>
 
-  <tr><td style="padding-top:26px;">
-    <div style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;padding-bottom:4px;">What you told me</div>
-    <table width="100%" cellpadding="0" cellspacing="0">${told}</table>
+  <tr><td style="padding-top:22px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">
+    Your full six-part breakdown:
+    <a href="${reportLink(d)}" style="color:${azure};font-weight:700;text-decoration:underline;">view your report</a>
   </td></tr>
 
-  <tr><td align="center" style="padding-top:30px;">
-    <div style="font:700 18px/1.35 Helvetica,Arial,sans-serif;color:${ink};">The score took a minute. The gap analysis is the call.</div>
+  <tr><td align="center" style="padding-top:30px;border-top:${rule};">
+    <div style="font:700 18px/1.35 Helvetica,Arial,sans-serif;color:${ink};padding-top:24px;">The score took a minute. The gap analysis is the call.</div>
     <div style="margin-top:8px;font:400 15px/1.5 Helvetica,Arial,sans-serif;color:#3c4b5a;">Walk through your numbers with Jeff: what closing the gap costs in time, people, and money.</div>
     <a href="https://calendly.com/JeffFryer" style="display:inline-block;margin-top:16px;padding:14px 26px;background:${ink};color:#ffffff;font:700 13px/1 Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;">Book time to walk through my score</a>
   </td></tr>
