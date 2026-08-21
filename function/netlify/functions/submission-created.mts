@@ -113,7 +113,7 @@ function html(d: Submission): string {
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:10px;padding:32px;">
 
   <tr><td style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:${azure};">
-    Commercial Readiness Audit&trade;
+    Commercial Readiness Audit
   </td></tr>
 
   <tr><td style="padding-top:14px;font:700 22px/1.3 Helvetica,Arial,sans-serif;color:${ink};">

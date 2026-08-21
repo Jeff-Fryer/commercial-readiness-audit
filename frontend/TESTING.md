@@ -58,3 +58,13 @@ With `websiteStepEnabled: false` the URL input must not exist in the DOM at all:
 ### 8. No premature zero
 `#s-results` must not exist in the DOM until a score has been computed, so
 "0 / 100" never appears in page text on the intro or question screens.
+
+## Product name
+
+The container header reads **Commercial Readiness Audit**, with no trademark
+symbol. The original brief specified a ™ on every screen; it was dropped on
+2026-08-21 because the name is not registered and the symbol overclaimed for a
+six-slider self-check. ™ does not legally require registration, so this was a
+positioning call, not a legal one. If the name is ever registered, the two places
+to restore a symbol are the container header in `public/index.html` and the email
+header in `netlify/functions/submission-created.mts`.
