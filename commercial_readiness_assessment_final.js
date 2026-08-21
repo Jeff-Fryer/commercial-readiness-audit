@@ -50,10 +50,12 @@ const QUESTIONS = [
     question: 'Can a buyer explain why they would buy from you after one conversation?',
     anchors: ['Nobody repeats it', 'Buyers repeat it'],
     answers: [
+      'Nobody outside the company can explain what we do.',
       'Different buyers hear different versions of what we do.',
       'They understand the technology, but not necessarily the business case.',
       'Most target buyers understand the value, with some explanation.',
-      'They can clearly repeat our value and why we are different.'
+      'They can clearly repeat our value and why we are different.',
+      'Buyers repeat our story to their own colleagues, unprompted.'
     ]
   },
   {
@@ -61,10 +63,12 @@ const QUESTIONS = [
     question: 'Can your team create and close the right deals without you personally driving every one?',
     anchors: ['Runs through me', 'Runs without me'],
     answers: [
+      'Every deal is mine from first call to signature.',
       'Nearly every important deal still runs through me.',
       'The team can progress deals, but I step in to move them forward.',
       'The team runs most of the process; I join selectively.',
-      'The sales motion works consistently without founder intervention.'
+      'The sales motion works consistently without founder intervention.',
+      'The team closes deals I never hear about until they are won.'
     ]
   },
   {
@@ -72,10 +76,12 @@ const QUESTIONS = [
     question: 'Are you pursuing a buyer with an urgent reason and a clear path to buy now?',
     anchors: ['Interest, no urgency', 'Funded, urgent, winning'],
     answers: [
+      'We are chasing anyone who will take a meeting.',
       'Interest is real, but urgency and budget are unclear.',
       'We have active conversations and evaluations, but buying is inconsistent.',
       'We know the segment, use case, and trigger that create demand.',
-      'We repeatedly win a defined buyer with an urgent, funded need.'
+      'We repeatedly win a defined buyer with an urgent, funded need.',
+      'Buyers come to us with budget approved and a deadline.'
     ]
   },
   {
@@ -83,10 +89,12 @@ const QUESTIONS = [
     question: 'Does how you charge make it easy for the right customer to say yes?',
     anchors: ['Terms re-argued every deal', 'Terms never slow a deal'],
     answers: [
+      'We rebuild the commercial terms from scratch every time.',
       'Every deal needs a fresh explanation of value and terms.',
       'Buyers see the value, but commercial approval often stalls the deal.',
       'Our commercial model works for most target buyers.',
-      'Buyers know how to engage and our commercial terms rarely slow a deal.'
+      'Buyers know how to engage and our commercial terms rarely slow a deal.',
+      'Our terms are standard and buyers move through them without friction.'
     ]
   },
   {
@@ -94,10 +102,12 @@ const QUESTIONS = [
     question: 'Are partners and design-ins bringing you into deals before the shortlist?',
     anchors: ['Last to hear', 'In the room early'],
     answers: [
+      'We have no partners creating access for us.',
       'We are usually the last to hear about an opportunity.',
       'A few partners mention us, but access is inconsistent.',
       'Some partners reliably create qualified access.',
-      'Partners and design-ins routinely put us in the room early.'
+      'Partners and design-ins routinely put us in the room early.',
+      'Partners bring us into deals before the customer starts looking.'
     ]
   },
   {
@@ -105,10 +115,12 @@ const QUESTIONS = [
     question: 'Do engineering, sales, and marketing tell the same commercial story?',
     anchors: ['Every team its own story', 'One story'],
     answers: [
+      'Engineering, sales, and marketing describe a different company.',
       'We describe the customer and value differently across the company.',
       'We broadly agree, but messages and priorities change by team or deal.',
       'We usually align on the customer, story, and commercial priorities.',
-      'One shared story guides product decisions, selling, marketing, and partners.'
+      'One shared story guides product decisions, selling, marketing, and partners.',
+      'Every team tells the same story without being coordinated.'
     ]
   }
 ];

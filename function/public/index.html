@@ -647,7 +647,7 @@ body.is-embed .shell{box-shadow:none;}
       <div class="head-right">
         <div class="head-actions">
           <button type="button" class="start-over" id="head-restart" hidden>Start Over</button>
-          <span class="pill" id="head-pill">Free CEO Diagnostic</span>
+          <span class="pill" id="head-pill">Free Executive Diagnostic</span>
         </div>
       </div>
     </header>
@@ -692,7 +692,7 @@ body.is-embed .shell{box-shadow:none;}
 
 
         <button type="button" class="btn btn-primary btn-block" id="intro-start">Start My Commercial Readiness Audit</button>
-        <p class="trust">100% Free CEO Audit &bull; Built for semiconductor and deep tech founders</p>
+        <p class="trust">100% Free Executive Audit &bull; Built for semiconductor and deep tech founders</p>
 
         <section class="panel glance" aria-labelledby="glance-title">
           <h2 class="eyebrow glance-title" id="glance-title">The Parts At A Glance</h2>
@@ -1095,10 +1095,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Can a buyer explain why they would buy from you after one conversation?',
       anchors: ['Nobody repeats it', 'Buyers repeat it'],
       answers: [
+        'Nobody outside the company can explain what we do.',
         'Different buyers hear different versions of what we do.',
         'They understand the technology, but not necessarily the business case.',
         'Most target buyers understand the value, with some explanation.',
-        'They can clearly repeat our value and why we are different.'
+        'They can clearly repeat our value and why we are different.',
+        'Buyers repeat our story to their own colleagues, unprompted.'
       ]
     },
     {
@@ -1106,10 +1108,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Can your team create and close the right deals without you personally driving every one?',
       anchors: ['Runs through me', 'Runs without me'],
       answers: [
+        'Every deal is mine from first call to signature.',
         'Nearly every important deal still runs through me.',
         'The team can progress deals, but I step in to move them forward.',
         'The team runs most of the process; I join selectively.',
-        'The sales motion works consistently without founder intervention.'
+        'The sales motion works consistently without founder intervention.',
+        'The team closes deals I never hear about until they are won.'
       ]
     },
     {
@@ -1117,10 +1121,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Are you pursuing a buyer with an urgent reason and a clear path to buy now?',
       anchors: ['Interest, no urgency', 'Funded, urgent, winning'],
       answers: [
+        'We are chasing anyone who will take a meeting.',
         'Interest is real, but urgency and budget are unclear.',
         'We have active conversations and evaluations, but buying is inconsistent.',
         'We know the segment, use case, and trigger that create demand.',
-        'We repeatedly win a defined buyer with an urgent, funded need.'
+        'We repeatedly win a defined buyer with an urgent, funded need.',
+        'Buyers come to us with budget approved and a deadline.'
       ]
     },
     {
@@ -1128,10 +1134,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Does how you charge make it easy for the right customer to say yes?',
       anchors: ['Terms re-argued every deal', 'Terms never slow a deal'],
       answers: [
+        'We rebuild the commercial terms from scratch every time.',
         'Every deal needs a fresh explanation of value and terms.',
         'Buyers see the value, but commercial approval often stalls the deal.',
         'Our commercial model works for most target buyers.',
-        'Buyers know how to engage and our commercial terms rarely slow a deal.'
+        'Buyers know how to engage and our commercial terms rarely slow a deal.',
+        'Our terms are standard and buyers move through them without friction.'
       ]
     },
     {
@@ -1139,10 +1147,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Are partners and design-ins bringing you into deals before the shortlist?',
       anchors: ['Last to hear', 'In the room early'],
       answers: [
+        'We have no partners creating access for us.',
         'We are usually the last to hear about an opportunity.',
         'A few partners mention us, but access is inconsistent.',
         'Some partners reliably create qualified access.',
-        'Partners and design-ins routinely put us in the room early.'
+        'Partners and design-ins routinely put us in the room early.',
+        'Partners bring us into deals before the customer starts looking.'
       ]
     },
     {
@@ -1150,10 +1160,12 @@ body.is-embed .shell{box-shadow:none;}
       question: 'Do engineering, sales, and marketing tell the same commercial story?',
       anchors: ['Every team its own story', 'One story'],
       answers: [
+        'Engineering, sales, and marketing describe a different company.',
         'We describe the customer and value differently across the company.',
         'We broadly agree, but messages and priorities change by team or deal.',
         'We usually align on the customer, story, and commercial priorities.',
-        'One shared story guides product decisions, selling, marketing, and partners.'
+        'One shared story guides product decisions, selling, marketing, and partners.',
+        'Every team tells the same story without being coordinated.'
       ]
     }
   ];
@@ -1472,14 +1484,15 @@ body.is-embed .shell{box-shadow:none;}
     }
   }
 
-  /* ---------- live read band: 0-25 a, 26-50 b, 51-75 c, 76-100 d ---------- */
-  function bandIndex(v) {
-    if (v <= 25) return 0;
-    if (v <= 50) return 1;
-    if (v <= 75) return 2;
-    return 3;
+  /* ---------- live read: one sentence per slider stop ----------
+     The slider has six stops and each question has six sentences, so every stop
+     says something different. Banding six stops into four sentences made 0 and
+     20 read identically, and 80 and 100 read identically, which made the slider
+     feel broken at both ends. */
+  function readIndex(v) {
+    return Math.max(0, Math.min(5, Math.round(v / 20)));
   }
-  var BAND_LETTER = ['a', 'b', 'c', 'd'];
+  var BAND_LETTER = ['a', 'b', 'c', 'd', 'e', 'f'];
 
   /* ---------- slider ---------- */
   var THUMB = 28;   // keep in sync with .slider::-webkit-slider-thumb
@@ -1496,7 +1509,7 @@ body.is-embed .shell{box-shadow:none;}
     // stop at the thumb centre rather than at a flat percentage of the rail.
     $('q-fill').style.width = 'calc(' + (THUMB / 2) + 'px + ' + (v / 100) + ' * (100% - ' + THUMB + 'px))';
     $('q-score').textContent = v + ' / 100';
-    $('q-quote').textContent = '“' + q.answers[bandIndex(v)] + '”';
+    $('q-quote').textContent = '“' + q.answers[readIndex(v)] + '”';
     var ticks = $('q-ticks').children;
     for (var i = 0; i < ticks.length; i++) {
       ticks[i].classList.toggle('is-on', i * 20 === v);
@@ -1513,7 +1526,7 @@ body.is-embed .shell{box-shadow:none;}
     $('q-anchor-hi').textContent = q.anchors[1];
     $('q-slider').value = values[step];
     $('q-slider').setAttribute('aria-label', q.question);
-    $('q-slider').setAttribute('aria-valuetext', values[step] + ' out of 100. ' + q.answers[bandIndex(values[step])]);
+    $('q-slider').setAttribute('aria-valuetext', values[step] + ' out of 100. ' + q.answers[readIndex(values[step])]);
     $('q-back').textContent = step === 0 ? '← Back to Start' : '← Previous';
     $('q-next').textContent = (step === Q.length - 1) ? 'Continue' : 'Next Question';
     syncSlider(values[step]);
@@ -1526,7 +1539,7 @@ body.is-embed .shell{box-shadow:none;}
     var v = parseInt(this.value, 10);
     values[step] = v;
     touched[step] = true;
-    this.setAttribute('aria-valuetext', v + ' out of 100. ' + Q[step].answers[bandIndex(v)]);
+    this.setAttribute('aria-valuetext', v + ' out of 100. ' + Q[step].answers[readIndex(v)]);
     syncSlider(v);
   });
   // The fill eases over 120ms on release, but tracks the finger exactly while dragging.
@@ -1648,10 +1661,10 @@ body.is-embed .shell{box-shadow:none;}
     Q.forEach(function (q, i) {
       body['pillar_' + q.key] = String(d.pillarScores[q.key].score);
       body['slider_' + q.key] = String(values[i]);
-      body['band_' + q.key] = BAND_LETTER[bandIndex(values[i])];
+      body['band_' + q.key] = BAND_LETTER[readIndex(values[i])];
       // the sentence they actually landed on, so the emailed report is built
       // from the submission alone and never drifts from the copy in this file
-      body['told_' + q.key] = q.answers[bandIndex(values[i])];
+      body['told_' + q.key] = q.answers[readIndex(values[i])];
     });
     return body;
   }
@@ -1873,7 +1886,7 @@ body.is-embed .shell{box-shadow:none;}
       return '<div class="told-row">' +
                '<span class="told-meta"><span class="told-pillar">' + esc(q.pillarLabel) + '</span>' +
                '<span class="told-val">' + values[i] + ' / 100</span></span>' +
-               '<span class="told-quote">“' + esc(q.answers[bandIndex(values[i])]) + '”</span>' +
+               '<span class="told-quote">“' + esc(q.answers[readIndex(values[i])]) + '”</span>' +
              '</div>';
     }).join('');
 
