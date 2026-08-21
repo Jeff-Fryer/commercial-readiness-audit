@@ -56,7 +56,7 @@ if [ "$#" -ge 1 ]; then
 else
   paths=$(fetch /sitemap.xml \
     | tr '>' '>\n' \
-    | sed -n 's|.*<loc>\(https\{0,1\}://[^<]*\)|\1|p' \
+    | sed -n 's|.*<loc>\([^<]*\)</loc>.*|\1|p' \
     | sed -e 's|^https\{0,1\}://[^/]*||' -e 's|^$|/|' \
     | sort -u)
 fi
