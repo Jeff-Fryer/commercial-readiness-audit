@@ -1,0 +1,229 @@
+# Handoff — Commercial Readiness Audit
+
+Last updated: 2026-08-21. Written for whoever picks this up next.
+
+The tool is **built, deployed, and working**. What remains is a short list of
+Squarespace link fixes on jefffryer.com. Read "Outstanding work" and "Do not
+repeat these mistakes" before touching anything.
+
+---
+
+## 1. What this is
+
+A single-page self-assessment for semiconductor and deep tech CEOs. Six slider
+questions across six commercial pillars, a lead-capture step, an on-screen
+result, and an emailed summary.
+
+**Live:** https://jf-commercial-readiness.netlify.app
+**Embedded at:** https://www.jefffryer.com/commercial-readiness-audit
+
+---
+
+## 2. Where everything lives
+
+| Thing | Location |
+|---|---|
+| Repo | `/Users/jefffryer/Desktop/commercial-readiness-audit` |
+| The whole tool | `function/public/index.html` (one file, inline CSS + JS) |
+| Scoring engine, source of truth | `commercial_readiness_assessment_final.js` |
+| Email function | `function/netlify/functions/submission-created.mts` |
+| Website-read function (unused, flag off) | `function/netlify/functions/website-check.mts` |
+| GitHub | `Jeff-Fryer/commercial-readiness-audit` (public) |
+| Netlify project | `jf-commercial-readiness`, site id `c4fab0db-5ecb-428d-af9f-75373f118c81` |
+
+### Deploying
+
+There is **no Node, no npx and no Netlify CLI** on this machine, and Jeff does
+not want them installed. You cannot deploy from the command line, and you cannot
+`git push` either: the CLI has no GitHub credentials.
+
+**Jeff pushes via the GitHub Desktop app.** Make your commits, then ask him to
+click "Push origin". Netlify's GitHub App deploys automatically on push, usually
+within a minute.
+
+Verify a deploy landed by fetching the live page and grepping for your change.
+Do not trust timing:
+
+```
+curl -s https://jf-commercial-readiness.netlify.app/ | grep -c "your new string"
+```
+
+### The build script is GONE
+
+`index.html` was assembled during the build session from part files in a
+session-scoped scratchpad under `/private/tmp/claude-501/...`. **That directory
+does not survive.** `function/public/index.html` is now the single source of
+truth. Edit it directly. Do not go looking for `build.py` or `part1.html`.
+
+If you edit the engine, mirror the change into
+`commercial_readiness_assessment_final.js` so the two copies stay identical.
+
+---
+
+## 3. How the tool works, briefly
+
+- Six questions, one per pillar: story, sell, timingLane, charge, partnerships, alignment.
+- Slider is `min=0 max=100 step=20`, six stops, default **40** (deliberately not
+  the midpoint; 60 flatters).
+- Each question has **six** sentences, one per stop. `readIndex()` maps stop to
+  sentence. Do not reintroduce banding: it made 0/20 and 80/100 read identically.
+- Score: `C = clamp[(0.75A + 0.25H) x (1 - 0.08V)]`. A is the weighted arithmetic
+  mean, H the weighted harmonic mean so the worst pillar drags, V a contradiction
+  variance penalty. **Do not simplify this to a plain weighted mean.**
+- Weights: story .17, sell .17, timingLane .15, charge .13, partnerships .13,
+  alignment .25.
+- Bands: <35 Commercially blocked, <55 Founder-dependent, <75 Emerging
+  repeatability, else Commercially ready.
+- Fix First: lowest pillar. On a tie `alignment` wins, then higher weight, then
+  canonical order. FOCUS tag goes on the lowest two.
+- `?crg=20,40,60,0,80,40` rebuilds a result without the form. The Share button
+  and the emailed report both use it. **Preset values count as answered** — if
+  you change this, the emailed link will wrongly show "Midpoint, not a read".
+- If the visitor moves **no** sliders, the result suppresses the band copy, Fix
+  First, the bars and the quotes, and shows an honest "Midpoint, not a read"
+  notice instead. This is deliberate. Do not "fix" it.
+- `?embed=1` strips nav, footer and page background. Squarespace uses it.
+
+### Copy rules that are enforced
+
+No em dashes in user-facing copy. Never the words "leak" or "pricing". No SaaS
+vocabulary (sign up, trial, subscribe, dashboard, users, app). No TRL/CRL/
+readiness-level jargon; the public phrase is "the six parts of your commercial
+engine". Pillar labels verbatim: Your story / How you sell / Timing and lane /
+How you charge / Partnerships / One team, one story. The product name carries
+**no trademark symbol** (see `frontend/TESTING.md` for why).
+
+Sweep before shipping:
+
+```
+grep -c "—" function/public/index.html          # must be 0
+grep -ci "pricing\|leak" function/public/index.html   # must be 0
+```
+
+---
+
+## 4. Lead capture and email
+
+- Netlify Form **`crg-audit`**, 36 fields, honeypot on, **0 submissions** (test
+  records were deleted 2026-08-21). Next submission is a real one.
+- On submit, Netlify fires `submission-created.mts`, which sends the report via
+  Resend to the lead, BCC `jeff@jefffryer.com`, reply-to the same.
+- Sends from `jeff@mail.jefffryer.com`. Domain is verified in Resend.
+  `RESEND_API_KEY` is set in Netlify env (Builds, Functions, Runtime).
+- The email deliberately contains only score, band, Fix First and a **link back**
+  to the full result. It carries no copy of its own: the audit posts the six
+  sentences and the Fix First action as form fields, so changing copy in
+  `index.html` updates the email automatically.
+- Failures return **200** on purpose. A non-2xx makes Netlify retry, which would
+  email the same person repeatedly. Check the function log for real status.
+- Form notifications are configured (Jeff did this).
+
+---
+
+## 5. Outstanding work
+
+All of it is on Squarespace. Nothing in the repo is pending.
+
+### 5a. Add one URL mapping (highest priority)
+
+`/commercial-readiness-gap` was disabled, which broke **seven** things. One line
+fixes all of them.
+
+Settings → Developer Tools → **URL Mappings**, add:
+
+```
+/commercial-readiness-gap -> /commercial-readiness-audit 301
+```
+
+That box already holds ~30 live redirects. Add a line; change nothing else.
+
+### 5b. Fix existing mapping line 17
+
+Currently `/resources -> /commercial-readiness-gap 301`, which points at the
+disabled page. Change the target to `/commercial-readiness-audit`.
+
+### 5c. Repoint six internal links
+
+These still point at the disabled gap page. 5a makes them work via redirect, but
+they should point directly.
+
+| Page | Anchor text |
+|---|---|
+| `/advanced-packaging-foundry` | See the six parts of your commercial engine → |
+| `/developer-pipeline` | same |
+| `/digital-practice` | same |
+| `/global-semiconductor-repositioning` | same |
+| `/venture-ecosystem-launch` | same |
+| `/blog/six-reasons-design-wins-arent-turning-into-revenue` | Commercial Readiness Gap |
+
+All → `/commercial-readiness-audit`.
+
+*Not* broken, leave alone: "Inside the Commercial Readiness Gap" on
+`/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` points at a
+blog post whose slug merely contains that phrase.
+
+### 5d. Optional, previously flagged, not approved
+
+- The footer LinkedIn link has **no accessible name** — screen readers announce
+  "link" with no destination. Needs an `aria-label`.
+- `/commercial-gap` (a third, long-form page) was disabled. Nothing linked to it.
+
+---
+
+## 6. Do not repeat these mistakes
+
+Read `/mnt/skills/user/squarespace-safe-editing/SKILL.md` first. It was written
+after an earlier bad session. This session then hit **five more** failure modes
+editing jefffryer.com through the Chrome connector:
+
+1. A Code Block editor opened and **would not close** — clicking anywhere else on
+   the canvas did not dismiss it. Escape is blocked in this environment.
+2. Editing a footer link in place left the last character behind as a **separate
+   link**: "Commercial Audi" → new page, "t" → old page. Partial selection in
+   that editor is unreliable.
+3. A hand-typed URL shipped with a **typo** (`commercial-readiness-audt`),
+   404ing the homepage CTA until caught by verification.
+4. Clicking a block's pencil icon opened the **section menu**, whose red REMOVE
+   sits where the next click would land. This happened twice.
+5. The editor canvas **would not scroll**, leaving only the top of the page
+   reachable.
+
+**Conclusion reached: do not make Squarespace edits through the connector.**
+Give Jeff exact before/after strings and let him edit. He is fast and accurate at
+it. Then verify — that is where an agent adds real value here.
+
+### Verification is the job
+
+Every check run this session caught something a human missed: the URL typo, the
+split footer link, the wrong page being disabled, five orphaned links, and a
+stale redirect on line 17 of URL Mappings. Read the **live published page**, never
+the Squarespace editor preview — the preview has repeatedly shown content that
+was not what published.
+
+Useful pattern, run from a tab on the site (same-origin `fetch` works):
+
+```js
+const xml = await (await fetch('/sitemap.xml')).text();
+const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]).pathname);
+// then fetch each and grep hrefs / text
+```
+
+---
+
+## 7. Decisions already made — do not relitigate
+
+- The tool lives at `/commercial-readiness-audit`. `/commercial-readiness-gap`
+  and `/commercial-gap` are retired. Option A was chosen deliberately.
+- Footer label is **"Commercial Audit"** (not the full product name, too long).
+- Emailed report is the trimmed version; the full breakdown stays on screen.
+- BCC not CC. From `mail.jefffryer.com`, reply-to the real inbox.
+- Band copy is Jeff's, four blocks of BLOT + What/So What/Now What. Code enforces
+  all-or-nothing: a band with a BLOT but no analysis renders nothing.
+- The 12 floor/ceiling sentences were drafted by the previous agent and approved
+  by Jeff, with one rewrite to the "How you charge" floor.
+
+## 8. Ask Jeff before
+
+Changing any locked copy, the scoring formula, the band thresholds, the default
+slider value, or the untouched-slider behaviour. Also anything that sends email
+or writes to his live site.
