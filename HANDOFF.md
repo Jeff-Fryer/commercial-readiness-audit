@@ -229,6 +229,34 @@ split-link failure (mode 2 below): "Commercial Audi" + "t" is two anchors whose
 hrefs both look plausible. A page carrying two links to the audit page is the
 signature of that bug, and a count-only crawl reads it as two healthy links.
 
+Two matching traps when grepping for links:
+
+- Match on the **path**, not on a substring. Grepping for "commercial" also hits
+  `static1.squarespace.com` image URLs that happen to contain the word, which
+  reads as a phantom extra link on the page. The script normalises each href to
+  a path before classifying it.
+- The footer link is healthy at **one** anchor per page reading
+  "Commercial Audit" (verified 2026-08-21 on five pages). When it was split, the
+  footer carried 9 anchors; it carries 8 now. Anchor count is a usable check.
+
+### Verify against `origin/*`, never local
+
+A local branch can read `[ahead 1]` and look perfectly clean while the remote
+has diverged. That is exactly what happened here: work was committed to local
+`main` throughout, local status looked correct at every step, but the pushes
+landed such that `origin/main` sat **six commits behind** — missing this entire
+file. It was invisible from the local side and only showed up on `git fetch`
+plus a direct `git rev-parse origin/main`.
+
+So: `git fetch origin` first, then compare against `origin/main`. Confirm a file
+actually exists on the remote with `git ls-tree --name-only origin/main` rather
+than trusting the working tree.
+
+Related: branches here do get abandoned. `claude/commercial-readiness-urls-px0ihs`
+was deleted from the remote while its six commits were still unmerged; they
+survived only because they had been fast-forwarded into `main` first. This repo
+has no PR workflow, so **commit to `main`**.
+
 ### Two environment traps
 
 - **In-page `fetch()` crawling is unreliable here.** Crawling the 34-page
