@@ -19,6 +19,7 @@ SITE="https://www.jefffryer.com"
 AUDIT="/commercial-readiness-audit"
 GOOD_BLOG="/blog/commercial-readiness-gap-diagnostic"
 RETIRED_RE='^/(commercial-readiness-gap|commercial-gap)$'
+ARCHIVE_RE='^/blog/(category|tag)/'
 
 # Cache-buster: Squarespace and Safari both cache hard, and a stale 200 after
 # an edit reads exactly like "the change did not land".
@@ -54,9 +55,14 @@ hr "COMMERCIAL LINKS"
 if [ "$#" -ge 1 ]; then
   paths="$*"
 else
+  # grep -o puts each <loc> on its own line regardless of how the sitemap is
+  # wrapped, so this survives a minified one-line sitemap. Do not go back to
+  # `tr '>' '>\n'`: tr truncates SET2 to SET1's length, so that maps '>' to '>'
+  # and inserts nothing. And match </loc> explicitly - a capture of [^<]* stops
+  # at the '<', leaving the closing tag glued to every path.
   paths=$(fetch /sitemap.xml \
-    | tr '>' '>\n' \
-    | sed -n 's|.*<loc>\(https\{0,1\}://[^<]*\)|\1|p' \
+    | grep -o '<loc>[^<]*</loc>' \
+    | sed -e 's|<loc>||' -e 's|</loc>||' \
     | sed -e 's|^https\{0,1\}://[^/]*||' -e 's|^$|/|' \
     | sort -u)
 fi
@@ -68,15 +74,21 @@ printf '%-22s %-42s %s\n' FLAG PAGE 'HREF | ANCHOR TEXT'
 for p in $paths; do
   html=$(fetch "$p") || { printf '%-22s %s\n' FETCHFAIL "$p"; continue; }
 
-  # Put every anchor that mentions "commercial" on its own line, then split the
-  # opening tag from the text that follows it. Text stops at the next tag, so a
-  # nested <span> yields empty text - which is itself worth seeing.
+  # One anchor per line, then keep only the anchors whose href mentions
+  # "commercial". Splitting on </a> first means the text can be recovered with
+  # its inner markup intact, which matters: a link wrapped in <strong> must not
+  # read as zero-length text and trip the split detector.
   printf '%s' "$html" \
     | tr -d '\n' \
-    | grep -oE '<a[^>]+href="[^"]*[Cc]ommercial[^"]*"[^>]*>[^<]*' \
+    | sed 's|</a>|</a>\n|g' \
+    | grep -E '<a[^>]+href="[^"]*[Cc]ommercial[^"]*"' \
+    | sed 's|.*\(<a[^>]*href="[^"]*[Cc]ommercial[^"]*"[^>]*>\)|\1|' \
     | while IFS= read -r a; do
-        href=$(printf '%s' "$a" | sed -n 's|.*href="\([^"]*\)".*|\1|p')
-        text=$(printf '%s' "$a" | sed 's|^<a[^>]*>||' \
+        href=$(printf '%s' "$a" | sed -n 's|^<a[^>]*href="\([^"]*\)".*|\1|p')
+        # drop the opening tag, then ALL inner tags, then the closing tag
+        text=$(printf '%s' "$a" \
+               | sed -e 's|^<a[^>]*>||' -e 's|</a>.*||' -e 's|<[^>]*>||g' \
+               | sed 's|&nbsp;| |g' \
                | tr -s ' \t' ' ' | sed -e 's|^ *||' -e 's| *$||')
         # normalise to a path: drop origin, query, fragment, trailing slash
         u=${href#"$SITE"}; u=${u#http*://*/}; u=${u%%\?*}; u=${u%%#*}
@@ -86,6 +98,10 @@ for p in $paths; do
         if   [ "$u" = "$AUDIT" ];     then flag=OK
         elif [ "$u" = "$GOOD_BLOG" ]; then flag=OK-BLOGSLUG
         elif printf '%s' "$u" | grep -qE "$RETIRED_RE"; then flag=STALE
+        # Archive links are navigation, not content. /blog/category/Commercial+Readiness
+        # is a real Squarespace URL and matched the typo check ~40 times, burying
+        # the rows that mattered.
+        elif printf '%s' "$u" | grep -qE "$ARCHIVE_RE"; then flag=OK-ARCHIVE
         else flag=UNKNOWN-TYPO?
         fi
 

@@ -124,11 +124,16 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 
 All of it is on Squarespace. Nothing in the repo is pending.
 
-**State confirmed 2026-08-21** by reading the URL Mappings textarea (25 lines)
-and crawling the live site with `scripts/verify-links.sh`. All three items below
-are still outstanding, and the crawl found no others. The two counts reconcile:
-the "seven things" broken by disabling `/commercial-readiness-gap` are the six
-internal links in 5c plus the `/resources` redirect in 5b.
+**5a, 5b and 5c are DONE and verified (2026-08-21).** The URL Mappings box now
+holds 26 lines with zero targets pointing at a retired page, and a crawl of all
+33 pages found zero stale links, zero typo'd URLs and zero split links. The
+counts reconciled throughout: the "seven things" broken by disabling
+`/commercial-readiness-gap` were the six internal links in 5c plus the
+`/resources` redirect in 5b.
+
+Left deliberately: `/commercial-gap` still 404s. It has zero inbound links.
+
+Only 5d remains, and it was never approved.
 
 ### 5a. Add one URL mapping (highest priority)
 
@@ -229,7 +234,27 @@ split-link failure (mode 2 below): "Commercial Audi" + "t" is two anchors whose
 hrefs both look plausible. A page carrying two links to the audit page is the
 signature of that bug, and a count-only crawl reads it as two healthy links.
 
-Two matching traps when grepping for links:
+Three bugs were found in the first version of this script by running it against
+the real site. All are fixed; the lesson is that **fixture tests that feed the
+script pre-made paths never exercise the sitemap parser at all**, which is where
+two of the three lived:
+
+- `tr '>' '>\n'` is a **no-op**. `tr` truncates SET2 to SET1's length, so it maps
+  `>` to `>` and inserts nothing. It only appeared to work because this sitemap
+  happens to be one `<loc>` per line; a minified sitemap would have yielded one
+  path and reported a clean site. Now uses `grep -o '<loc>[^<]*</loc>'`.
+- A capture of `[^<]*` stops at the `<`, so `sed s|.*<loc>\(...\)|\1|` left
+  `</loc>` glued to every path and all 33 fetches failed. Match the closing tag
+  explicitly so the whole line is replaced.
+- Anchor text must be read with inner tags stripped. `<a ...><strong>Take the
+  ...</strong></a>` yielded empty text and tripped the split detector, so every
+  bolded link read as a broken one. Split on `</a>` first, then strip all tags.
+
+Three matching traps when grepping for links:
+
+- Exclude `/blog/category/` and `/blog/tag/`. Squarespace archive URLs like
+  `/blog/category/Commercial+Readiness` matched the typo check ~40 times and
+  buried the real rows.
 
 - Match on the **path**, not on a substring. Grepping for "commercial" also hits
   `static1.squarespace.com` image URLs that happen to contain the word, which
