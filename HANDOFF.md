@@ -141,20 +141,57 @@ One link is *correctly* left alone: "Inside the Commercial Readiness Gap" on
 blog post whose slug merely contains the phrase, not at the retired page. The
 verifier flags it `OK-BLOGSLUG` so nobody "fixes" it.
 
-### 5d. Optional, flagged, never approved
+### 5d. Previously optional, partly done
 
-Jeff has seen all of these and has not asked for them. Do not do them unbidden.
+Two of these were done on 2026-08-21. The rest Jeff has seen and not asked for.
+Do not do them unbidden.
 
-- The footer LinkedIn link has **no accessible name** — screen readers announce
-  "link" with no destination. Needs an `aria-label`.
-- Squarespace structured data is stale: the DefinedTerm schema still says
-  "six layers", which is banned jargon, and `knowsAbout` still lists
-  "Commercial Readiness Gap" and "growth-stage semiconductor companies".
+**Done 2026-08-21, both via Settings -> Advanced -> Code Injection, HEADER box:**
+
+- Footer LinkedIn link had **no accessible name**; screen readers announced
+  "link" with no destination. Fixed with a client-side `aria-label` script
+  appended at the end of the HEADER box. Verified on the live site.
+- The DefinedTerm schema's `url` pointed at
+  `/blog/commercial-readiness-gap-diagnostic`, which is a **redirect source**
+  (mappings line 23). A schema `url` that 301s is a weaker signal, and this is
+  the one term worth attributing cleanly. Now points at the destination,
+  `/blog/six-reasons-design-wins-arent-turning-into-revenue`.
+
+**Still open:**
+
+- The DefinedTerm `description` still reads "which of **six layers** of a
+  company's commercial infrastructure is broken". Section 3 bans that framing;
+  the public phrase is "the six parts of your commercial engine". Confirmed
+  still present in the HEADER box on 2026-08-21. One-line fix, same box.
 - Meta descriptions on `/about` and `/contact`, and three references on
-  `/privacy`, still use retired wording.
+  `/privacy`, still use retired wording. Not re-checked since first flagged.
 - `/blog/why-most-gtm-playbooks-break-between-tape-out-and-revenue` describes a
-  "five-minute self-check". The audit takes 90 seconds.
-- `/commercial-gap` (a third, long-form page) was disabled. Nothing linked to it.
+  "five-minute self-check". The audit takes 90 seconds. Not re-checked.
+- `/commercial-gap` (a third, long-form page) is disabled and 404s. Zero inbound
+  links, confirmed by crawl. Left that way deliberately.
+
+**Already fixed by someone, no action needed:** `knowsAbout` no longer lists
+"Commercial Readiness Gap" or "growth-stage semiconductor companies". Verified
+against the live HEADER box on 2026-08-21.
+
+### Some site behaviour lives in Code Injection, not in pages
+
+Settings -> Advanced -> Code Injection, HEADER box, carries client-side scripts
+that a page-by-page audit will never find. As of 2026-08-21:
+
+| Script | What it does |
+|---|---|
+| Self-check link | Appends a Commercial Readiness Audit link to the end of every blog post body, deduped against posts that already link there |
+| Read More labels | Sets `aria-label="Read more: <post title>"` on blog list links, scoped to `/blog*` |
+| LinkedIn icon label | Sets `aria-label` on the footer social icon |
+| Title dedup + About override | Rewrites `document.title` and og/twitter title tags |
+| DefinedTerm + Person schema | All structured data for the site |
+
+Two consequences. Content changes can be undone by a script rather than by a
+page edit, so check this box before concluding a page is wrong. And the comments
+in it are the only documentation these scripts have: one described a retired
+page as the site's lead-capture form for weeks. Update the comment whenever you
+change the code.
 
 ---
 
