@@ -15,7 +15,9 @@
 
 set -u
 
-SITE="https://www.jefffryer.com"
+# Overridable so the script can be exercised end to end against a local fixture
+# server. Leave it alone for real runs.
+SITE="${SITE:-https://www.jefffryer.com}"
 AUDIT="/commercial-readiness-audit"
 GOOD_BLOG="/blog/commercial-readiness-gap-diagnostic"
 RETIRED_RE='^/(commercial-readiness-gap|commercial-gap)$'
@@ -71,13 +73,18 @@ count=$(printf '%s\n' $paths | grep -c .)
 printf 'crawling %s pages\n\n' "$count"
 printf '%-22s %-42s %s\n' FLAG PAGE 'HREF | ANCHOR TEXT'
 
-for p in $paths; do
-  html=$(fetch "$p") || { printf '%-22s %s\n' FETCHFAIL "$p"; continue; }
+rows=$(mktemp); trap 'rm -f "$rows"' EXIT
 
-  # One anchor per line, then keep only the anchors whose href mentions
-  # "commercial". Splitting on </a> first means the text can be recovered with
-  # its inner markup intact, which matters: a link wrapped in <strong> must not
-  # read as zero-length text and trip the split detector.
+for p in $paths; do
+  html=$(fetch "$p") || { printf '%-22s %s\n' FETCHFAIL "$p" >>"$rows"; continue; }
+
+  # Break the document so each </a> ends a line, then keep the anchors whose
+  # href mentions "commercial". This keeps nested markup inside the match, so a
+  # link whose text is wrapped in <strong> or <span> still yields its real text
+  # rather than an empty string (an empty string here used to masquerade as a
+  # split link). Filtering with grep -E and trimming the prefix with sed, rather
+  # than grep -oE '...>.*</a>', keeps anchors that Squarespace leaves unclosed
+  # instead of dropping them silently.
   printf '%s' "$html" \
     | tr -d '\n' \
     | sed 's|</a>|</a>\n|g' \
@@ -85,7 +92,7 @@ for p in $paths; do
     | sed 's|.*\(<a[^>]*href="[^"]*[Cc]ommercial[^"]*"[^>]*>\)|\1|' \
     | while IFS= read -r a; do
         href=$(printf '%s' "$a" | sed -n 's|^<a[^>]*href="\([^"]*\)".*|\1|p')
-        # drop the opening tag, then ALL inner tags, then the closing tag
+        # drop the opening tag, then the closing tag, then ALL inner tags
         text=$(printf '%s' "$a" \
                | sed -e 's|^<a[^>]*>||' -e 's|</a>.*||' -e 's|<[^>]*>||g' \
                | sed 's|&nbsp;| |g' \
@@ -98,19 +105,31 @@ for p in $paths; do
         if   [ "$u" = "$AUDIT" ];     then flag=OK
         elif [ "$u" = "$GOOD_BLOG" ]; then flag=OK-BLOGSLUG
         elif printf '%s' "$u" | grep -qE "$RETIRED_RE"; then flag=STALE
-        # Archive links are navigation, not content. /blog/category/Commercial+Readiness
-        # is a real Squarespace URL and matched the typo check ~40 times, burying
-        # the rows that mattered.
+        # Blog category and tag archives are internal taxonomy nav. Several are
+        # named "Commercial ...", so they matched the typo check ~40 times and
+        # buried the rows that mattered. Classified rather than skipped: they are
+        # counted in the summary and only their individual rows are held back, so
+        # a future /blog/category/Commercial-Audt still shows up in the tally
+        # instead of vanishing through a silent `continue`.
         elif printf '%s' "$u" | grep -qE "$ARCHIVE_RE"; then flag=OK-ARCHIVE
         else flag=UNKNOWN-TYPO?
         fi
 
-        # split-link detector, and empty text = nested markup or a bare icon
+        # Split-link detector. Now that inner tags are stripped above, short text
+        # really is short text: the "Commercial Audi" + "t" signature.
         [ "${#text}" -le 2 ] && flag="$flag+SPLIT?"
 
-        printf '%-22s %-42s %s | "%s"\n' "$flag" "$p" "$u" "$text"
+        printf '%-22s %-42s %s | "%s"\n' "$flag" "$p" "$u" "$text" >>"$rows"
       done
 done
+
+# Everything except the archive nav, which is summarised instead of listed.
+grep -v '^OK-ARCHIVE' "$rows" || true
+
+n() { grep -c "^$1" "$rows" 2>/dev/null || true; }
+printf '\nSTALE %s   UNKNOWN-TYPO? %s   SPLIT? %s   FETCHFAIL %s   OK %s   OK-ARCHIVE %s (not listed)\n' \
+  "$(n STALE)" "$(n 'UNKNOWN-TYPO?')" "$(grep -c 'SPLIT?' "$rows" || true)" \
+  "$(n FETCHFAIL)" "$(n 'OK ')" "$(n OK-ARCHIVE)"
 
 cat <<'NOTE'
 
