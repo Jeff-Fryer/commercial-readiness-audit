@@ -42,7 +42,8 @@ Three of the module's rules are invisible on a happy path.
 | 8. Methodology | Label, formula (including that the gap divides by 80, not 100), the published 0.40 ceiling, benchmark, six coefficients, three sources, three links, closing line, position, that the three withdrawn citations stay gone, that the Forrester href is the fixed URL rather than the bare domain, and that the three statistics appear nowhere else in the report |
 | 9. Print | Control hidden, static value line shown, both lines print, accordion expanded |
 | 10. Nothing answered | Module and bridge line both absent |
-| 11. The POST | 38 fields, none of them a deal value |
+| 11. The POST | 37 fields, none of them a deal value |
+| 15a. No newsletter | No checkbox, element, CSS or hidden-twin field for a mailing-list opt-in, checked in the rendered screen and the served file |
 | 15. Flat flag | Two real submissions driven end to end, checking `flatEngine` and `fixFirstAction` are posted, that both halves of the emailed Fix First block are byte-identical to what rendered on screen, and that neither payload carries a deal value |
 | 12. Stage noun | All six Part 7 stages driven end to end, each checked on all three surfaces (slider label, print line, value line) plus the slider's aria-label, and the no-stage fallback |
 | 13. The trim | The deleted sections stay deleted, the three surviving section headings are the right three, six bars survive, one FOCUS badge on the weakest, and the read is exactly two paragraphs with the band's What not repeated |

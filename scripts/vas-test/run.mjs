@@ -293,7 +293,8 @@ check('a submission was posted', posted.length === 1, posted.length);
 if (posted[0]) {
   const keys = [...new URLSearchParams(posted[0]).keys()];
   check('no deal-value field', !keys.some(k => /deal|value|vas|win/i.test(k)), keys.filter(k=>/deal|value|vas|win/i.test(k)).join(','));
-  check('38 fields: the 37 plus flatEngine', keys.length === 38, keys.length);
+  check('37 fields', keys.length === 37, keys.length);
+  check('no newsletter opt-in field', !keys.includes('optin'), keys.join(','));
   const posted0 = new URLSearchParams(posted[0]);
   // this submission moved no sliders, so all six sit at the default: flat
   check('flatEngine posted, and correct for an untouched engine',
@@ -403,6 +404,29 @@ await page.goto(BASE + '/?crg=40,40,40,40,40,80');   // spread 40, clearly not f
 m = await readModule();
 check('spread 40 is not flat', m.focusTags.length === 1 && m.fixHead !== 'Fix First: all six, evenly', m.fixHead);
 
+
+/* --------------------------- case 15a: there is no newsletter to opt into */
+console.log('\n15a. No newsletter opt-in anywhere on the capture screen');
+await page.goto(BASE + '/');
+await page.evaluate(() => document.querySelector('#s-intro .btn-primary, #s-intro button').click());
+await page.waitForSelector('#s-quiz.is-on');
+for (let i = 0; i < 6; i++) await page.click('#q-next');
+await page.waitForSelector('#s-stage.is-on');
+await page.click('#s-stage .btn-primary');
+await page.waitForSelector('#s-capture.is-on');
+const capture = await page.evaluate(() => ({
+  checkboxes: document.querySelectorAll('#s-capture input[type=checkbox]').length,
+  optinEl: !!document.getElementById('f-optin'),
+  optinClass: !!document.querySelector('.optin'),
+  text: document.getElementById('s-capture').innerText
+}));
+check('no checkbox on the capture screen', capture.checkboxes === 0, capture.checkboxes);
+check('no #f-optin, no .optin', capture.optinEl === false && capture.optinClass === false);
+check('no consent or mailing-list copy', !/notes on commercial|subscrib|newsletter|opt.?in|I.d like/i.test(capture.text),
+      (capture.text.match(/notes on commercial|subscrib|newsletter|opt.?in|I.d like/i) || ['clean'])[0]);
+const served = await (await fetch(BASE + '/')).text();
+check('no opt-in field in the hidden Netlify twin', !/name="optin"/.test(served));
+check('no .optin CSS left behind', !/\.optin\s*\{/.test(served));
 
 /* ------------------------- case 15: flatEngine reaches the form payload */
 console.log('\n15. The email gets told whether the engine is flat');

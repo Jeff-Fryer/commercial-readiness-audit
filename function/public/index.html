@@ -446,18 +446,6 @@ body.is-embed .shell{box-shadow:none;}
 .field.is-bad{border-color:#FF8B8B;}
 .field-err{margin-top:6px; font-size:12.5px; color:#FFC8C8;}
 .field-err:empty{display:none;}
-.optin{
-  grid-column:1 / -1; display:flex; gap:11px; align-items:flex-start;
-  margin-top:6px; text-align:left; font-size:13.5px; color:var(--dim); line-height:1.45;
-  cursor:pointer;
-}
-.optin input{
-  flex:0 0 auto; width:20px; height:20px; margin:1px 0 0; cursor:pointer;
-  border:1.5px solid var(--line-hi); border-radius:4px; background:rgba(0,0,0,.22);
-  display:grid; place-items:center;
-}
-.optin input:checked{background:var(--azure); border-color:var(--azure);}
-.optin input:checked::after{content:'✓'; color:var(--ink); font-size:13px; font-weight:700; line-height:1;}
 .capture .btn-primary{margin-top:22px;}
 .capture-back{margin-top:14px;}
 @media (max-width:640px){ .form-grid{grid-template-columns:1fr;} }
@@ -921,10 +909,6 @@ body.is-embed .shell{box-shadow:none;}
                 <input class="field" type="text" id="f-website" name="website" autocomplete="url" placeholder="e.g. yourcompany.com"
                        autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
               </div>
-              <label class="optin" for="f-optin">
-                <input type="checkbox" id="f-optin" name="optin">
-                <span>I&rsquo;d like Jeff&rsquo;s notes on commercial readiness for semiconductor and deep tech CEOs.</span>
-              </label>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block" id="capture-submit">Unlock My Commercial Readiness Report</button>
@@ -980,7 +964,7 @@ body.is-embed .shell{box-shadow:none;}
   <input type="text" name="bot-field">
   <input type="text" name="firstName"><input type="text" name="lastName">
   <input type="email" name="email"><input type="text" name="company">
-  <input type="text" name="website"><input type="text" name="optin">
+  <input type="text" name="website">
   <input type="text" name="stage">
   <input type="text" name="score"><input type="text" name="band">
   <input type="text" name="pillar_story"><input type="text" name="pillar_sell">
@@ -1906,7 +1890,6 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
       email: $('f-email').value.trim(),
       company: $('f-company').value.trim(),
       website: $('f-website').value.trim(),
-      optin: $('f-optin').checked ? 'yes' : 'no',
       stage: stage || '',
       score: String(result.ui.compositeScore),
       band: result.ui.scoreLabel,

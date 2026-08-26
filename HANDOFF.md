@@ -248,9 +248,15 @@ that count ever reads 2, something new broke the rule.
 
 - Netlify Form **`crg-audit`**, honeypot on, **0 submissions** (test records
   were deleted 2026-08-21). Next submission is a real one.
-- The POST carries **38** fields as of 2026-08-26. Every one has to appear in the
+- The POST carries **37** fields as of 2026-08-26. Every one has to appear in the
   hidden `<form ... hidden>` twin in `index.html` or Netlify drops it silently at
   deploy time. The newest is `flatEngine`.
+- **There is no newsletter.** The capture screen used to carry an opt-in checkbox
+  reading "I'd like Jeff's notes on commercial readiness for semiconductor and
+  deep tech CEOs", posting an `optin` field. There was nothing behind it, so the
+  control, its copy, its CSS and the field are all gone. Do not add a consent
+  checkbox back without a list to consent to. "subscribe" is already on the
+  banned-words list in section 3.
 - On submit, Netlify fires `submission-created.mts`, which sends the report via
   Resend to the lead, BCC `jeff@jefffryer.com`, reply-to the same.
 - Sends from `jeff@mail.jefffryer.com`. Domain is verified in Resend.

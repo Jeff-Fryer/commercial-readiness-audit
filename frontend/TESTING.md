@@ -116,8 +116,10 @@ This is a promise printed under the slider, so check it rather than trusting it.
   Squarespace Code Block, pasted into email, and read by whoever the CEO
   forwards it to, and a deal value beside six pillar scores is a company
   fingerprint however coarsely it is rounded.
-- The Netlify form POST must still carry **37 fields** and none of them may
-  mention a deal value, a win value, or a dollar amount.
+- The Netlify form POST must carry **37 fields** and none of them may mention a
+  deal value, a win value, or a dollar amount. The count went 37 to 38 when
+  `flatEngine` was added and back to 37 when the newsletter opt-in came out; if
+  it reads 38, check which field returned.
 - The emailed report carries the **delay line only**. The dollar line is not in
   it and must not be added: the function rebuilds the delay from the six
   `pillar_*` fields it already receives, so no new field exists to carry a deal
@@ -297,7 +299,7 @@ Closed 2026-08-26. The audit posts a `flatEngine` field (`yes`/`no`), and
 `submission-created.mts` branches on it, so a flat-score visitor reads
 "FIX FIRST: all six, evenly" in their inbox and on screen.
 
-- The form now carries **38** fields, not 37. `flatEngine` is in the hidden
+- `flatEngine` is in the hidden
   Netlify twin as well as the POST: a field missing from that twin is silently
   dropped at deploy time, and this one would fail open, quietly emailing a named
   pillar again.
@@ -363,6 +365,28 @@ match rather than checking them one at a time.
 The verdict sentence (the BLOT) and the "Self-reported result" caption are
 untouched, and the harness asserts that too. The hero's children must read
 `ring-wrap, res-band, res-weakest, res-blot, res-type` in that order.
+
+### 22. There is no newsletter
+
+Removed 2026-08-26, because there is no newsletter to join. The capture screen
+must carry **no checkbox at all**: no `#f-optin`, no `.optin` element, no
+`.optin` CSS, no `optin` field in the hidden Netlify twin, and nothing in the
+POST. The consent line ("I'd like Jeff's notes on commercial readiness for
+semiconductor and deep tech CEOs") is gone with it.
+
+The harness checks the served file as well as the rendered screen, because a
+stale entry in the hidden twin is invisible on the page and would keep the field
+registered with Netlify.
+
+Sweep before shipping any change to the capture screen:
+
+```
+grep -rniE "newsletter|subscri|mailing.?list|opt.?in" --include=* . | grep -v "^./.git/"
+```
+
+The one legitimate hit is the copy rule in HANDOFF section 3, which lists
+"subscribe" among the banned SaaS words. That line is what keeps this language
+out; do not delete it.
 
 ## Scroll depth
 
