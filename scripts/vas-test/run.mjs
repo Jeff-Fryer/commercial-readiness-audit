@@ -288,7 +288,11 @@ check('a submission was posted', posted.length === 1, posted.length);
 if (posted[0]) {
   const keys = [...new URLSearchParams(posted[0]).keys()];
   check('no deal-value field', !keys.some(k => /deal|value|vas|win/i.test(k)), keys.filter(k=>/deal|value|vas|win/i.test(k)).join(','));
-  check('field set unchanged (37 fields, same as before)', keys.length === 37, keys.length);
+  check('38 fields: the 37 plus flatEngine', keys.length === 38, keys.length);
+  const posted0 = new URLSearchParams(posted[0]);
+  // this submission moved no sliders, so all six sit at the default: flat
+  check('flatEngine posted, and correct for an untouched engine',
+        posted0.get('flatEngine') === 'yes', posted0.get('flatEngine'));
 }
 
 /* --------------------------------- case 12: the stage swaps the noun */
@@ -394,6 +398,49 @@ await page.goto(BASE + '/?crg=40,40,40,40,40,80');   // spread 40, clearly not f
 m = await readModule();
 check('spread 40 is not flat', m.focusTags.length === 1 && m.fixHead !== 'Fix First: all six, evenly', m.fixHead);
 
+
+/* ------------------------- case 15: flatEngine reaches the form payload */
+console.log('\n15. The email gets told whether the engine is flat');
+async function submitWith(sliderValues) {
+  const sent = [];
+  const page2 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await page2.route('**/', route => route.request().method() === 'POST'
+    ? route.fulfill({ status: 200, body: 'ok' }) : route.continue());
+  page2.on('request', req => { if (req.method() === 'POST') sent.push(req.postData()); });
+  await page2.goto(BASE + '/');
+  await page2.evaluate(() => document.querySelector('#s-intro .btn-primary, #s-intro button').click());
+  await page2.waitForSelector('#s-quiz.is-on');
+  for (const v of sliderValues) {
+    await page2.evaluate((val) => {
+      const el = document.getElementById('q-slider');
+      el.value = String(val); el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, v);
+    await page2.click('#q-next');
+  }
+  await page2.waitForSelector('#s-stage.is-on');
+  await page2.click('#s-stage .btn-primary');
+  await page2.waitForSelector('#s-capture.is-on');
+  await page2.fill('#f-first', 'A'); await page2.fill('#f-last', 'B');
+  await page2.fill('#f-email', 'a@acme.io'); await page2.fill('#f-company', 'Acme');
+  await page2.click('#capture-submit');
+  await page2.waitForSelector('#res-fixfirst b');
+  const onScreen = await page2.evaluate(() => document.querySelector('#res-fixfirst b').textContent);
+  await page2.close();
+  return { body: new URLSearchParams(sent[0] || ''), onScreen };
+}
+
+const flatRun = await submitWith([40, 40, 40, 40, 40, 40]);
+check('flat engine posts flatEngine=yes', flatRun.body.get('flatEngine') === 'yes', flatRun.body.get('flatEngine'));
+check('  and the screen agrees', flatRun.onScreen === 'Fix First: all six, evenly', flatRun.onScreen);
+check('  fixFirst is still posted for the record', !!flatRun.body.get('fixFirst'), flatRun.body.get('fixFirst'));
+
+const sharpRun = await submitWith([0, 40, 60, 20, 80, 40]);
+check('uneven engine posts flatEngine=no', sharpRun.body.get('flatEngine') === 'no', sharpRun.body.get('flatEngine'));
+check('  and the screen names the pillar', sharpRun.onScreen === 'Fix First: Your story', sharpRun.onScreen);
+
+check('the deal value is still nowhere in either payload',
+      ![...flatRun.body.keys(), ...sharpRun.body.keys()].some(k => /deal|value|vas|win/i.test(k)),
+      [...flatRun.body.keys()].filter(k => /deal|value|vas|win/i.test(k)).join(','));
 
 await browser.close();
 server.close();

@@ -9,7 +9,8 @@
  * submission can never be emailed twice because the browser is not involved.
  *
  * It sends the headline only: score, band, the Fix First pillar with its action,
- * and one line of commercial delay. The six pillar scores and the six sentences
+ * and one line of commercial delay. On a flat engine the Fix First line says
+ * "all six, evenly" instead of naming a pillar, matching what the screen showed. The six pillar scores and the six sentences
  * stay on screen, and the email links back to the live result instead of
  * reproducing it, so reading the full breakdown means returning to the tool.
  * Jeff is blind-copied on every send.
@@ -112,6 +113,25 @@ function delayLine(d: Submission): string | null {
   return `Roughly ${months} ${months === 1 ? "month" : "months"} of commercial delay against a peer with the same technology and a clearer commercial engine.`;
 }
 
+/**
+ * What the Fix First line says.
+ *
+ * When the six pillar scores sit within one slider stop of each other, the
+ * results screen refuses to name a weakest pillar: the tie-break would be
+ * deciding it, not the CEO. The audit posts `flatEngine` so this email can say
+ * the same thing, rather than putting a named pillar in the inbox of someone
+ * whose screen just told them the gap is even.
+ *
+ * The browser owns the decision. Do not re-derive the spread here: two copies of
+ * the same threshold drift, and the one in `public/index.html` is the one the
+ * reader actually saw.
+ */
+const FLAT_FIX_FIRST = "all six, evenly";
+
+function fixFirstLabel(d: Submission): string {
+  return d.flatEngine === "yes" ? FLAT_FIX_FIRST : (d.fixFirst ?? "");
+}
+
 /* --------------------------------------------------------------- helpers --- */
 
 function esc(value: unknown): string {
@@ -138,7 +158,7 @@ function plainText(d: Submission): string {
     `SCORE: ${d.score} / 100`,
     `BAND: ${d.band}`,
     ``,
-    `FIX FIRST: ${d.fixFirst}`,
+    `FIX FIRST: ${fixFirstLabel(d)}`,
     `${d.fixFirstAction}`,
     ...(delay ? [``, delay] : []),
     ``,
@@ -181,7 +201,7 @@ function html(d: Submission): string {
 
   <tr><td style="padding-top:28px;border-top:${rule};">
     <div style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;padding-top:20px;">Your Fix First read</div>
-    <div style="margin-top:8px;font:700 16px/1.4 Helvetica,Arial,sans-serif;color:${ink};">Fix First: ${esc(d.fixFirst)}</div>
+    <div style="margin-top:8px;font:700 16px/1.4 Helvetica,Arial,sans-serif;color:${ink};">Fix First: ${esc(fixFirstLabel(d))}</div>
     <div style="margin-top:6px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">${esc(d.fixFirstAction)}</div>
     ${delay ? `<div style="margin-top:16px;padding-top:16px;border-top:${rule};font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">${esc(delay)}</div>` : ""}
   </td></tr>

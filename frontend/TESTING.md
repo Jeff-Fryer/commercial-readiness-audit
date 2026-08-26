@@ -291,13 +291,30 @@ would contradict the sentence above it.
 It lives in `renderResults` as `readConsequence`. Everything else in the read is
 still Jeff's band copy.
 
-### 19. The email still names a pillar in the flat case
+### 19. The email matches the screen on a flat engine
 
-Known and deliberate, flagged rather than fixed. `submission-created.mts` emails
-`FIX FIRST: {pillar}` from the posted form field, so a flat-score visitor sees
-"all six, evenly" on screen and a named pillar in their inbox. Changing the
-email was out of scope for the trim. If it should match, the fix is to post the
-flat flag as a field and branch on it in the function.
+Closed 2026-08-26. The audit posts a `flatEngine` field (`yes`/`no`), and
+`submission-created.mts` branches on it, so a flat-score visitor reads
+"FIX FIRST: all six, evenly" in their inbox and on screen.
+
+- The form now carries **38** fields, not 37. `flatEngine` is in the hidden
+  Netlify twin as well as the POST: a field missing from that twin is silently
+  dropped at deploy time, and this one would fail open, quietly emailing a named
+  pillar again.
+- **The browser owns the decision.** `isFlatEngine()` in `public/index.html` is
+  the single definition of the threshold, shared by the results screen and the
+  payload. Do not re-derive the spread in the function: two copies of the same
+  rule drift, and the browser's is the one the reader actually saw.
+- The label falls back to the named pillar when `flatEngine` is absent or empty,
+  so a submission predating this change still emails something sensible.
+- `fixFirst` is still posted with the pillar name in every case. The lead record
+  keeps it; only the email's label changes.
+
+**One thing this does not change.** The action sentence under the heading is
+still the weakest pillar's own action, so a flat-score email reads "FIX FIRST:
+all six, evenly" followed by a single-pillar prescription. On screen that second
+paragraph is the band's Now What instead. Posting the screen's text as
+`fixFirstAction` would close it; that was out of scope here.
 
 ## Scroll depth
 

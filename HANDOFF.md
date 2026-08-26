@@ -238,8 +238,11 @@ that count ever reads 2, something new broke the rule.
 
 ## 4. Lead capture and email
 
-- Netlify Form **`crg-audit`**, 36 fields, honeypot on, **0 submissions** (test
-  records were deleted 2026-08-21). Next submission is a real one.
+- Netlify Form **`crg-audit`**, honeypot on, **0 submissions** (test records
+  were deleted 2026-08-21). Next submission is a real one.
+- The POST carries **38** fields as of 2026-08-26. Every one has to appear in the
+  hidden `<form ... hidden>` twin in `index.html` or Netlify drops it silently at
+  deploy time. The newest is `flatEngine`.
 - On submit, Netlify fires `submission-created.mts`, which sends the report via
   Resend to the lead, BCC `jeff@jefffryer.com`, reply-to the same.
 - Sends from `jeff@mail.jefffryer.com`. Domain is verified in Resend.
@@ -250,8 +253,13 @@ that count ever reads 2, something new broke the rule.
   step.** `www` and no trailing slash before the `?` are both deliberate: the
   apex and the slashed form each cost the reader a 301 on the one link the email
   exists to deliver.
-- The email deliberately contains only score, band, Fix First and a **link back**
-  to the full result. It carries no copy of its own: the audit posts the six
+- The email deliberately contains only score, band, Fix First, one line of
+  commercial delay, and a **link back** to the full result.
+- On a **flat engine** (six pillar scores within one slider stop) the Fix First
+  line reads "all six, evenly" rather than naming a pillar, matching what the
+  screen showed. The browser decides and posts `flatEngine`; the function only
+  branches on it. Do not re-derive the spread server side, and do not remove
+  `flatEngine` from the hidden form twin. It carries no copy of its own: the audit posts the six
   sentences and the Fix First action as form fields, so changing copy in
   `index.html` updates the email automatically.
 - Failures return **200** on purpose. A non-2xx makes Netlify retry, which would
