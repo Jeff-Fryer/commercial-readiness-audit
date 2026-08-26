@@ -232,6 +232,99 @@ Click straight through without moving a slider. The whole module is absent, alon
 with the bridge line. A dollar figure hung off the midpoint of the scale is
 exactly the confident diagnosis that section 3 exists to refuse.
 
+### 16. The results screen is cut, and cut in the right places
+
+Trimmed 2026-08-26 for scroll depth. Three sections remain between the gauge
+and the CTA, in this order: **How It Affects The Bottom Line**, **The Six
+Parts**, **Your Fix First Read**.
+
+Gone, and not coming back:
+
+| Cut | Why |
+|---|---|
+| WHAT YOU TOLD ME | Replayed the six slider sentences the visitor picked ninety seconds earlier, in quote marks. The `told_*` form fields **stay**: they are the lead record and the email is built from them. Deleting the screen section does not touch them. |
+| The STRONGEST PART / FIX FIRST card pair | Third presentation of the same six scores. The bars carry the FOCUS badge and the read names the pillar in its heading. |
+| The band's What paragraph | Restated the band label already sitting under the gauge. `BAND_COPY` keeps all four fields and `bandCopyReady()` still gates on all four; only What and Now What go unrendered in the normal case. |
+
+The Fix First read is now exactly **two paragraphs**: the consequence (the
+band's So What), then the fix (the pillar's own action). Check the count, not
+just the content: a third paragraph means something crept back in.
+
+### 17. The FOCUS badge marks one pillar
+
+`?crg=0,40,60,20,80,40` must show **exactly one** FOCUS badge, on Your story,
+and the read below must name the same pillar.
+
+Before this change the badge went on the lowest **two** pillars, which on a flat
+engine put it on the strongest and the weakest at once. That was a real bug, not
+a cosmetic one: the same badge marked best and worst.
+
+### 18. Flat scores get no arbitrary weakest
+
+When the spread across the six pillar scores is **under one slider stop**, the
+tie-break picks a weakest pillar on rules the CEO never saw, so naming one is a
+coin toss dressed as a diagnosis.
+
+| Preset | Spread | Behaviour |
+|---|---|---|
+| `?crg=40,40,40,40,40,40` | 0 | No FOCUS badge. Read opens "Fix First: all six, evenly" |
+| `?crg=60,60,60,60,60,60` | 0 | Same |
+| `?crg=20,20,20,20,20,20` | 0 | Same |
+| `?crg=80,80,80,80,80,80` | 0 | Same |
+| `?crg=40,40,40,40,40,50` | 10 | Flat |
+| `?crg=40,40,40,40,40,60` | **20** | **Not flat.** One full stop apart is a real difference. FOCUS returns, on Your story |
+| `?crg=40,40,40,40,40,80` | 40 | Not flat |
+
+The boundary is `spread < 20`, so a spread of exactly 20 is **not** flat. Both
+sides of that line are tested; do not "fix" one into the other.
+
+In the flat case the second paragraph is the band's **Now What**, not a pillar
+action. The opening says no single part is the constraint, so prescribing one
+would contradict the sentence above it.
+
+**The flat-case opening sentence is new copy** written on 2026-08-26, not Jeff's:
+
+> Your six parts sit within one slider stop of each other, so no single one is
+> the constraint. An engine that is short everywhere is a different problem from
+> one with a single weak part, and usually a slower one to feel.
+
+It lives in `renderResults` as `readConsequence`. Everything else in the read is
+still Jeff's band copy.
+
+### 19. The email still names a pillar in the flat case
+
+Known and deliberate, flagged rather than fixed. `submission-created.mts` emails
+`FIX FIRST: {pillar}` from the posted form field, so a flat-score visitor sees
+"all six, evenly" on screen and a named pillar in their inbox. Changing the
+email was out of scope for the trim. If it should match, the fix is to post the
+flat flag as a field and branch on it in the function.
+
+## Scroll depth
+
+Measured at `?crg=0,40,60,20,80,40`, which is a real spread with one clear
+weakest pillar:
+
+| Viewport | Before the trim | After | Cut |
+|---|---|---|---|
+| Desktop 1280 | 3188px | 2445px | 743px, 23% shorter |
+| iPhone 14 | 4033px | 2877px | 1156px, 29% shorter |
+
+**Short of the "roughly half" target, and here is why.** What remains is almost
+entirely on the do-not-touch list. On a phone, in embed mode:
+
+| Block | Height | Share |
+|---|---|---|
+| How It Affects The Bottom Line | 446px | 18% |
+| Your Fix First Read | 367px | 15% |
+| Score gauge, band, BLOT | 357px | 14% |
+| CTA card | 311px | 12% |
+| The Six Parts bars | 287px | 11% |
+| Chrome, actions, accordion, retake | ~226px | 9% |
+
+Everything above 10% except the Fix First read is protected. Getting to half
+would mean cutting into the gauge, the bars, the bottom-line block or the CTA.
+
+
 ## The tuning point
 
 **`CRG_WIN_PER_FACTOR = 0.125`** in `commercial_readiness_assessment_final.js`,

@@ -518,7 +518,6 @@ body.is-embed .shell{box-shadow:none;}
   max-width:52ch; margin:0 auto 18px; font-size:15.5px; line-height:1.55; color:var(--paper);
 }
 /* with nothing answered, every diagnostic block is an artifact of the defaults */
-.is-unscored .duo,
 .is-unscored .exec-summary,
 .is-unscored .res-section{display:none;}
 
@@ -533,15 +532,6 @@ body.is-embed .shell{box-shadow:none;}
 .res-action:hover{color:var(--paper); border-color:var(--azure);}
 .res-action-note{font-size:12.5px; color:var(--azure-text);}
 
-/* strongest / fix first */
-.duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:26px;}
-.duo-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card); padding:18px;}
-.duo-card .eyebrow{display:block; margin-bottom:10px;}
-.duo-name{font-size:17px; font-weight:700; color:var(--paper); line-height:1.3;}
-.duo-score{font-family:var(--mono); font-size:12.5px; color:var(--dim); margin-top:5px;}
-.duo-card.is-fix .eyebrow{color:#FBEBD2;}   /* band amber is a fill colour, not a text colour */
-@media (max-width:640px){ .duo{grid-template-columns:1fr;} }
-
 /* section headings inside results */
 .res-section{margin-top:30px; padding-top:24px; border-top:1px solid var(--line);}
 .res-section > .eyebrow{display:block; margin-bottom:16px;}
@@ -555,23 +545,6 @@ body.is-embed .shell{box-shadow:none;}
 .focus-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--ink); background:var(--paper); border-radius:3px; padding:1px 5px; margin-left:6px;}
 .fixfirst{font-size:14.5px; color:var(--dim); line-height:1.55;}
 .fixfirst b{display:block; color:var(--azure-text); font-family:var(--ui); font-weight:700; font-size:14px; margin-bottom:6px;}
-
-/* what you told me */
-.told{display:flex; flex-direction:column; gap:14px;}
-.told-row{display:flex; gap:14px; align-items:baseline;}
-.told-meta{flex:0 0 auto; width:150px;}
-.told-pillar{
-  display:block; font-family:var(--mono); font-size:10px; font-weight:600;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--mut);
-}
-.told-val{display:block; font-family:var(--mono); font-size:13px; color:var(--azure-text); margin-top:2px;}
-.told-quote{flex:1 1 auto; font-size:15px; font-style:italic; color:var(--paper); line-height:1.45;}
-@media (max-width:640px){
-  .told-row{flex-direction:column; gap:4px;}
-  .told-meta{width:auto;}
-  .told-pillar{display:inline;}
-  .told-val{display:inline; margin-left:8px;}
-}
 
 /* customized insights */
 .insights p{font-size:14.5px; color:var(--dim); line-height:1.6;}
@@ -673,10 +646,10 @@ body.is-embed .shell{box-shadow:none;}
     border-radius:0 !important; max-width:none !important;
   }
   .shell-body{padding:0 !important;}
-  .h1,.h2,.h3,.scorenum,.duo-name,.told-quote,.insights b,.bval,.blot{color:#111 !important;}
-  .eyebrow,.glyph-label,.told-val,.fixfirst b{color:#1B5A9E !important;}
-  .tag,.res-type,.duo-score,.told-pillar,.shell-foot,.brow-lab,.fixfirst,.insights p{color:#444 !important;}
-  .panel,.duo-card{background:#fff !important; border:1px solid #bbb !important;}
+  .h1,.h2,.h3,.scorenum,.insights b,.bval,.blot{color:#111 !important;}
+  .eyebrow,.glyph-label,.fixfirst b{color:#1B5A9E !important;}
+  .tag,.res-type,.shell-foot,.brow-lab,.fixfirst,.insights p{color:#444 !important;}
+  .panel{background:#fff !important; border:1px solid #bbb !important;}
   .res-section{border-top:1px solid #bbb !important;}
   .btrack{background:#e4e4e4 !important;}
   .bfill{background:#1B5A9E !important;}
@@ -708,7 +681,7 @@ body.is-embed .shell{box-shadow:none;}
   .method-src li{border-top:1px solid #ddd !important;}
   .method-src a{color:#1B5A9E !important;}
   /* keep a section and its heading together on one sheet */
-  .res-section,.duo-card,.told-row{break-inside:avoid; page-break-inside:avoid;}
+  .res-section{break-inside:avoid; page-break-inside:avoid;}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -1090,34 +1063,17 @@ body.is-embed .shell{box-shadow:none;}
         <div class="vas-lines" id="vas-lines" aria-live="polite"></div>
       </div>
 
-      <div class="duo">
-        <div class="duo-card">
-          <span class="eyebrow">Strongest Part</span>
-          <div class="duo-name" id="res-best-name"></div>
-          <div class="duo-score" id="res-best-score"></div>
-        </div>
-        <div class="duo-card is-fix">
-          <span class="eyebrow">Fix First</span>
-          <div class="duo-name" id="res-fix-name"></div>
-          <div class="duo-score" id="res-fix-score"></div>
-        </div>
-      </div>
-
       <div class="res-section">
         <span class="eyebrow">The Six Parts</span>
         <div class="bars" id="res-bars"></div>
       </div>
 
-      <div class="res-section">
-        <span class="eyebrow">&#10024; What You Told Me</span>
-        <div class="told" id="res-told"></div>
-      </div>
-
       <div class="res-section insights">
         <span class="eyebrow">&#10024; Your Fix First Read</span>
+        <!-- Two paragraphs: the consequence, then the fix. The band's What and
+             its BLOT are not repeated here; both restate the band label already
+             sitting under the gauge. -->
         <div class="fixfirst" id="res-fixfirst"></div>
-        <!-- What / So What / Now What for the band. Copy pending from Jeff. -->
-        <div class="insight-block" id="res-band-copy"></div>
         <!-- The one sentence that turns an estimate into a conversation. Static,
              no button of its own: the Calendly CTA below is the button. Hidden
              when no estimate was shown, so it never refers to nothing. -->
@@ -2107,21 +2063,24 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
     $('res-book').setAttribute('href', CFG.calendlyUrl);
     $('res-retake').addEventListener('click', restart);
 
-    // strongest and Fix First
-    var byScore = Q.map(function (q) {
-      return { name: d.pillarScores[q.key].name, score: d.pillarScores[q.key].score };
-    }).sort(function (a, b) { return b.score - a.score; });
-    $('res-best-name').textContent = byScore[0].name;
-    $('res-best-score').textContent = byScore[0].score + ' / 100';
-    $('res-fix-name').textContent = ui.fixFirst.pillar;
-    var fixScore = byScore.filter(function (p) { return p.name === ui.fixFirst.pillar; })[0];
-    $('res-fix-score').textContent = (fixScore ? fixScore.score : 0) + ' / 100';
+    /* Is the engine short everywhere, or short in one place?
 
-    // six-part breakdown, FOCUS on the lowest two
-    var focusNames = ui.weakestPillars.map(function (w) { return w.pillar; });
+       Under one slider stop of spread, the ordering that picks a weakest pillar
+       is decided by the tie-break rather than by anything the CEO said, so
+       naming one is a coin toss dressed as a diagnosis. An even gap is itself
+       the finding, and a different one: an engine that is uniformly behind is
+       not an engine with a bottleneck. */
+    var pillarScoreList = Q.map(function (q) { return d.pillarScores[q.key].score; });
+    var spread = Math.max.apply(null, pillarScoreList) - Math.min.apply(null, pillarScoreList);
+    var isFlat = spread < 20;
+
+    /* Six-part breakdown. FOCUS marks the single weakest pillar, and nothing
+       else: badging the lowest two put the same badge on the best and the worst
+       part of a flat engine, which read as a bug because it was one. */
+    var focusName = isFlat ? null : ui.fixFirst.pillar;
     $('res-bars').innerHTML = Q.map(function (q) {
       var p = d.pillarScores[q.key];
-      var isFocus = focusNames.indexOf(p.name) !== -1;
+      var isFocus = p.name === focusName;
       return '<div class="brow' + (isFocus ? ' is-focus' : '') + '">' +
                '<div class="brow-lab"><span>' + esc(p.name) +
                (isFocus ? '<span class="focus-tag">FOCUS</span>' : '') + '</span>' +
@@ -2130,22 +2089,25 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
              '</div>';
     }).join('');
 
-    // what you told me: the six sentences the sliders actually landed on
-    $('res-told').innerHTML = Q.map(function (q, i) {
-      return '<div class="told-row">' +
-               '<span class="told-meta"><span class="told-pillar">' + esc(q.pillarLabel) + '</span>' +
-               '<span class="told-val">' + values[i] + ' / 100</span></span>' +
-               '<span class="told-quote">“' + esc(q.answers[readIndex(values[i])]) + '”</span>' +
-             '</div>';
-    }).join('');
+    /* The read is two paragraphs: the consequence, then the fix. The band's
+       What paragraph and its BLOT are deliberately not repeated here, because
+       both restate the band label already sitting under the gauge.
 
-    $('res-fixfirst').innerHTML = '<b>Fix First: ' + esc(ui.fixFirst.pillar) + '</b>' + esc(ui.fixFirst.action);
+       Flat engines get the band's own Now What rather than a pillar action: the
+       opening says no single part is the constraint, so prescribing one would
+       contradict the sentence above it. */
+    var readHead = isFlat ? 'Fix First: all six, evenly' : 'Fix First: ' + ui.fixFirst.pillar;
+    var readConsequence = isFlat
+      ? 'Your six parts sit within one slider stop of each other, so no single one is the constraint. An engine that is short everywhere is a different problem from one with a single weak part, and usually a slower one to feel.'
+      : (bandCopyReady(band) ? BAND_COPY[band].soWhat : '');
+    var readFix = isFlat
+      ? (bandCopyReady(band) ? BAND_COPY[band].nowWhat : '')
+      : ui.fixFirst.action;
 
-    $('res-band-copy').innerHTML = bandCopyReady(band)
-      ? ['what', 'soWhat', 'nowWhat'].map(function (k) {
-          return '<p>' + BAND_COPY[band][k] + '</p>';
-        }).join('')
-      : '';
+    $('res-fixfirst').innerHTML =
+      '<b>' + esc(readHead) + '</b>' +
+      (readConsequence ? '<p>' + readConsequence + '</p>' : '') +
+      (readFix ? '<p>' + esc(readFix) + '</p>' : '');
 
     // Nothing moved means nothing was said. Show the number, drop the diagnosis.
     var answered = touched.filter(Boolean).length;

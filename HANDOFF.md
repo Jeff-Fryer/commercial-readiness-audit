@@ -94,7 +94,11 @@ If you edit the engine, mirror the change into
 - Bands: <35 Commercially blocked, <55 Founder-dependent, <75 Emerging
   repeatability, else Commercially ready.
 - Fix First: lowest pillar. On a tie `alignment` wins, then higher weight, then
-  canonical order. FOCUS tag goes on the lowest two.
+  canonical order. **FOCUS tag goes on the single weakest pillar**, and on none
+  at all when the spread across the six is under one slider stop. It used to go
+  on the lowest two, which on a flat engine badged the strongest and the weakest
+  at once. The scoring is unchanged; this is a rendering decision in
+  `renderResults`, and `ui.weakestPillars` still returns two.
 - `?crg=20,40,60,0,80,40` rebuilds a result without the form. The Share button
   and the emailed report both use it. **Preset values count as answered** — if
   you change this, the emailed link will wrongly show "Midpoint, not a read".
@@ -102,6 +106,24 @@ If you edit the engine, mirror the change into
   First, the bars and the quotes, and shows an honest "Midpoint, not a read"
   notice instead. This is deliberate. Do not "fix" it.
 - `?embed=1` strips nav, footer and page background. Squarespace uses it.
+
+### The results screen was cut on 2026-08-26
+
+It ran five screens before the CTA and presented the same six pillar scores four
+separate times. Deleted: **WHAT YOU TOLD ME** (replayed the six slider sentences
+back in quote marks) and the **STRONGEST PART / FIX FIRST card pair** (third
+instance of the same scores). The Fix First read went from four paragraphs to
+two, the consequence and the fix; the band's What paragraph restated the band
+label already under the gauge.
+
+23% shorter on desktop, 29% on a phone. Short of the "roughly half" target
+because what is left is almost all protected: the gauge, the bars, the
+bottom-line block and the CTA are four of the five biggest blocks. TESTING.md
+has the measurements per block.
+
+**The `told_*` form fields survived the cut and must keep surviving.** They are
+the lead record, and `submission-created.mts` is built from what the submission
+contains. Deleting a screen section is not a reason to stop posting them.
 
 ### Value at stake, on the results screen only
 

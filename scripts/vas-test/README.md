@@ -44,6 +44,8 @@ Three of the module's rules are invisible on a happy path.
 | 10. Nothing answered | Module and bridge line both absent |
 | 11. The POST | Still 37 fields, none of them a deal value |
 | 12. Stage noun | All six Part 7 stages driven end to end, each checked on all three surfaces (slider label, print line, value line) plus the slider's aria-label, and the no-stage fallback |
+| 13. The trim | The deleted sections stay deleted, the three surviving section headings are the right three, six bars survive, one FOCUS badge on the weakest, and the read is exactly two paragraphs with the band's What not repeated |
+| 14. Flat scores | Four flat presets show no badge and open on the evenness, and both sides of the "under one slider stop" boundary: spread 10 is flat, spread 20 is not |
 
 ## What it cannot check
 

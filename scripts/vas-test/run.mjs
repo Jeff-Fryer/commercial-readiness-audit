@@ -74,7 +74,20 @@ async function readModule() {
       methodHeight: method ? Math.round(method.getBoundingClientRect().height) : null,
       sliderPos: (document.getElementById('vas-slider')||{}).value,
       // order on screen
-      order: [...document.querySelectorAll('#s-results .panel > *')].map(e => e.id || e.className)
+      order: [...document.querySelectorAll('#s-results .panel > *')].map(e => e.id || e.className),
+      // the trimmed results screen
+      sectionHeadings: [...document.querySelectorAll('#s-results .res-section > .eyebrow')].map(e => e.textContent.trim()),
+      focusTags: [...document.querySelectorAll('.focus-tag')].map(e => e.closest('.brow').querySelector('.brow-lab span').textContent.replace('FOCUS', '').trim()),
+      fixHead: (document.querySelector('#res-fixfirst b') || {}).textContent,
+      fixParas: [...document.querySelectorAll('#res-fixfirst p')].map(e => e.textContent),
+      barCount: document.querySelectorAll('#res-bars .brow').length,
+      deleted: {
+        told: !!document.getElementById('res-told'),
+        duo: !!document.querySelector('.duo'),
+        bestName: !!document.getElementById('res-best-name'),
+        bandCopy: !!document.getElementById('res-band-copy')
+      },
+      pageHeight: Math.round(document.body.getBoundingClientRect().height)
     };
   });
 }
@@ -102,7 +115,9 @@ check('dollar line', m.lines[1] === 'At $5M a design win, that’s about 1.6 des
 check('bridge shown', m.bridgeHidden === false);
 check('bridge copy', m.bridgeText === 'That estimate uses one number from you. Bring the rest and we’ll do it properly.', m.bridgeText);
 check('accordion closed by default', m.methodOpen === false && m.methodBodyVisible === false, 'height ' + m.methodHeight + 'px');
-check('module sits above Fix First blocks', m.order.indexOf('res-vas') < m.order.findIndex(x => /duo/.test(x)) && m.order.indexOf('res-vas') < m.order.findIndex(x => /insights/.test(x)), JSON.stringify(m.order));
+check('module sits below the score and above the Fix First read',
+      m.order.indexOf('res-vas') > m.order.indexOf('hero') &&
+      m.order.indexOf('res-vas') < m.order.findIndex(x => /insights/.test(x)), JSON.stringify(m.order));
 
 /* -------------------------------------------------------- slider sweep */
 console.log('\n2. Slider across its full range at a mid score');
@@ -331,6 +346,54 @@ m = await readModule();
 check('falls through to design wins', /a design win, .* design wins a year/.test(m.lines[1]), m.lines[1]);
 check('all three surfaces agree', m.label === 'What’s one design win worth to you over its life?' && m.printLine === 'Design win value: $5M', m.label + ' | ' + m.printLine);
 check('the math did not move', /1\.6 design wins a year, or \$8M/.test(m.lines[1]), m.lines[1]);
+
+/* ------------------------------- case 13: the trimmed results screen */
+console.log('\n13. The results screen is cut, and cut in the right places');
+await page.goto(BASE + '/?crg=0,40,60,20,80,40');   // real spread, one clear weakest
+m = await readModule();
+check('WHAT YOU TOLD ME is gone', m.deleted.told === false);
+check('the strongest / fix first card pair is gone', m.deleted.duo === false && m.deleted.bestName === false);
+check('the separate band-copy block is gone', m.deleted.bandCopy === false);
+check('sections left are the module, the bars and the read',
+      JSON.stringify(m.sectionHeadings) === JSON.stringify(['How It Affects The Bottom Line', 'The Six Parts', '✨ Your Fix First Read']),
+      JSON.stringify(m.sectionHeadings));
+check('all six bars survive', m.barCount === 6, m.barCount);
+
+console.log('   the FOCUS badge marks one pillar, the weakest:');
+check('exactly one FOCUS badge', m.focusTags.length === 1, JSON.stringify(m.focusTags));
+check('it is on the weakest pillar', m.focusTags[0] === 'Your story', m.focusTags[0]);
+check('and the read names the same pillar', m.fixHead === 'Fix First: Your story', m.fixHead);
+
+console.log('   the read is two paragraphs, the consequence then the fix:');
+check('exactly two paragraphs', m.fixParas.length === 2, m.fixParas.length);
+check('first is the consequence (this band\'s So What)', /^Every deal that depends on you is a deal that stops/.test(m.fixParas[0]), m.fixParas[0].slice(0, 60));
+check('second is the pillar fix', /^Define one buyer-led commercial story/.test(m.fixParas[1]), m.fixParas[1].slice(0, 60));
+check('the band What paragraph is not repeated', !m.fixParas.join(' ').includes('More than one part of your commercial engine is missing'));
+check('the BLOT is not repeated either', !m.fixParas.join(' ').includes('Your technology works. Your sales don’t reflect that yet.'));
+
+/* ---------------------------------------- case 14: the flat-score case */
+console.log('\n14. Flat scores: no arbitrary weakest');
+for (const q of ['40,40,40,40,40,40', '60,60,60,60,60,60', '20,20,20,20,20,20', '80,80,80,80,80,80']) {
+  await page.goto(BASE + '/?crg=' + q);
+  m = await readModule();
+  const spread = Math.max(...q.split(',').map(Number)) - Math.min(...q.split(',').map(Number));
+  check('crg=' + q + ' (spread ' + spread + ') shows no FOCUS badge', m.focusTags.length === 0, JSON.stringify(m.focusTags));
+  check('crg=' + q + ' read opens on the evenness', m.fixHead === 'Fix First: all six, evenly' &&
+        /^Your six parts sit within one slider stop of each other/.test(m.fixParas[0]), m.fixHead + ' / ' + m.fixParas[0].slice(0, 50));
+  check('crg=' + q + ' still two paragraphs', m.fixParas.length === 2, m.fixParas.length);
+  check('crg=' + q + ' does not prescribe a single pillar', !/^Define one|^Build a repeatable|^Choose the buyer|^Create one shared/.test(m.fixParas[1]), m.fixParas[1].slice(0, 50));
+}
+console.log('   the boundary is "under one slider stop", so a spread of exactly 20 is not flat:');
+await page.goto(BASE + '/?crg=40,40,40,40,40,60');   // spread 20, one full stop
+m = await readModule();
+check('spread 20 is NOT flat', m.focusTags.length === 1 && m.fixHead === 'Fix First: Your story', m.fixHead);
+await page.goto(BASE + '/?crg=40,40,40,40,40,50');   // spread 10, under a stop
+m = await readModule();
+check('spread 10 IS flat', m.focusTags.length === 0 && m.fixHead === 'Fix First: all six, evenly', m.fixHead);
+await page.goto(BASE + '/?crg=40,40,40,40,40,80');   // spread 40, clearly not flat
+m = await readModule();
+check('spread 40 is not flat', m.focusTags.length === 1 && m.fixHead !== 'Fix First: all six, evenly', m.fixHead);
+
 
 await browser.close();
 server.close();
