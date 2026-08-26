@@ -132,6 +132,12 @@ This is a promise printed under the slider, so check it rather than trusting it.
   80, three sources with links, and the closing line "This is a structured
   estimate based on published benchmarks and your own inputs. It is not a
   forecast."
+- **Every source carries its year**: The JOLT Effect (2022), McKinsey (2003),
+  Forrester (2021). The McKinsey article is from February 2003, and the year was
+  missing until 2026-08-26. A reader who clicks through and finds a dateline the
+  panel did not disclose has been handed a reason to doubt the rest of it, which
+  costs more than the age does.
+- The last two rows of the formula follow the Part 7 stage. See case 13.
 - The formula must read `gap = max(0, 80 - part score) / 80`. If it ever reads
   `/ 100` again, the published ceiling of 0.40 stops reproducing.
 - The three published statistics appear **here and nowhere else** in the report.
@@ -189,11 +195,24 @@ The keys in `VAS_UNIT` are matched against `STAGES` verbatim. If a stage label i
 ever reworded, both lists have to move together or that stage silently falls back
 to "design wins".
 
-The methodology panel is the one place that still says "design wins" for every
-stage. That is deliberate: it explains the generic model, where a design win is
-the unit `winsAtStake` counts, rather than addressing this reader's own count.
-The one line worth a second look is "capacity at stake = design wins at stake x
-your design win value", which does point back at the slider.
+The methodology panel is mostly generic, with one exception. The last **two**
+rows of the formula are the reader's own arithmetic, so they carry the reader's
+own noun:
+
+```
+design-ins at stake = factor / 0.125
+capacity at stake = design-ins at stake x your design-in value
+```
+
+Both rows move or neither does. The second multiplies the term the first
+defines, so making one stage-aware and not the other leaves an equation that
+only reproduces for a design-win company.
+
+Everything around them stays generic on purpose: "converted into design wins",
+"one full design win per 8 points of capacity", "the ceiling is 3.2 design wins
+a year". Those describe the model, not this reader's count. The harness asserts
+both halves of that, so a future edit cannot quietly make the whole panel
+stage-aware.
 
 ### 14. Value at stake: print and PDF
 

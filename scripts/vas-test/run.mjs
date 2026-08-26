@@ -65,6 +65,8 @@ async function readModule() {
       bridgeHidden: bridge ? bridge.hidden : null,
       bridgeText: bridge ? bridge.textContent.trim() : null,
       methodOpen: method ? method.open : null,
+      methodEq: method ? method.querySelector('.method-eq').textContent.replace(/\s+/g, ' ').trim() : null,
+      methodProse: method ? [...method.querySelectorAll('.method-body > p')].map(p => p.textContent).join(' ') : null,
       // A closed <details> in Chrome uses content-visibility:hidden, so the
       // content box still has a height. checkVisibility() is the honest read,
       // and the outer height is what the iframe parent is actually told.
@@ -208,6 +210,7 @@ check('states the 0.40 ceiling and 3.2 wins', /factor therefore runs from 0 to t
 check('has the benchmark of 80', /benchmark is 80 out of 100/.test(method.body));
 check('has all six coefficients', ['0.10','0.08','0.06','0.05','0.06','0.05'].every(c => method.body.includes(c)));
 check('has three sources', /JOLT Effect/.test(method.body) && /Power of Pricing/.test(method.body) && /grow 19% faster and are 15% more profitable/.test(method.body));
+check('every source is dated', /The JOLT Effect \(2022\)/.test(method.body) && /McKinsey \(2003\)/.test(method.body) && /Forrester \(2021\)/.test(method.body), method.body.slice(method.body.indexOf('Dixon'), method.body.indexOf('Dixon') + 190));
 check('the three withdrawn citations are gone', !/Impact/.test(method.body) && !/Aberdeen/.test(method.body) && !/28% of revenue/.test(method.body) && !/2\.4x/.test(method.body));
 check('Forrester link is the fixed URL, not the bare domain',
       method.links.some(u => u === 'https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac') &&
@@ -312,6 +315,15 @@ for (const [label, one, many, printLine] of STAGE_UNIT) {
   check(label + ' — slider label', r2.label === 'What’s one ' + one + ' worth to you over its life?', r2.label);
   check(label + ' — print line', r2.printLine === printLine, r2.printLine);
   check(label + ' — slider aria-label', r2.sliderAria === 'What one ' + one + ' is worth to you over its life', r2.sliderAria);
+  check(label + ' — formula rows',
+        r2.methodEq.includes(many + ' at stake = factor / 0.125') &&
+        r2.methodEq.includes('capacity at stake = ' + many + ' at stake × your ' + one + ' value'),
+        r2.methodEq.slice(r2.methodEq.indexOf('at stake = factor') - 12));
+  // the surrounding explanation stays generic whatever the stage
+  check(label + ' — panel prose stays generic',
+        r2.methodProse.includes('converted into design wins') &&
+        r2.methodProse.includes('one full design win per 8 points of capacity'),
+        one);
 }
 console.log('   an unpicked stage, which is every shared ?crg= link:');
 await page.goto(BASE + '/?crg=40,40,40,40,40,40');

@@ -1,6 +1,6 @@
 # Handoff — Commercial Readiness Audit
 
-Last updated: 2026-08-21. Written for whoever picks this up next.
+Last updated: 2026-08-26. Written for whoever picks this up next.
 
 The tool is **built, deployed, and working**. Every outbound link it generates
 now points at `www.jefffryer.com/commercial-readiness-audit` rather than at the
@@ -9,6 +9,9 @@ Netlify URL, and the Squarespace page embeds it in an iframe.
 **One thing is open**, and it is not a code change: the Code Block has to be
 pasted into Squarespace by hand and Jeff has to click through the result. See
 section 5.
+
+A value-at-stake module was added to the results screen on 2026-08-26. Section 3
+has what it does and what must not be changed about it.
 
 Read "Do not repeat these mistakes" before touching anything, and re-run
 `scripts/verify-links.sh` rather than trusting section 5 to still be current.
@@ -132,9 +135,10 @@ same six questions, same sliders, same scoring, same bands.
   follows too. `VAS_UNIT` keys are matched against `STAGES` verbatim, so reword a
   stage label and both lists move together or that stage silently falls back to
   design wins. The stage is not carried in `?crg=`, so every shared link and every
-  emailed report reads "design wins". The methodology panel deliberately says
-  "design wins" for every stage: it explains the generic model rather than this
-  reader's own count.
+  emailed report reads "design wins". The methodology panel stays generic except
+  for the last two rows of the formula, which are the reader's own arithmetic and
+  so carry the reader's own noun. Those two rows move together: the second
+  multiplies the term the first defines.
 
 **The deal value never leaves the browser.** It is not a form field, it is not
 in the emailed report, it is not logged, and it is deliberately **not** in
@@ -236,18 +240,22 @@ that count ever reads 2, something new broke the rule.
 
 ## 5. Outstanding work
 
-### Open: Jeff clicks two source links
+### Closed: the three source links
 
-The value-at-stake module cites three published sources, each linked. **None of
-the three links has ever been fetched**: this build ran in a container whose
-egress policy answers 403 to every host (see section 6). Two still need a human
-with a browser.
+The value-at-stake module cites three published sources, each linked. This build
+ran in a container whose egress policy answers 403 to every host (see section 6),
+so none of them could be fetched here. Jeff checked all three by hand on
+2026-08-26.
 
-| # | Source | Link as shipped | What to check |
+| # | Source | Link as shipped | State |
 |---|---|---|---|
-| 1 | Dixon and McKenna, The JOLT Effect (2022) | `https://www.jolteffect.com` | Link resolves |
-| 2 | McKinsey, The Power of Pricing | `https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing` | Link resolves. This is the current `/capabilities/` path and is the one most likely to have moved |
-| 3 | Forrester (2021) | `https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac` | Chosen by Jeff on 2026-08-26 as a fixed URL that states the figure. No action |
+| 1 | Dixon and McKenna, The JOLT Effect (2022) | `https://www.jolteffect.com` | **Checked by Jeff 2026-08-26.** Live, and the landing page itself states the 2.5 million sales conversations behind the study |
+| 2 | McKinsey (2003), The Power of Pricing | `https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing` | **Checked by Jeff 2026-08-26.** Live, and the page carries the claim verbatim. Dated February 2003, so the panel now says (2003) |
+| 3 | Forrester (2021) | `https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac` | Chosen by Jeff 2026-08-26 as a fixed URL that states the figure |
+
+All three are verified. Every source in the panel carries its year, McKinsey
+included: a reader who clicks through to a 2003 dateline the panel did not
+disclose has been handed a reason to doubt the other two.
 
 Three citations were withdrawn on 2026-08-26 and must not come back. The
 Forrester/Impact 28%-versus-18% partner-maturity pairing, which does not hold up

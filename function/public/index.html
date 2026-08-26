@@ -1146,8 +1146,8 @@ body.is-embed .shell{box-shadow:none;}
         <div class="method-eq">gap = max(0, 80 &minus; part score) / 80<br>
 factor = sum of (gap &times; coefficient), from 0 to 0.40<br>
 delay in months = 1.5 &times; ((80 &minus; average score) / 100) &times; 12<br>
-design wins at stake = factor / 0.125<br>
-capacity at stake = design wins at stake &times; your design win value</div>
+<span class="eq-unit-many">design wins</span> at stake = factor / 0.125<br>
+capacity at stake = <span class="eq-unit-many">design wins</span> at stake &times; your <span class="eq-unit-one">design win</span> value</div>
 
         <table class="method-coeff">
           <thead><tr><th scope="col">Part of the engine</th><th scope="col">Coefficient</th></tr></thead>
@@ -1166,7 +1166,7 @@ capacity at stake = design wins at stake &times; your design win value</div>
         <p>The coefficients are set from three published findings. The Forrester finding covers two parts of the engine, partnerships and internal alignment, because the underlying claim is the same for both:</p>
         <ul class="method-src">
           <li>Dixon and McKenna, <a href="https://www.jolteffect.com" target="_blank" rel="noopener">The JOLT Effect</a> (2022): 40 to 60% of qualified B2B deals end in no decision.</li>
-          <li>McKinsey, <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing" target="_blank" rel="noopener">The Power of Pricing</a>: a 1% improvement in realized price yields roughly 8% operating profit.</li>
+          <li>McKinsey (2003), <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing" target="_blank" rel="noopener">The Power of Pricing</a>: a 1% improvement in realized price yields roughly 8% operating profit.</li>
           <li><a href="https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac" target="_blank" rel="noopener">Forrester</a> (2021): organisations that successfully align product, marketing and sales grow 19% faster and are 15% more profitable.</li>
         </ul>
 
@@ -2327,9 +2327,30 @@ capacity at stake = design wins at stake &times; your design win value</div>
     renderValueLines(result);
   }
 
+  /* The panel explains the model in generic terms, with one exception: the last
+     two rows of the formula are the reader's own arithmetic, so they carry the
+     reader's own noun. The row defining the term and the row using it move
+     together, or the equation stops reproducing for anyone but a design-win
+     company. Everything around them stays generic on purpose. */
+  function wireMethodUnits() {
+    var eq = $('res-method');
+    if (!eq) return;
+    var unit = vasUnit();
+    Array.prototype.forEach.call(eq.querySelectorAll('.eq-unit-many'), function (el) {
+      el.textContent = unit.many;
+    });
+    Array.prototype.forEach.call(eq.querySelectorAll('.eq-unit-one'), function (el) {
+      el.textContent = unit.one;
+    });
+  }
+
   function wireValueAtStake(result, answered) {
     var host = $('res-vas');
     if (!host) return;
+
+    // Before the early return: the panel is shown whether or not the module is,
+    // so its arithmetic reads in the reader's units either way.
+    wireMethodUnits();
 
     /* Nothing answered means the six scores are the defaults, and a dollar
        figure hung off the midpoint of the scale is exactly the confident
