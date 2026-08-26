@@ -81,6 +81,11 @@ async function readModule() {
       fixHead: (document.querySelector('#res-fixfirst b') || {}).textContent,
       fixParas: [...document.querySelectorAll('#res-fixfirst p')].map(e => e.textContent),
       barCount: document.querySelectorAll('#res-bars .brow').length,
+      barQuestions: [...document.querySelectorAll('#res-bars .bq')].map(e => e.textContent),
+      barFigures: [...document.querySelectorAll('#res-bars .brow')].map(b => b.textContent.match(/\d+/g) || []),
+      weakest: (document.getElementById('res-weakest') || {}).textContent,
+      blot: (document.getElementById('res-blot') || {}).textContent,
+      resType: (document.getElementById('res-type') || {}).textContent,
       deleted: {
         told: !!document.getElementById('res-told'),
         duo: !!document.querySelector('.duo'),
@@ -459,6 +464,71 @@ check('the whole emailed Fix First block matches the screen, both cases',
 check('the deal value is still nowhere in either payload',
       ![...flatRun.body.keys(), ...sharpRun.body.keys()].some(k => /deal|value|vas|win/i.test(k)),
       [...flatRun.body.keys()].filter(k => /deal|value|vas|win/i.test(k)).join(','));
+
+/* ------------------------------- case 16: the bars carry their question */
+console.log('\n16. Each bar names the question the slider asked');
+await page.goto(BASE + '/?crg=0,40,60,20,80,40');
+m = await readModule();
+const QUESTIONS = await page.evaluate(() => window.CRA_ENGINE.QUESTIONS.map(q => q.question));
+check('one question per bar', m.barQuestions.length === 6, m.barQuestions.length);
+check('in pillar order, straight off QUESTIONS',
+      JSON.stringify(m.barQuestions) === JSON.stringify(QUESTIONS), m.barQuestions[3]);
+check('the charge bar reads its own question',
+      m.barQuestions[3] === 'Does how you charge make it easy for the right customer to say yes?', m.barQuestions[3]);
+check('still one figure per bar, the 0-100',
+      m.barFigures.every(f => f.length === 1), JSON.stringify(m.barFigures));
+// Count authored copies in the served file, not the DOM: a rendered bar and the
+// QUESTIONS entry it was built from are two occurrences of one string, which is
+// the point. What must never appear twice is the string as written.
+const authored = (await (await fetch(BASE + '/')).text())
+  .match(/Does how you charge make it easy/g).length;
+check('the question is authored once, in QUESTIONS', authored === 1, authored);
+
+/* ------------------------- case 17: the weakest link, said once at the top */
+console.log('\n17. The weakest part is named under the band');
+check('names the weakest pillar, lowercased mid-sentence',
+      m.weakest === 'Weakest part: your story.', m.weakest);
+check('it agrees with the FOCUS badge', m.focusTags[0] === 'Your story', m.focusTags[0]);
+check('it agrees with the Fix First read', m.fixHead === 'Fix First: Your story', m.fixHead);
+check('the verdict sentence is untouched', /^Your technology works\. Your sales don’t reflect that yet\.$/.test(m.blot), m.blot);
+check('the provenance caption is untouched', m.resType === 'Self-reported result', m.resType);
+const order = await page.evaluate(() => {
+  const kids = [...document.querySelector('.hero').children].map(e => e.id || e.className);
+  return { kids, aboveModule: kids.indexOf('res-weakest') > -1 };
+});
+check('it sits under the band label and above the bottom-line block',
+      order.kids.indexOf('res-weakest') === order.kids.indexOf('res-band') + 1 && order.aboveModule,
+      JSON.stringify(order.kids));
+
+console.log('   flat engines get the evenness instead of an arbitrary pillar:');
+for (const q of ['40,40,40,40,40,40', '60,60,60,60,60,60', '40,40,40,40,40,50']) {
+  await page.goto(BASE + '/?crg=' + q);
+  m = await readModule();
+  check('crg=' + q, m.weakest === 'Your six parts are within one slider stop of each other.', m.weakest);
+}
+console.log('   and a spread of exactly one stop still names one:');
+await page.goto(BASE + '/?crg=40,40,40,40,40,60');
+m = await readModule();
+check('spread 20 names the pillar', m.weakest === 'Weakest part: your story.', m.weakest);
+
+console.log('   nothing answered means nothing to name:');
+await page.goto(BASE + '/');
+await page.evaluate(() => document.querySelector('#s-intro .btn-primary, #s-intro button').click());
+await page.waitForSelector('#s-quiz.is-on');
+for (let i = 0; i < 6; i++) await page.click('#q-next');
+await page.waitForSelector('#s-stage.is-on');
+await page.click('#s-stage .btn-primary');
+await page.waitForSelector('#s-capture.is-on');
+await page.fill('#f-first', 'A'); await page.fill('#f-last', 'B');
+await page.fill('#f-email', 'a@acme.io'); await page.fill('#f-company', 'Acme');
+await page.route('**/', r => r.request().method() === 'POST' ? r.fulfill({ status: 200, body: 'ok' }) : r.continue());
+await page.click('#capture-submit');
+await page.waitForSelector('#res-band');
+await page.waitForTimeout(400);
+m = await readModule();
+check('untouched sliders name no weakest part', m.weakest === '', JSON.stringify(m.weakest));
+await page.unroute('**/');
+
 
 await browser.close();
 server.close();

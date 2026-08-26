@@ -508,6 +508,16 @@ body.is-embed .shell{box-shadow:none;}
 .blot:empty{display:none;}
 .res-type{text-align:center; margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--mut);}
 
+/* The weakest part, in one line under the band. Same family and treatment as
+   .res-type, two steps brighter and larger: that caption is provenance, this is
+   the diagnosis, and a ten-second scanner has to be able to read it. */
+.weakest{
+  text-align:center; margin-top:12px;
+  font-family:var(--mono); font-size:13px; letter-spacing:.02em;
+  color:var(--azure-text);
+}
+.weakest:empty{display:none;}
+
 /* untouched-sliders notice */
 .unscored{
   margin-top:22px; padding:22px; text-align:center;
@@ -537,7 +547,11 @@ body.is-embed .shell{box-shadow:none;}
 .res-section > .eyebrow{display:block; margin-bottom:16px;}
 
 .bars{display:flex; flex-direction:column; gap:13px;}
-.brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--ui); font-size:13.5px; font-weight:600; color:var(--dim); margin-bottom:6px;}
+.brow-lab{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-family:var(--ui); font-size:13.5px; font-weight:600; color:var(--dim); margin-bottom:4px;}
+/* The question the slider actually asked. Smaller and lighter than the label so
+   six of these still scan as one block rather than six paragraphs. It earns its
+   height on a forwarded report, where the reader never saw the questions. */
+.bq{font-size:12px; line-height:1.4; color:var(--mut); margin:0 0 7px; max-width:62ch;}
 .bval{font-size:13px; color:var(--paper);}
 .btrack{height:10px; background:var(--well); border-radius:5px; overflow:hidden;}
 .bfill{display:block; height:100%; width:0%; background:var(--azure); border-radius:5px; transition:width .7s cubic-bezier(.22,.61,.36,1);}
@@ -648,7 +662,8 @@ body.is-embed .shell{box-shadow:none;}
   .shell-body{padding:0 !important;}
   .h1,.h2,.h3,.scorenum,.insights b,.bval,.blot{color:#111 !important;}
   .eyebrow,.glyph-label,.fixfirst b{color:#1B5A9E !important;}
-  .tag,.res-type,.shell-foot,.brow-lab,.fixfirst,.insights p{color:#444 !important;}
+  .tag,.res-type,.shell-foot,.brow-lab,.bq,.fixfirst,.insights p{color:#444 !important;}
+  .weakest{color:#1B5A9E !important;}
   .panel{background:#fff !important; border:1px solid #bbb !important;}
   .res-section{border-top:1px solid #bbb !important;}
   .btrack{background:#e4e4e4 !important;}
@@ -1018,6 +1033,9 @@ body.is-embed .shell{box-shadow:none;}
           </div>
         </div>
         <span class="band-pill" id="res-band"></span>
+        <!-- The diagnosis in one line, so it is readable without scrolling down
+             to hunt for the FOCUS badge on the bars. -->
+        <p class="weakest" id="res-weakest"></p>
         <!-- BLOT: one-sentence bottom line per band. Copy pending from Jeff. -->
         <p class="blot" id="res-blot"></p>
         <p class="res-type" id="res-type"></p>
@@ -1870,6 +1888,8 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
      BAND_COPY and bandCopyReady are declared further down this file. That is
      safe: nothing calls this until a result exists, long after the whole script
      body has run. */
+  function lowerFirst(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+
   function fixFirstFix(result) {
     var band = result.ui.scoreLabel;
     if (!isFlatEngine(result)) return result.ui.fixFirst.action;
@@ -2117,6 +2137,8 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
                '<div class="brow-lab"><span>' + esc(p.name) +
                (isFocus ? '<span class="focus-tag">FOCUS</span>' : '') + '</span>' +
                '<span class="bval">' + p.score + '</span></div>' +
+               // straight off QUESTIONS, never a second copy of the wording
+               '<div class="bq">' + esc(q.question) + '</div>' +
                '<div class="btrack"><i class="bfill" data-w="' + p.score + '"></i></div>' +
              '</div>';
     }).join('');
@@ -2128,6 +2150,13 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
        Flat engines get the band's own Now What rather than a pillar action: the
        opening says no single part is the constraint, so prescribing one would
        contradict the sentence above it. */
+    /* The same finding the FOCUS badge and the read carry, said once at the top
+       where a ten-second scanner will actually meet it. Lowercased mid-sentence
+       because the pillar labels are titles, not proper nouns. */
+    $('res-weakest').textContent = isFlat
+      ? 'Your six parts are within one slider stop of each other.'
+      : 'Weakest part: ' + lowerFirst(ui.fixFirst.pillar) + '.';
+
     var readHead = isFlat ? 'Fix First: all six, evenly' : 'Fix First: ' + ui.fixFirst.pillar;
     var readConsequence = isFlat
       ? 'Your six parts sit within one slider stop of each other, so no single one is the constraint. An engine that is short everywhere is a different problem from one with a single weak part, and usually a slower one to feel.'
@@ -2148,6 +2177,8 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
       $('res-band').textContent = 'Midpoint, not a read';
       $('res-band').className = 'band-pill';
       $('res-blot').textContent = '';
+      // Nothing was answered, so there is no weakest part to name.
+      $('res-weakest').textContent = '';
       $('res-redo').addEventListener('click', function () {
         step = 0;
         renderQuestion();

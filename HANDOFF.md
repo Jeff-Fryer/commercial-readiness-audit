@@ -116,10 +116,18 @@ instance of the same scores). The Fix First read went from four paragraphs to
 two, the consequence and the fix; the band's What paragraph restated the band
 label already under the gauge.
 
-23% shorter on desktop, 29% on a phone. Short of the "roughly half" target
-because what is left is almost all protected: the gauge, the bars, the
-bottom-line block and the CTA are four of the five biggest blocks. TESTING.md
-has the measurements per block.
+Two things were then added back for scannability: each bar carries the question
+its slider asked, rendered from `QUESTIONS` so the wording exists once, and a
+one-line **Weakest part:** caption sits under the band label. Net 18% shorter on
+desktop, 22% on a phone. Short of the "roughly half" target because what is left
+is almost all protected: the gauge, the bars, the bottom-line block and the CTA
+are four of the five biggest blocks. TESTING.md has the measurements per block.
+
+Three places now carry the same finding: the caption under the band, the FOCUS
+badge on the bars, and the heading of the Fix First read. All three read
+`ui.fixFirst.pillar` and `isFlatEngine()`. Change how one is chosen and all three
+move together, which is the point; the harness asserts they agree rather than
+testing them separately.
 
 **The `told_*` form fields survived the cut and must keep surviving.** They are
 the lead record, and `submission-created.mts` is built from what the submission

@@ -323,15 +323,60 @@ the function reports it.
 Check both cases post *different* action text. If flat and uneven ever post the
 same string, the payload has drifted back to `ui.fixFirst.action`.
 
+### 20. Each bar names the question the slider asked
+
+A bar reading "How you charge / 40" makes the reader remember what that slider
+asked. Under every pillar name sits its question, smaller and lighter than the
+label so six of them still scan as one block.
+
+- Six subtitles, in pillar order, byte-identical to `CRA_ENGINE.QUESTIONS`.
+- **The wording is authored once.** It is rendered from `q.question`, never
+  copied. `grep -c "Does how you charge make it easy" function/public/index.html`
+  must return **1**. In the live DOM it returns 2, which is correct: the
+  QUESTIONS entry and the bar built from it.
+- **Still one number per bar.** The 0-100 is the only figure on a row. No count,
+  no percentage, no second number. The harness checks every row matches exactly
+  one run of digits.
+
+This earns its height on a forwarded report, where the reader never saw the
+questions. It costs roughly 180px on desktop and 264px on a phone; see the
+scroll-depth table.
+
+### 21. The weakest part is named under the band
+
+One line, directly under the band label and above the bottom-line block, so a
+ten-second scanner gets the diagnosis without hunting for the FOCUS badge.
+
+| Case | Line |
+|---|---|
+| A clear weakest pillar | `Weakest part: your story.` |
+| Flat engine | `Your six parts are within one slider stop of each other.` |
+| No slider moved | Empty. Nothing was answered, so there is no weakest part to name |
+
+The pillar is lowercased mid-sentence: the labels are titles, not proper nouns.
+
+**It must agree with the other two places that carry the same finding**: the
+FOCUS badge on the bars and the heading of the Fix First read. All three come
+from `ui.fixFirst.pillar` and `isFlatEngine()`; the harness asserts all three
+match rather than checking them one at a time.
+
+The verdict sentence (the BLOT) and the "Self-reported result" caption are
+untouched, and the harness asserts that too. The hero's children must read
+`ring-wrap, res-band, res-weakest, res-blot, res-type` in that order.
+
 ## Scroll depth
 
 Measured at `?crg=0,40,60,20,80,40`, which is a real spread with one clear
 weakest pillar:
 
-| Viewport | Before the trim | After | Cut |
-|---|---|---|---|
-| Desktop 1280 | 3188px | 2445px | 743px, 23% shorter |
-| iPhone 14 | 4033px | 2877px | 1156px, 29% shorter |
+| Viewport | Before the trim | After the trim | Plus the question subtitles | Net |
+|---|---|---|---|---|
+| Desktop 1280 | 3188px | 2445px | 2625px | 563px cut, **18% shorter** |
+| iPhone 14 | 4033px | 2877px | 3141px | 892px cut, **22% shorter** |
+
+The question subtitles added back 180px on desktop and 264px on a phone, a
+deliberate trade: they are what makes a forwarded report readable by someone who
+never saw the questions.
 
 **Short of the "roughly half" target, and here is why.** What remains is almost
 entirely on the do-not-touch list. On a phone, in embed mode:
