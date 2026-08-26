@@ -1070,7 +1070,9 @@ body.is-embed .shell{box-shadow:none;}
 
         <div class="vas-control" id="vas-control">
           <div class="vas-head">
-            <label class="vas-label" for="vas-slider">What’s one design win worth to you over its life?</label>
+            <!-- Text is written by wireValueAtStake: the noun follows the Part 7
+                 stage, so it cannot be static here. -->
+            <label class="vas-label" for="vas-slider" id="vas-label"></label>
             <span class="vas-value" id="vas-value" aria-hidden="true">$5M</span>
           </div>
           <div class="slider-rail" id="vas-rail">
@@ -1165,7 +1167,7 @@ capacity at stake = design wins at stake &times; your design win value</div>
         <ul class="method-src">
           <li>Dixon and McKenna, <a href="https://www.jolteffect.com" target="_blank" rel="noopener">The JOLT Effect</a> (2022): 40 to 60% of qualified B2B deals end in no decision.</li>
           <li>McKinsey, <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing" target="_blank" rel="noopener">The Power of Pricing</a>: a 1% improvement in realized price yields roughly 8% operating profit.</li>
-          <li><a href="https://www.forrester.com/" target="_blank" rel="noopener">Forrester</a>: companies with high levels of alignment realize 2.4x higher revenue growth and 2.0x higher growth in profitability.</li>
+          <li><a href="https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac" target="_blank" rel="noopener">Forrester</a> (2021): organisations that successfully align product, marketing and sales grow 19% faster and are 15% more profitable.</li>
         </ul>
 
         <p class="method-close">This is a structured estimate based on published benchmarks and your own inputs. It is not a forecast.</p>
@@ -2216,6 +2218,7 @@ capacity at stake = design wins at stake &times; your design win value</div>
     'Not sure':                           VAS_UNIT_DEFAULT
   };
   function vasUnit() { return VAS_UNIT[stage] || VAS_UNIT_DEFAULT; }
+  function vasCap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   var dealValue = VAS_DEFAULT;
 
@@ -2313,8 +2316,9 @@ capacity at stake = design wins at stake &times; your design win value</div>
     var label = vasCompact(dealValue);
 
     $('vas-value').textContent = label;
-    $('vas-print').textContent = 'Design win value: ' + label;
-    input.setAttribute('aria-valuetext', label + ' for one design win');
+    // "Design-in value: $5M" / "Design win value: $5M" / "Program value: $5M"
+    $('vas-print').textContent = vasCap(vasUnit().one) + ' value: ' + label;
+    input.setAttribute('aria-valuetext', label + ' for one ' + vasUnit().one);
     // Same thumb-centre correction as the question slider: the native thumb
     // travels between its own half-widths, not the full rail.
     $('vas-fill').style.width =
@@ -2338,9 +2342,15 @@ capacity at stake = design wins at stake &times; your design win value</div>
       return;
     }
 
+    // The question, the print line and the value line all name the same thing,
+    // and the stage decides what that thing is called. Written once here rather
+    // than three times in the markup, so they cannot drift apart.
+    var unit = vasUnit();
+    $('vas-label').textContent = 'What’s one ' + unit.one + ' worth to you over its life?';
+
     var input = $('vas-slider');
     input.value = String(vasToPos(dealValue));
-    input.setAttribute('aria-label', 'What one design win is worth to you over its life');
+    input.setAttribute('aria-label', 'What one ' + unit.one + ' is worth to you over its life');
     input.addEventListener('input', function () { syncValueSlider(result); });
 
     ['pointerdown', 'keydown'].forEach(function (ev) {

@@ -142,24 +142,44 @@ This is a promise printed under the slider, so check it rather than trusting it.
 - **The three source links have never been fetched.** The build container has no
   egress. Click all three before publishing.
 
-Two citations were withdrawn on 2026-08-26 and must not come back: the
-Forrester/Impact 28%-versus-18% partner-maturity pairing, which does not hold up
-in that form, and Aberdeen Group 2010, which is sixteen years old. The single
-Forrester alignment line replaces both.
+Three citations were withdrawn on 2026-08-26 and must not come back:
+
+- The Forrester/Impact 28%-versus-18% partner-maturity pairing. Does not hold up
+  in that form.
+- Aberdeen Group 2010. Sixteen years old.
+- Forrester's 2.4x revenue / 2.0x profitability alignment figures. The number is
+  real but came off a services page rather than a named report, so the only href
+  available was the bare domain. A top-level link under a specific figure is a
+  gesture, not a citation, and it is the one a skeptical CEO is most likely to
+  click.
+
+The replacement is Forrester (2021), 19% faster growth and 15% more profitable,
+pointing at a fixed press-newsroom URL that states the number. The 2021 date is
+a disclosure, not a weakness: a stable page carrying the figure beats a fresher
+figure with nothing behind it. **If that link ever needs changing, the
+replacement has to contain the number on the page.** Do not fall back to
+`forrester.com`.
 
 ### 13. Value at stake: the Part 7 stage swaps the noun
 
 The stage picked on Part 7 changes one word in the value line, and nothing else.
 The arithmetic, the delay line and the slider are identical across all six.
 
-| Stage | Value line reads |
-|---|---|
-| Pre-revenue, first design-ins | "a **design-in**... **design-ins** a year" |
-| Early revenue, founder-led sales | "a design win... design wins a year" |
-| Scaling, building the sales team | "a design win... design wins a year" |
-| Post-Series B, commercial build-out | "a design win... design wins a year" |
-| Public or late-stage | "a **program**... **programs** a year" |
-| Not sure | "a design win... design wins a year" |
+Three surfaces follow the stage: the slider label, the printed value line, and
+the value line itself. All three are written from one `vasUnit()` call, so they
+cannot drift apart.
+
+| Stage | Slider label | Print line | Value line |
+|---|---|---|---|
+| Pre-revenue, first design-ins | "one **design-in** worth" | "**Design-in** value: $5M" | "a design-in... design-ins a year" |
+| Early revenue, founder-led sales | "one design win worth" | "Design win value: $5M" | "a design win... design wins a year" |
+| Scaling, building the sales team | "one design win worth" | "Design win value: $5M" | "a design win... design wins a year" |
+| Post-Series B, commercial build-out | "one design win worth" | "Design win value: $5M" | "a design win... design wins a year" |
+| Public or late-stage | "one **program** worth" | "**Program** value: $5M" | "a program... programs a year" |
+| Not sure | "one design win worth" | "Design win value: $5M" | "a design win... design wins a year" |
+
+The slider's `aria-label` follows too, so a screen reader hears the same noun as
+the page shows.
 
 The stage is optional and is not carried in `?crg=`, so **every shared link and
 every emailed report opens with no stage set** and falls through to "design
@@ -169,10 +189,11 @@ The keys in `VAS_UNIT` are matched against `STAGES` verbatim. If a stage label i
 ever reworded, both lists have to move together or that stage silently falls back
 to "design wins".
 
-The slider label above it still asks "What's one design win worth to you over its
-life?" in every case, and the print line still reads "Design win value:". Only
-the value line was in scope. If those should follow the stage too, it is the same
-`vasUnit()` call in two more places.
+The methodology panel is the one place that still says "design wins" for every
+stage. That is deliberate: it explains the generic model, where a design win is
+the unit `winsAtStake` counts, rather than addressing this reader's own count.
+The one line worth a second look is "capacity at stake = design wins at stake x
+your design win value", which does point back at the slider.
 
 ### 14. Value at stake: print and PDF
 

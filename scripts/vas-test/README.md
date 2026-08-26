@@ -39,15 +39,17 @@ Three of the module's rules are invisible on a happy path.
 | 5. Very low deal value | `$250K` at a floor score, and the `3.2` win ceiling at `$50M` |
 | 6. Degenerate delay | `?crg=79,80,80,80,80,80` never prints "Roughly 0 months" |
 | 7. Deal value stays put | Share URL carries the six values and nothing else; no global holds it |
-| 8. Methodology | Label, formula (including that the gap divides by 80, not 100), the published 0.40 ceiling, benchmark, six coefficients, three sources, three links, closing line, position, that the two withdrawn citations stay gone, and that the three statistics appear nowhere else in the report |
+| 8. Methodology | Label, formula (including that the gap divides by 80, not 100), the published 0.40 ceiling, benchmark, six coefficients, three sources, three links, closing line, position, that the three withdrawn citations stay gone, that the Forrester href is the fixed URL rather than the bare domain, and that the three statistics appear nowhere else in the report |
 | 9. Print | Control hidden, static value line shown, both lines print, accordion expanded |
 | 10. Nothing answered | Module and bridge line both absent |
 | 11. The POST | Still 37 fields, none of them a deal value |
-| 12. Stage noun | All six Part 7 stages driven end to end, each checked for the right singular and plural in the value line, plus the no-stage fallback |
+| 12. Stage noun | All six Part 7 stages driven end to end, each checked on all three surfaces (slider label, print line, value line) plus the slider's aria-label, and the no-stage fallback |
 
 ## What it cannot check
 
-Whether the three source links in the methodology panel resolve, and whether the
-Forrester alignment claim is actually findable at the top-level link sitting
-under it. The build container has no egress, so none of them has ever been
-fetched. HANDOFF section 5 has the table. Check all three before publishing.
+Whether the three source links in the methodology panel resolve. The build
+container has no egress, so none of them has ever been fetched. It can assert
+that the Forrester href is the fixed press-newsroom URL rather than the bare
+domain, which is the failure mode that mattered, but not that the page still
+carries the figure. HANDOFF section 5 has the table and says which two rows
+still need a human.

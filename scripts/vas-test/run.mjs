@@ -57,6 +57,9 @@ async function readModule() {
       visible: vas ? !!vas.offsetParent : null,
       heading: vas ? (vas.querySelector('.vas-title')||{}).textContent : null,
       value: (document.getElementById('vas-value')||{}).textContent,
+      label: (document.getElementById('vas-label')||{}).textContent,
+      sliderAria: (document.getElementById('vas-slider')||{}).getAttribute
+                    ? document.getElementById('vas-slider').getAttribute('aria-label') : null,
       printLine: (document.getElementById('vas-print')||{}).textContent,
       lines: lines ? [...lines.querySelectorAll('p')].map(p => p.textContent) : [],
       bridgeHidden: bridge ? bridge.hidden : null,
@@ -89,6 +92,7 @@ let m = await readModule();
 check('module renders', m.visible === true);
 check('heading present', /How It Affects The Bottom Line/i.test(m.heading || ''), m.heading);
 check('default reads $5M', m.value === '$5M', m.value);
+check('slider label', m.label === 'What’s one design win worth to you over its life?', m.label);
 check('print line', m.printLine === 'Design win value: $5M', m.printLine);
 check('two lines', m.lines.length === 2, m.lines.length);
 check('delay line', /^Roughly 7\.2 months of commercial delay against a peer with the same technology and a clearer commercial engine\.$/.test(m.lines[0]), m.lines[0]);
@@ -203,8 +207,11 @@ check('gap is normalised by the benchmark, not by 100', /gap = max\(0, 80 − pa
 check('states the 0.40 ceiling and 3.2 wins', /factor therefore runs from 0 to the sum of the six coefficients, which is 0\.40/.test(method.body) && /ceiling is 3\.2 design wins a year/.test(method.body));
 check('has the benchmark of 80', /benchmark is 80 out of 100/.test(method.body));
 check('has all six coefficients', ['0.10','0.08','0.06','0.05','0.06','0.05'].every(c => method.body.includes(c)));
-check('has three sources', /JOLT Effect/.test(method.body) && /Power of Pricing/.test(method.body) && /2\.4x higher revenue growth and 2\.0x higher growth in profitability/.test(method.body));
-check('the two withdrawn citations are gone', !/Impact/.test(method.body) && !/Aberdeen/.test(method.body) && !/28% of revenue/.test(method.body));
+check('has three sources', /JOLT Effect/.test(method.body) && /Power of Pricing/.test(method.body) && /grow 19% faster and are 15% more profitable/.test(method.body));
+check('the three withdrawn citations are gone', !/Impact/.test(method.body) && !/Aberdeen/.test(method.body) && !/28% of revenue/.test(method.body) && !/2\.4x/.test(method.body));
+check('Forrester link is the fixed URL, not the bare domain',
+      method.links.some(u => u === 'https://www.forrester.com/press-newsroom/forresters-return-on-integration-honours-winner-recognised-at-b2b-summit-apac') &&
+      !method.links.includes('https://www.forrester.com/'), method.links.join(' '));
 check('three links', method.links.length === 3, method.links.join(' '));
 check('closing sentence', /This is a structured estimate based on published benchmarks and your own inputs\. It is not a forecast\.$/.test(method.body));
 check('sits at the bottom of the report', method.lastInPanelOrder.indexOf('res-method') > method.lastInPanelOrder.findIndex(x => /^cta/.test(x)), JSON.stringify(method.lastInPanelOrder));
@@ -214,7 +221,7 @@ const stats = await page.evaluate(() => {
   const t = document.body.innerText;
   const inMethod = document.getElementById('res-method').innerText;
   const outside = t.replace(inMethod, '');
-  return ['40 to 60%', '8% operating profit', '2.4x higher revenue growth'].map(s => ({ s, outside: outside.includes(s), inside: inMethod.includes(s) }));
+  return ['40 to 60%', '8% operating profit', '19% faster'].map(s => ({ s, outside: outside.includes(s), inside: inMethod.includes(s) }));
 });
 check('the three statistics appear only inside the panel', stats.every(x => x.inside && !x.outside), JSON.stringify(stats));
 
@@ -268,15 +275,17 @@ if (posted[0]) {
 
 /* --------------------------------- case 12: the stage swaps the noun */
 console.log('\n12. Part 7 stage swaps the noun in the value line');
+// All three surfaces follow the stage: the question, the print line, and the
+// value line. They are written from one vasUnit() call so they cannot drift.
 const STAGE_UNIT = [
-  ['Pre-revenue, first design-ins',       'design-in',  'design-ins'],
-  ['Early revenue, founder-led sales',    'design win', 'design wins'],
-  ['Scaling, building the sales team',    'design win', 'design wins'],
-  ['Post-Series B, commercial build-out', 'design win', 'design wins'],
-  ['Public or late-stage',                'program',    'programs'],
-  ['Not sure',                            'design win', 'design wins'],
+  ['Pre-revenue, first design-ins',       'design-in',  'design-ins',  'Design-in value: $5M'],
+  ['Early revenue, founder-led sales',    'design win', 'design wins', 'Design win value: $5M'],
+  ['Scaling, building the sales team',    'design win', 'design wins', 'Design win value: $5M'],
+  ['Post-Series B, commercial build-out', 'design win', 'design wins', 'Design win value: $5M'],
+  ['Public or late-stage',                'program',    'programs',    'Program value: $5M'],
+  ['Not sure',                            'design win', 'design wins', 'Design win value: $5M'],
 ];
-for (const [label, one, many] of STAGE_UNIT) {
+for (const [label, one, many, printLine] of STAGE_UNIT) {
   await page.goto(BASE + '/');
   await page.evaluate(() => document.querySelector('#s-intro .btn-primary, #s-intro button').click());
   await page.waitForSelector('#s-quiz.is-on');
@@ -296,14 +305,19 @@ for (const [label, one, many] of STAGE_UNIT) {
   await page.fill('#f-email', 'a@acme.io'); await page.fill('#f-company', 'Acme');
   await page.click('#capture-submit');
   await page.waitForSelector('#vas-lines p:nth-child(2)');
-  const line = (await readModule()).lines[1] || '';
-  const ok = line.includes('a ' + one + ',') && new RegExp('\\d ' + many.replace('-', '\\-') + ' a year').test(line);
-  check(label, ok, line);
+  const r2 = await readModule();
+  const line = r2.lines[1] || '';
+  const valueOk = line.includes('a ' + one + ',') && new RegExp('\\d ' + many.replace('-', '\\-') + ' a year').test(line);
+  check(label + ' — value line', valueOk, line);
+  check(label + ' — slider label', r2.label === 'What’s one ' + one + ' worth to you over its life?', r2.label);
+  check(label + ' — print line', r2.printLine === printLine, r2.printLine);
+  check(label + ' — slider aria-label', r2.sliderAria === 'What one ' + one + ' is worth to you over its life', r2.sliderAria);
 }
 console.log('   an unpicked stage, which is every shared ?crg= link:');
 await page.goto(BASE + '/?crg=40,40,40,40,40,40');
 m = await readModule();
 check('falls through to design wins', /a design win, .* design wins a year/.test(m.lines[1]), m.lines[1]);
+check('all three surfaces agree', m.label === 'What’s one design win worth to you over its life?' && m.printLine === 'Design win value: $5M', m.label + ' | ' + m.printLine);
 check('the math did not move', /1\.6 design wins a year, or \$8M/.test(m.lines[1]), m.lines[1]);
 
 await browser.close();
