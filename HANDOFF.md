@@ -42,6 +42,7 @@ what the iframe loads.
 | Squarespace Code Block (the live page) | `frontend/squarespace-embed-code-block.html` |
 | What Jeff has to do in the admin | `frontend/SQUARESPACE-EMBED-STEPS.md` |
 | Embed test (needs Node + Playwright) | `scripts/embed-test/` |
+| Value-at-stake test (needs Node + Playwright) | `scripts/vas-test/` |
 | Website-read function (unused, flag off) | `function/netlify/functions/website-check.mts` |
 | GitHub | `Jeff-Fryer/commercial-readiness-audit` (public) |
 | Netlify project | `jf-commercial-readiness`, site id `c4fab0db-5ecb-428d-af9f-75373f118c81` |
@@ -99,6 +100,50 @@ If you edit the engine, mirror the change into
   notice instead. This is deliberate. Do not "fix" it.
 - `?embed=1` strips nav, footer and page background. Squarespace uses it.
 
+### Value at stake, on the results screen only
+
+Added 2026-08-26. It sits between the score and the Fix First read, under the
+heading **How It Affects The Bottom Line**, and it turns the six pillar scores
+into a figure in the CEO's own units. Nothing before the results screen changed:
+same six questions, same sliders, same scoring, same bands.
+
+- One control: a **logarithmic** slider for what one design win is worth, $250K
+  to $50M, default $5M. It snaps to a clean ladder so it can never read `$4.99M`.
+  Everything below it recalculates on drag.
+- Two sentences. A delay line, and a dollar line. Then one static bridge line
+  under the Fix First read, above the existing Calendly CTA. No new button.
+- The maths lives in `crgValueAtStake()` in the engine, added below the existing
+  scoring rather than inside it. Nothing above that line was touched.
+- Two suppression rules, both load-bearing. A composite of **80 or above**
+  replaces both lines with one sentence. A `winsAtStake` that rounds below 0.5
+  drops the dollar line and keeps the delay line. The composite here is the
+  **plain mean of the six pillar scores**, not the weighted composite on the
+  score ring; they answer different questions and will not match.
+- If the visitor moved no sliders, the whole module is absent, exactly like the
+  band copy and the bars. Do not "fix" this either.
+- A collapsed **How this is calculated** accordion sits at the bottom of the
+  report. It is the only place the four published statistics appear. Anywhere
+  else in the report they read as claims about this company.
+
+**The deal value never leaves the browser.** It is not a form field, it is not
+in the emailed report, it is not logged, and it is deliberately **not** in
+`?crg=`. A shared link therefore always opens with the slider back at its $5M
+default, which is intended: `?crg=` gets forwarded by the Code Block, pasted
+into email and read by whoever the CEO sends it to, and a deal value beside six
+pillar scores is a company fingerprint however coarsely it is bucketed. The
+email carries the **delay line only**, rebuilt server side from the six
+`pillar_*` fields the submission already contains, so no field exists to carry
+a deal value in the first place. Do not "complete the pair".
+
+**The one tuning point is `CRG_WIN_PER_FACTOR = 0.125`.** One full design win
+per 8 points of capacity. If the top of the slider ever produces a figure that
+does not survive a CEO reading it aloud, lower that constant. Do not cap the
+slider and do not touch the six coefficients.
+
+Run `node scripts/vas-test/run.mjs` before shipping a change to any of this. It
+asserts the two suppression rules and, more importantly, the absences: no deal
+value in the share link, none in the form POST, none on `window`.
+
 ### The embed contract, and why it is not just an iframe
 
 The audit is served from Netlify and displayed inside an iframe on the
@@ -136,8 +181,14 @@ Sweep before shipping:
 
 ```
 grep -c "—" function/public/index.html          # must be 0
-grep -ci "pricing\|leak" function/public/index.html   # must be 0
+grep -ci "pricing\|leak" function/public/index.html   # now 1, see below
 ```
+
+**One deliberate exception, added 2026-08-26.** The `pricing` sweep returns 1,
+not 0. The single hit is the McKinsey citation in the methodology accordion,
+whose published title is *The Power of Pricing*. It is a source, not product
+copy, and trimming it would misquote a real paper. Every other rule holds. If
+that count ever reads 2, something new broke the rule.
 
 ---
 
@@ -166,6 +217,25 @@ grep -ci "pricing\|leak" function/public/index.html   # must be 0
 ---
 
 ## 5. Outstanding work
+
+### Open: three source links in the methodology accordion
+
+The value-at-stake module cites four published sources, each linked. **None of
+the four links has ever been fetched**: this build ran in a container whose
+egress policy answers 403 to every host (see section 6). Click all four on the
+live page before Jeff sends the audit to anyone:
+
+| Source | Link as shipped |
+|---|---|
+| Dixon and McKenna, The JOLT Effect (2022) | `https://www.jolteffect.com` |
+| McKinsey, The Power of Pricing | `https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing` |
+| Forrester Consulting for Impact (2019) | `https://impact.com` |
+| Aberdeen Group (2010) | `https://www.aberdeen.com` |
+
+The two top-level links are deliberate: the Forrester and Aberdeen studies sit
+behind gated resource pages that move, and a 404 under a statistic is worse than
+a homepage. The McKinsey path is the current `/capabilities/` form and is the
+one most likely to have moved.
 
 ### Open: paste the Code Block, then Jeff signs off
 

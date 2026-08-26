@@ -599,6 +599,60 @@ body.is-embed .shell{box-shadow:none;}
 .shell-foot b{color:var(--dim);}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
 
+/* ---- value at stake: the deal-value control, the two lines, the bridge ----
+   The slider reuses .slider-rail / .slider-track / .slider-fill / .slider from
+   the question screen, so there is one slider look in this file, not two. */
+.vas-title{display:block; text-align:center; margin-bottom:18px;}
+.vas-head{display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap;}
+.vas-label{font-family:var(--ui); font-size:15px; font-weight:600; color:var(--paper); line-height:1.4;}
+.vas-value{font-family:var(--mono); font-size:22px; font-weight:600; color:var(--azure-text); white-space:nowrap;}
+.vas-scale{display:flex; justify-content:space-between; margin-top:11px; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.06em; color:var(--mut);}
+.vas-note{margin-top:12px; font-family:var(--ui); font-size:12.5px; color:var(--mut); line-height:1.5;}
+.vas-print{display:none;}
+.vas-lines{margin-top:22px;}
+.vas-lines p{font-size:15.5px; color:var(--paper); line-height:1.6;}
+.vas-lines p + p{margin-top:11px;}
+.vas-lines b{font-weight:700; color:var(--azure-text);}
+.vas-bridge{margin-top:20px; padding-top:16px; border-top:1px solid var(--line); font-size:14.5px; color:var(--dim); line-height:1.55;}
+.vas-bridge[hidden]{display:none;}
+
+/* ---- methodology, collapsed by default, native <details> so it costs nothing ---- */
+.method{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r-card);}
+.method > summary{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  list-style:none; cursor:pointer; padding:18px 24px;
+  font-family:var(--mono); font-size:11.5px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--azure-text);
+}
+.method > summary::-webkit-details-marker{display:none;}
+.method > summary::after{content:'+'; font-family:var(--mono); font-size:17px; line-height:1; color:var(--azure-text);}
+.method[open] > summary::after{content:'\2212';}
+.method > summary:focus-visible{outline:2px solid var(--paper); outline-offset:-4px;}
+.method-body{padding:0 24px 22px;}
+.method-body p{font-size:13.5px; color:var(--dim); line-height:1.6;}
+.method-body p + p{margin-top:10px;}
+.method-eq{
+  font-family:var(--mono); font-size:12.5px; line-height:1.85; color:var(--paper);
+  background:var(--well); border-radius:8px; padding:12px 14px; margin:14px 0;
+  overflow-x:auto; white-space:nowrap;
+}
+.method-coeff{width:100%; border-collapse:collapse; margin:14px 0; font-size:13px;}
+.method-coeff th,.method-coeff td{text-align:left; padding:7px 0; border-bottom:1px solid var(--line); color:var(--dim);}
+.method-coeff th{font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--mut);}
+.method-coeff th:last-child,.method-coeff td:last-child{text-align:right; font-family:var(--mono); color:var(--azure-text);}
+.method-src{list-style:none; margin:14px 0 0; padding:0;}
+.method-src li{font-size:13px; color:var(--dim); line-height:1.55; padding:10px 0; border-top:1px solid var(--line);}
+.method-src a{color:var(--azure-text); text-decoration:underline;}
+.method-src a:hover{color:var(--paper);}
+.method-close{margin-top:16px; font-size:12.5px; color:var(--mut); line-height:1.55;}
+@media (max-width:640px){
+  .vas-value{font-size:19px;}
+  .method > summary{padding:16px 18px;}
+  .method-body{padding:0 18px 20px;}
+  .method-eq{font-size:11.5px;}
+}
+
+
 /* ==========================================================================
    PRINT
    A CEO who can put their score in a board deck shows the tool to other people.
@@ -630,6 +684,25 @@ body.is-embed .shell{box-shadow:none;}
   }
   .focus-tag{background:#111 !important; color:#fff !important;}
   .shell-foot{display:block !important; border-top:1px solid #bbb !important;}
+  /* The control is interactive and meaningless on paper; the chosen number is
+     not, so it prints as a static line. The accordion prints open: a report
+     that shows a dollar figure has to show the arithmetic beside it. */
+  .vas-control{display:none !important;}
+  .vas-print{display:block !important; font-family:inherit; font-size:14px; font-weight:600; color:#111 !important; margin-bottom:16px;}
+  .vas-lines p{color:#111 !important;}
+  .vas-lines b{color:#1B5A9E !important;}
+  .vas-bridge{color:#444 !important; border-top:1px solid #bbb !important;}
+  .method{background:#fff !important; border:1px solid #bbb !important; break-inside:avoid; page-break-inside:avoid;}
+  .method > summary{color:#1B5A9E !important; cursor:default;}
+  .method > summary::after{content:'' !important;}
+  .method-body{display:block !important;}
+  .method:not([open]) > .method-body{display:block !important;}
+  .method-body p,.method-src li,.method-close{color:#444 !important;}
+  .method-eq{background:#f1f3f5 !important; color:#111 !important; white-space:normal;}
+  .method-coeff th,.method-coeff td{color:#444 !important; border-bottom:1px solid #ddd !important;}
+  .method-coeff th:last-child,.method-coeff td:last-child{color:#1B5A9E !important;}
+  .method-src li{border-top:1px solid #ddd !important;}
+  .method-src a{color:#1B5A9E !important;}
   /* keep a section and its heading together on one sheet */
   .res-section,.duo-card,.told-row{break-inside:avoid; page-break-inside:avoid;}
 }
@@ -982,6 +1055,35 @@ body.is-embed .shell{box-shadow:none;}
         <button type="button" class="btn btn-primary" id="res-redo">Set The Six Sliders</button>
       </div>
 
+      <!-- Value at stake. Sits between the score and the Fix First read on
+           purpose: the diagnosis lands harder once it carries a number. One
+           input, supplied here rather than in the form, and it never leaves the
+           browser: not POSTed, not logged, not emailed, not in the share link.
+           .res-section means the existing .is-unscored rule already hides the
+           whole thing when no slider was ever moved. -->
+      <div class="res-section vas" id="res-vas">
+        <span class="eyebrow vas-title">How It Affects The Bottom Line</span>
+
+        <div class="vas-control" id="vas-control">
+          <div class="vas-head">
+            <label class="vas-label" for="vas-slider">What’s one design win worth to you over its life?</label>
+            <span class="vas-value" id="vas-value" aria-hidden="true">$5M</span>
+          </div>
+          <div class="slider-rail" id="vas-rail">
+            <span class="slider-track" aria-hidden="true"></span>
+            <span class="slider-fill" id="vas-fill" aria-hidden="true"></span>
+            <input type="range" class="slider" id="vas-slider" min="0" max="1000" step="1" value="565">
+          </div>
+          <div class="vas-scale" aria-hidden="true"><span>$250K</span><span>$50M</span></div>
+          <p class="vas-note">Your number stays in your browser. Nothing is stored or sent.</p>
+        </div>
+
+        <!-- print only: the control collapses to the number it was set to -->
+        <p class="vas-print" id="vas-print">Design win value: $5M</p>
+
+        <div class="vas-lines" id="vas-lines" aria-live="polite"></div>
+      </div>
+
       <div class="duo">
         <div class="duo-card">
           <span class="eyebrow">Strongest Part</span>
@@ -1010,6 +1112,10 @@ body.is-embed .shell{box-shadow:none;}
         <div class="fixfirst" id="res-fixfirst"></div>
         <!-- What / So What / Now What for the band. Copy pending from Jeff. -->
         <div class="insight-block" id="res-band-copy"></div>
+        <!-- The one sentence that turns an estimate into a conversation. Static,
+             no button of its own: the Calendly CTA below is the button. Hidden
+             when no estimate was shown, so it never refers to nothing. -->
+        <p class="vas-bridge" id="res-bridge" hidden>That estimate uses one number from you. Bring the rest and we’ll do it properly.</p>
       </div>
     </div>
 
@@ -1021,6 +1127,47 @@ body.is-embed .shell{box-shadow:none;}
       <p class="cta-p">Walk through your numbers with Jeff: what closing the gap costs in time, people, and money.</p>
       <a class="btn btn-primary" id="res-book" href="#" target="_blank" rel="noopener">Book Time To Walk Through My Score</a>
     </div>
+
+    <!-- Closed by default. Everything a reader needs to argue with the number
+         lives here and nowhere else in the report: the four published findings
+         behind the coefficients are deliberately not sprinkled through the copy
+         above, where they would read as claims about this company. -->
+    <details class="method" id="res-method">
+      <summary>How this is calculated</summary>
+      <div class="method-body">
+        <p>Each of the six parts is compared with a benchmark of 80. The shortfalls are weighted, added together, and converted into design wins, then into the number you set above.</p>
+
+        <div class="method-eq">gap = max(0, 80 &minus; part score) / 100<br>
+factor = sum of (gap &times; coefficient), from 0 to 0.40<br>
+delay in months = 1.5 &times; ((80 &minus; average score) / 100) &times; 12<br>
+design wins at stake = factor / 0.125<br>
+capacity at stake = design wins at stake &times; your design win value</div>
+
+        <table class="method-coeff">
+          <thead><tr><th scope="col">Part of the engine</th><th scope="col">Coefficient</th></tr></thead>
+          <tbody>
+            <tr><td>Your story</td><td>0.10</td></tr>
+            <tr><td>How you sell</td><td>0.08</td></tr>
+            <tr><td>Timing and lane</td><td>0.06</td></tr>
+            <tr><td>How you charge</td><td>0.05</td></tr>
+            <tr><td>Partnerships</td><td>0.06</td></tr>
+            <tr><td>One team, one story</td><td>0.05</td></tr>
+          </tbody>
+        </table>
+
+        <p>The benchmark is 80 out of 100. At or above it there is no material gap to put a number on, and both lines above are replaced by a single sentence saying so. The divisor of 0.125 is one full design win per 8 points of capacity. A score of zero on all six parts gives a factor of 0.32, which is the ceiling: 2.6 design wins a year.</p>
+
+        <p>The coefficients are set from four published findings:</p>
+        <ul class="method-src">
+          <li>Dixon and McKenna, <a href="https://www.jolteffect.com" target="_blank" rel="noopener">The JOLT Effect</a> (2022): 40 to 60% of qualified B2B deals end in no decision.</li>
+          <li>McKinsey, <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing" target="_blank" rel="noopener">The Power of Pricing</a>: a 1% improvement in realized price yields roughly 8% operating profit.</li>
+          <li><a href="https://impact.com" target="_blank" rel="noopener">Forrester Consulting for Impact</a> (2019, n=454): mature partner programs contribute 28% of revenue versus 18% for low maturity.</li>
+          <li><a href="https://www.aberdeen.com" target="_blank" rel="noopener">Aberdeen Group</a> (2010, n=453): aligned organizations grew revenue 20% while laggards declined 4%.</li>
+        </ul>
+
+        <p class="method-close">This is a structured estimate based on published benchmarks and your own inputs. It is not a forecast.</p>
+      </div>
+    </details>
 
     <div class="res-retake">
       <button type="button" class="link-arrow" id="res-retake">Retake the audit</button>
@@ -1428,11 +1575,83 @@ body.is-embed .shell{box-shadow:none;}
     };
   }
 
+  /* ---------- 4. VALUE AT STAKE ----------
+   *
+   * Bolted on after the fact and deliberately separate: nothing above this line
+   * changes, and the six questions, the sliders, the weights, the bands and the
+   * composite are all exactly what they were. This block only reads the finished
+   * pillar scores and one number the CEO supplies on the results screen.
+   *
+   * The deal value never leaves the browser. It is not posted to the form, not
+   * logged, not emailed and not put in the share link.
+   */
+
+  /* Per-pillar capacity coefficients, in canonical PILLARS order:
+     story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40.
+
+     Note that 0.40 is NOT the reachable ceiling for `factor`. A gap is
+     (80 - score)/100, so it maxes at 0.80 on a score of zero, not at 1.0, and the
+     factor therefore runs 0 to 0.32. Reaching 0.40 would take a score of -20.
+     The real ceiling is 0.32, which is 2.6 design wins a year at stake. Keep this
+     comment honest if the gap ever gets normalised by the benchmark instead. */
+  const CRG_COEFF = [0.10, 0.08, 0.06, 0.05, 0.06, 0.05];
+
+  /* The score a commercial engine is measured against. Also the suppression
+     threshold: at or above this there is no material gap to price. */
+  const CRG_BENCHMARK = 80;
+
+  /* Months of delay per point of composite shortfall, scaled to a year. */
+  const CRG_DELAY_K = 1.5;
+
+  /* THE CALIBRATION CONSTANT. 0.125 = one full design win per 8 points of
+     capacity. At the factor ceiling of 0.32 it yields 2.6 design wins a year at
+     stake. (The brief called for 3.2 at a factor of 0.40; see the note on
+     CRG_COEFF for why 0.40 is unreachable under this gap definition.)
+
+     This is the single tuning point for the whole module. If the top of the
+     deal-value slider ever produces a figure that does not survive a CEO reading
+     it out loud, lower this number here and nowhere else. Do not cap the slider,
+     and do not reach for the coefficients. */
+  const CRG_WIN_PER_FACTOR = 0.125;
+
+  /**
+   * Value at stake.
+   *
+   * @param {number[]} scores Six pillar scores 0-100 in canonical PILLARS order.
+   * @param {number} dealValue What one design win is worth over its life, in dollars.
+   * @returns {{factor:number, delayMonths:number, winsAtStake:number, dollarsAtStake:number}}
+   */
+  function crgValueAtStake(scores, dealValue) {
+    const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / 100);
+    const factor = gaps.reduce((sum, g, i) => sum + g * CRG_COEFF[i], 0);
+    const composite = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const delayMonths = Math.max(0, CRG_DELAY_K * ((CRG_BENCHMARK - composite) / 100) * 12);
+    const winsAtStake = factor / CRG_WIN_PER_FACTOR;
+    const dollarsAtStake = winsAtStake * dealValue;
+    return {
+      factor,
+      delayMonths: Math.round(delayMonths * 10) / 10,
+      winsAtStake: Math.round(winsAtStake * 10) / 10,
+      dollarsAtStake
+    };
+  }
+
+  /* The composite this module suppresses against is the plain mean of the six
+     pillar scores, not the weighted composite on the score ring. They answer
+     different questions: the ring asks how the engine performs, this asks how
+     much of the benchmark is unclaimed. */
+  function crgComposite(scores) {
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
+  }
+
   const CEO_COPY = `Your technology works. The question is whether your commercial system is ready to turn that technical proof into market demand. In about 90 seconds, this audit identifies the gap between what you have built and what buyers can understand, evaluate, approve, and buy. You will receive one Commercial Readiness Score, the two constraints holding traction back, and the first issue to fix: your story, sales motion, market lane, commercial path, partnerships, or internal alignment.`;
 
   /* Browser-safe export. This file runs inside a static Squarespace Code Block:
      no bundler, no module system. Attach the public surface to `window`. */
-  window.CRA_ENGINE = { QUESTIONS, WEBSITE_FIELD, WEBSITE_RUBRIC, WEIGHTS, scoreCommercialReadiness, CEO_COPY };
+  window.CRA_ENGINE = {
+    QUESTIONS, WEBSITE_FIELD, WEBSITE_RUBRIC, WEIGHTS, scoreCommercialReadiness, CEO_COPY,
+    CRG_COEFF, CRG_BENCHMARK, CRG_DELAY_K, CRG_WIN_PER_FACTOR, crgValueAtStake, crgComposite
+  };
 
   /* ==========================================================================
      END ENGINE
@@ -1935,6 +2154,7 @@ body.is-embed .shell{box-shadow:none;}
       });
     }
 
+    wireValueAtStake(result, answered);
     wireResultActions();
 
     renderEvidence(ui.buyerFacingEvidence, fetchFailed);
@@ -1952,6 +2172,178 @@ body.is-embed .shell{box-shadow:none;}
     });
   }
 
+  /* ---------- value at stake ----------
+
+     One number from the CEO, applied to the six pillar scores they have just
+     set. Section 6 of the brief is a hard constraint and it is enforced here by
+     omission: `dealValue` is never read by buildPayload, never logged, never
+     added to shareUrl and never posted to the Netlify form. If you add it to any
+     of those, you have changed what this tool promises on screen.
+
+     The share link therefore carries the six slider values and nothing else, so
+     a shared result opens with this slider back at its default. That is the
+     intended behaviour, not an omission: `?crg=` is forwarded by a Squarespace
+     Code Block, pasted into email and read by whoever the CEO forwards it to,
+     and a deal value sitting in a URL alongside six pillar scores is a company
+     fingerprint however coarsely it is bucketed. */
+
+  var VAS_MIN = 250000;
+  var VAS_MAX = 50000000;
+  var VAS_POSITIONS = 1000;        // range positions, mapped logarithmically onto the dollars
+  var VAS_DEFAULT = 5000000;
+  var VAS_NO_GAP = 'No material gap. Your commercial engine is keeping pace with your technology.';
+
+  var dealValue = VAS_DEFAULT;
+
+  /* Logarithmic, so an inch of travel is the same proportional step everywhere:
+     $250K to $500K costs the same drag as $25M to $50M. A linear slider would
+     spend nine tenths of its rail above $5M, where almost nobody sits. */
+  function vasFromPos(pos) {
+    return VAS_MIN * Math.pow(VAS_MAX / VAS_MIN, pos / VAS_POSITIONS);
+  }
+  function vasToPos(value) {
+    return Math.round(VAS_POSITIONS * Math.log(value / VAS_MIN) / Math.log(VAS_MAX / VAS_MIN));
+  }
+
+  /* Snap to a ladder that always reads cleanly. Raw log output lands on
+     $4,988,950, and a CEO reading "$4.99M" back off their own slider stops
+     trusting the number underneath it. One decimal place, never more. */
+  function vasSnap(v) {
+    var snapped = v < 1e6  ? Math.round(v / 5e4) * 5e4     // 250K to 950K, in 50K steps
+                : v < 2e7  ? Math.round(v / 5e5) * 5e5     // 1M to 20M, in 0.5M steps
+                :            Math.round(v / 1e6) * 1e6;    // 20M to 50M, in 1M steps
+    return Math.max(VAS_MIN, Math.min(VAS_MAX, snapped));
+  }
+
+  // Drops a trailing .0, so 5 reads "5" and 12.5 reads "12.5".
+  function vasTrim(n) { return String(Math.round(n * 10) / 10); }
+
+  function vasCompact(n) {
+    if (n >= 1e9) return '$' + vasTrim(n / 1e9) + 'B';
+    if (n >= 1e6) return '$' + vasTrim(n / 1e6) + 'M';
+    if (n >= 1e3) return '$' + vasTrim(n / 1e3) + 'K';
+    return '$' + Math.round(n);
+  }
+
+  /* Two significant figures, never cents, never an exact figure. $11,437,200
+     reads "$11M" and $740,000 reads "$740K". An exact number here would claim a
+     precision the model does not have, and toPrecision does the rounding without
+     a log10 edge case. */
+  function vasMoney(n) {
+    if (!isFinite(n) || n <= 0) return '$0';
+    return vasCompact(Number(n.toPrecision(2)));
+  }
+
+  function vasPlural(n, one, many) { return n === 1 ? one : many; }
+
+  function vasScores(result) {
+    return Q.map(function (q) { return result.diagnostic.pillarScores[q.key].score; });
+  }
+
+  /* The two lines. No headings and no icons: the section heading above the
+     slider carries the framing, and these are sentences, not a readout. */
+  function renderValueLines(result) {
+    var host = $('vas-lines');
+    if (!host) return;
+    var bridge = $('res-bridge');
+    var scores = vasScores(result);
+    var composite = E.crgComposite(scores);
+    var v = E.crgValueAtStake(scores, dealValue);
+
+    /* At or above the benchmark there is no gap to price. The delay guard is the
+       same statement without the rounding artefact: `?crg=79,80,80,80,80,80`
+       reaches a delay of 0.0 months, and "Roughly 0 months of commercial delay"
+       is not a sentence worth printing. Six 20-point sliders cannot land there,
+       a hand-built link can. */
+    if (composite >= E.CRG_BENCHMARK || v.delayMonths < 0.05) {
+      host.innerHTML = '<p>' + esc(VAS_NO_GAP) + '</p>';
+      if (bridge) bridge.hidden = true;
+      return;
+    }
+
+    var out = '<p>Roughly <b>' + vasTrim(v.delayMonths) + ' ' +
+              vasPlural(v.delayMonths, 'month', 'months') +
+              '</b> of commercial delay against a peer with the same technology and a clearer commercial engine.</p>';
+
+    // Under half a design win rounds to a figure nobody should act on, so the
+    // delay line stands alone rather than carrying a dollar number it cannot hold.
+    if (v.winsAtStake >= 0.5) {
+      out += '<p>At ' + esc(vasCompact(dealValue)) + ' a design win, that’s about <b>' +
+             vasTrim(v.winsAtStake) + ' ' + vasPlural(v.winsAtStake, 'design win', 'design wins') +
+             '</b> a year, or <b>' + esc(vasMoney(v.dollarsAtStake)) +
+             '</b> of commercial capacity you can’t currently reach.</p>';
+    }
+
+    host.innerHTML = out;
+    if (bridge) bridge.hidden = false;
+  }
+
+  /* Reads the range position, snaps it, and recalculates everything below.
+     Runs on every input event, so the report moves with the thumb. */
+  function syncValueSlider(result) {
+    var input = $('vas-slider');
+    if (!input) return;
+    var pos = Math.max(0, Math.min(VAS_POSITIONS, parseInt(input.value, 10) || 0));
+    dealValue = vasSnap(vasFromPos(pos));
+    var label = vasCompact(dealValue);
+
+    $('vas-value').textContent = label;
+    $('vas-print').textContent = 'Design win value: ' + label;
+    input.setAttribute('aria-valuetext', label + ' for one design win');
+    // Same thumb-centre correction as the question slider: the native thumb
+    // travels between its own half-widths, not the full rail.
+    $('vas-fill').style.width =
+      'calc(' + (THUMB / 2) + 'px + ' + (pos / VAS_POSITIONS) + ' * (100% - ' + THUMB + 'px))';
+
+    renderValueLines(result);
+  }
+
+  function wireValueAtStake(result, answered) {
+    var host = $('res-vas');
+    if (!host) return;
+
+    /* Nothing answered means the six scores are the defaults, and a dollar
+       figure hung off the midpoint of the scale is exactly the confident
+       diagnosis the unscored state exists to refuse. The .is-unscored CSS
+       already hides this; the attribute keeps it out of the accessibility tree
+       and off the clipboard too. */
+    host.hidden = (answered === 0);
+    if (answered === 0) {
+      $('res-bridge').hidden = true;
+      return;
+    }
+
+    var input = $('vas-slider');
+    input.value = String(vasToPos(dealValue));
+    input.setAttribute('aria-label', 'What one design win is worth to you over its life');
+    input.addEventListener('input', function () { syncValueSlider(result); });
+
+    ['pointerdown', 'keydown'].forEach(function (ev) {
+      input.addEventListener(ev, function () { $('vas-rail').classList.add('is-dragging'); });
+    });
+    ['pointerup', 'pointercancel', 'keyup', 'blur'].forEach(function (ev) {
+      input.addEventListener(ev, function () { $('vas-rail').classList.remove('is-dragging'); });
+    });
+
+    syncValueSlider(result);
+  }
+
+  /* A <details> cannot be forced open by CSS, and a methodology panel that
+     prints as a closed one-line summary is a report with the arithmetic torn
+     out. beforeprint covers Cmd-P and the browser menu; the media query covers
+     the Safari path that skips it; the Print button opens it directly. */
+  function expandMethodForPrint() {
+    var m = $('res-method');
+    if (m) m.open = true;
+  }
+  window.addEventListener('beforeprint', expandMethodForPrint);
+  if (window.matchMedia) {
+    var vasPrintMq = window.matchMedia('print');
+    var onVasPrintMq = function (ev) { if (ev.matches) expandMethodForPrint(); };
+    if (vasPrintMq.addEventListener) vasPrintMq.addEventListener('change', onVasPrintMq);
+    else if (vasPrintMq.addListener) vasPrintMq.addListener(onVasPrintMq);
+  }
+
   /* Share hands over a link that reproduces this exact result, so a CEO can put
      their score in front of a board or a co-founder. Print is left to the OS
      dialog, which is also where "Save as PDF" lives on both macOS and Windows. */
@@ -1960,7 +2352,10 @@ body.is-embed .shell{box-shadow:none;}
   }
 
   function wireResultActions() {
-    $('res-print').addEventListener('click', function () { window.print(); });
+    $('res-print').addEventListener('click', function () {
+      expandMethodForPrint();
+      window.print();
+    });
 
     $('res-share').addEventListener('click', function () {
       var url = shareUrl();

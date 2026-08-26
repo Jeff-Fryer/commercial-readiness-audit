@@ -8,10 +8,14 @@
  * server side, the send cannot be triggered by anyone hitting an endpoint, and a
  * submission can never be emailed twice because the browser is not involved.
  *
- * It sends the headline only: score, band, and the Fix First pillar with its
- * action. The six pillar scores and the six sentences stay on screen, and the
- * email links back to the live result instead of reproducing it, so reading the
- * full breakdown means returning to the tool. Jeff is blind-copied on every send.
+ * It sends the headline only: score, band, the Fix First pillar with its action,
+ * and one line of commercial delay. The six pillar scores and the six sentences
+ * stay on screen, and the email links back to the live result instead of
+ * reproducing it, so reading the full breakdown means returning to the tool.
+ * Jeff is blind-copied on every send.
+ *
+ * The value-at-stake dollar line is NOT in this email and must not be added.
+ * See delayLine() below for why.
  *
  * The report copy is NOT duplicated here. The audit posts the Fix First action as
  * a form field, so this function only ever formats what the submission already
@@ -75,6 +79,39 @@ function reportLink(d: Submission): string {
   return `${SITE_URL}?crg=${values.join(",")}`;
 }
 
+/**
+ * The delay line, rebuilt server side from the six pillar scores the submission
+ * already carries. Nothing new is posted for it.
+ *
+ * The dollar line is deliberately NOT here. It needs the deal value, and the
+ * deal value never leaves the reader's browser: it is not a form field, it is
+ * not in the share link, and it is not in this email. The number on screen is
+ * theirs and stays theirs. Do not "complete" the pair by adding a field for it.
+ *
+ * Kept in step with crgValueAtStake in public/index.html. The composite here is
+ * the plain mean of the six pillar scores, which is what that function uses, not
+ * the weighted composite in `score`.
+ */
+const CRG_BENCHMARK = 80;
+const CRG_DELAY_K = 1.5;
+
+function delayLine(d: Submission): string | null {
+  // Number("") is 0, not NaN, so an empty field would quietly drag the average
+  // down and email a delay nobody's answers produced. Reject the raw string.
+  const raw = PILLARS.map((p) => (d[`pillar_${p.key}`] ?? "").trim());
+  if (raw.some((v) => v === "")) return null;
+  const scores = raw.map(Number);
+  if (scores.some((n) => !Number.isFinite(n))) return null;
+
+  const composite = scores.reduce((a, b) => a + b, 0) / scores.length;
+  if (composite >= CRG_BENCHMARK) return null;   // no material gap, same as on screen
+
+  const months = Math.round(CRG_DELAY_K * ((CRG_BENCHMARK - composite) / 100) * 12 * 10) / 10;
+  if (months < 0.05) return null;
+
+  return `Roughly ${months} ${months === 1 ? "month" : "months"} of commercial delay against a peer with the same technology and a clearer commercial engine.`;
+}
+
 /* --------------------------------------------------------------- helpers --- */
 
 function esc(value: unknown): string {
@@ -94,6 +131,7 @@ function subject(d: Submission): string {
 }
 
 function plainText(d: Submission): string {
+  const delay = delayLine(d);
   return [
     `${d.firstName}, here is your Commercial Readiness Score.`,
     ``,
@@ -102,6 +140,7 @@ function plainText(d: Submission): string {
     ``,
     `FIX FIRST: ${d.fixFirst}`,
     `${d.fixFirstAction}`,
+    ...(delay ? [``, delay] : []),
     ``,
     `Your full six-part breakdown: ${reportLink(d)}`,
     ``,
@@ -113,6 +152,7 @@ function plainText(d: Submission): string {
 }
 
 function html(d: Submission): string {
+  const delay = delayLine(d);
   const ink = "#002244";
   const azure = "#1B5A9E";
   const rule = "1px solid #dfe5ec";
@@ -143,6 +183,7 @@ function html(d: Submission): string {
     <div style="font:600 11px/1.4 Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#7b8a99;padding-top:20px;">Your Fix First read</div>
     <div style="margin-top:8px;font:700 16px/1.4 Helvetica,Arial,sans-serif;color:${ink};">Fix First: ${esc(d.fixFirst)}</div>
     <div style="margin-top:6px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">${esc(d.fixFirstAction)}</div>
+    ${delay ? `<div style="margin-top:16px;padding-top:16px;border-top:${rule};font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">${esc(delay)}</div>` : ""}
   </td></tr>
 
   <tr><td style="padding-top:22px;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#3c4b5a;">

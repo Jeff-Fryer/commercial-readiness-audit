@@ -371,8 +371,80 @@ function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSigna
   };
 }
 
+/* ---------- 4. VALUE AT STAKE ----------
+ *
+ * Bolted on after the fact and deliberately separate: nothing above this line
+ * changes, and the six questions, the sliders, the weights, the bands and the
+ * composite are all exactly what they were. This block only reads the finished
+ * pillar scores and one number the CEO supplies on the results screen.
+ *
+ * The deal value never leaves the browser. It is not posted to the form, not
+ * logged, not emailed and not put in the share link.
+ */
+
+/* Per-pillar capacity coefficients, in canonical PILLARS order:
+   story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40.
+
+   Note that 0.40 is NOT the reachable ceiling for `factor`. A gap is
+   (80 - score)/100, so it maxes at 0.80 on a score of zero, not at 1.0, and the
+   factor therefore runs 0 to 0.32. Reaching 0.40 would take a score of -20.
+   The real ceiling is 0.32, which is 2.6 design wins a year at stake. Keep this
+   comment honest if the gap ever gets normalised by the benchmark instead. */
+const CRG_COEFF = [0.10, 0.08, 0.06, 0.05, 0.06, 0.05];
+
+/* The score a commercial engine is measured against. Also the suppression
+   threshold: at or above this there is no material gap to price. */
+const CRG_BENCHMARK = 80;
+
+/* Months of delay per point of composite shortfall, scaled to a year. */
+const CRG_DELAY_K = 1.5;
+
+/* THE CALIBRATION CONSTANT. 0.125 = one full design win per 8 points of
+   capacity. At the factor ceiling of 0.32 it yields 2.6 design wins a year at
+   stake. (The brief called for 3.2 at a factor of 0.40; see the note on
+   CRG_COEFF for why 0.40 is unreachable under this gap definition.)
+
+   This is the single tuning point for the whole module. If the top of the
+   deal-value slider ever produces a figure that does not survive a CEO reading
+   it out loud, lower this number here and nowhere else. Do not cap the slider,
+   and do not reach for the coefficients. */
+const CRG_WIN_PER_FACTOR = 0.125;
+
+/**
+ * Value at stake.
+ *
+ * @param {number[]} scores Six pillar scores 0-100 in canonical PILLARS order.
+ * @param {number} dealValue What one design win is worth over its life, in dollars.
+ * @returns {{factor:number, delayMonths:number, winsAtStake:number, dollarsAtStake:number}}
+ */
+function crgValueAtStake(scores, dealValue) {
+  const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / 100);
+  const factor = gaps.reduce((sum, g, i) => sum + g * CRG_COEFF[i], 0);
+  const composite = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const delayMonths = Math.max(0, CRG_DELAY_K * ((CRG_BENCHMARK - composite) / 100) * 12);
+  const winsAtStake = factor / CRG_WIN_PER_FACTOR;
+  const dollarsAtStake = winsAtStake * dealValue;
+  return {
+    factor,
+    delayMonths: Math.round(delayMonths * 10) / 10,
+    winsAtStake: Math.round(winsAtStake * 10) / 10,
+    dollarsAtStake
+  };
+}
+
+/* The composite this module suppresses against is the plain mean of the six
+   pillar scores, not the weighted composite on the score ring. They answer
+   different questions: the ring asks how the engine performs, this asks how
+   much of the benchmark is unclaimed. */
+function crgComposite(scores) {
+  return scores.reduce((a, b) => a + b, 0) / scores.length;
+}
+
 const CEO_COPY = `Your technology works. The question is whether your commercial system is ready to turn that technical proof into market demand. In about 90 seconds, this audit identifies the gap between what you have built and what buyers can understand, evaluate, approve, and buy. You will receive one Commercial Readiness Score, the two constraints holding traction back, and the first issue to fix: your story, sales motion, market lane, commercial path, partnerships, or internal alignment.`;
 
 /* Browser-safe export. This file runs inside a static Squarespace Code Block:
    no bundler, no module system. Attach the public surface to `window`. */
-window.CRA_ENGINE = { QUESTIONS, WEBSITE_FIELD, WEBSITE_RUBRIC, WEIGHTS, scoreCommercialReadiness, CEO_COPY };
+window.CRA_ENGINE = {
+  QUESTIONS, WEBSITE_FIELD, WEBSITE_RUBRIC, WEIGHTS, scoreCommercialReadiness, CEO_COPY,
+  CRG_COEFF, CRG_BENCHMARK, CRG_DELAY_K, CRG_WIN_PER_FACTOR, crgValueAtStake, crgComposite
+};
