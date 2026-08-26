@@ -1859,6 +1859,23 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
     return (Math.max.apply(null, list) - Math.min.apply(null, list)) < 20;
   }
 
+  /* The second paragraph of the Fix First read, exactly as the screen renders it.
+
+     Shared for the same reason isFlatEngine is: the emailed report has to say
+     what the reader saw. On a flat engine the screen shows the band's Now What
+     rather than a pillar action, because the paragraph above it has just said no
+     single part is the constraint. Emailing the pillar action there would put
+     the contradiction back one line lower.
+
+     BAND_COPY and bandCopyReady are declared further down this file. That is
+     safe: nothing calls this until a result exists, long after the whole script
+     body has run. */
+  function fixFirstFix(result) {
+    var band = result.ui.scoreLabel;
+    if (!isFlatEngine(result)) return result.ui.fixFirst.action;
+    return bandCopyReady(band) ? BAND_COPY[band].nowWhat : '';
+  }
+
   function buildPayload(result) {
     var d = result.diagnostic;
     var body = {
@@ -1874,7 +1891,8 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
       score: String(result.ui.compositeScore),
       band: result.ui.scoreLabel,
       fixFirst: result.ui.fixFirst.pillar,
-      fixFirstAction: result.ui.fixFirst.action,
+      // What the reader saw, not what the engine picked. See fixFirstFix.
+      fixFirstAction: fixFirstFix(result),
       // The email branches on this so its Fix First line matches the screen's.
       // Still no deal value here, and there never will be.
       flatEngine: isFlatEngine(result) ? 'yes' : 'no'
@@ -2114,9 +2132,7 @@ capacity at stake = <span class="eq-unit-many">design wins</span> at stake &time
     var readConsequence = isFlat
       ? 'Your six parts sit within one slider stop of each other, so no single one is the constraint. An engine that is short everywhere is a different problem from one with a single weak part, and usually a slower one to feel.'
       : (bandCopyReady(band) ? BAND_COPY[band].soWhat : '');
-    var readFix = isFlat
-      ? (bandCopyReady(band) ? BAND_COPY[band].nowWhat : '')
-      : ui.fixFirst.action;
+    var readFix = fixFirstFix(result);
 
     $('res-fixfirst').innerHTML =
       '<b>' + esc(readHead) + '</b>' +

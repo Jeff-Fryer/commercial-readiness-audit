@@ -310,11 +310,18 @@ Closed 2026-08-26. The audit posts a `flatEngine` field (`yes`/`no`), and
 - `fixFirst` is still posted with the pillar name in every case. The lead record
   keeps it; only the email's label changes.
 
-**One thing this does not change.** The action sentence under the heading is
-still the weakest pillar's own action, so a flat-score email reads "FIX FIRST:
-all six, evenly" followed by a single-pillar prescription. On screen that second
-paragraph is the band's Now What instead. Posting the screen's text as
-`fixFirstAction` would close it; that was out of scope here.
+The **whole** Fix First block matches, heading and body. `fixFirstAction` is
+posted as the paragraph the screen actually rendered, not as the pillar action
+the engine picked, so a flat-score email carries the band's Now What just like
+the screen does. `fixFirstFix()` in `public/index.html` is the single source for
+that paragraph, called by both `renderResults` and `buildPayload`.
+
+The email function was not touched to achieve this: it still just formats
+`fixFirstAction`. Keep it that way. The browser decides what the reader saw, and
+the function reports it.
+
+Check both cases post *different* action text. If flat and uneven ever post the
+same string, the payload has drifted back to `ui.fixFirst.action`.
 
 ## Scroll depth
 

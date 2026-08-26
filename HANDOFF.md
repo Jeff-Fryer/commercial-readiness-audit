@@ -253,13 +253,20 @@ that count ever reads 2, something new broke the rule.
   step.** `www` and no trailing slash before the `?` are both deliberate: the
   apex and the slashed form each cost the reader a 301 on the one link the email
   exists to deliver.
-- The email deliberately contains only score, band, Fix First, one line of
-  commercial delay, and a **link back** to the full result.
+- The email deliberately contains only score, band, the Fix First block, one line
+  of commercial delay, and a **link back** to the full result.
 - On a **flat engine** (six pillar scores within one slider stop) the Fix First
-  line reads "all six, evenly" rather than naming a pillar, matching what the
-  screen showed. The browser decides and posts `flatEngine`; the function only
-  branches on it. Do not re-derive the spread server side, and do not remove
-  `flatEngine` from the hidden form twin. It carries no copy of its own: the audit posts the six
+  block reads "all six, evenly" over the band's Now What, rather than naming a
+  pillar over its action. Both halves match what the screen showed, because the
+  browser posts both: `flatEngine` for the heading, and `fixFirstAction` as the
+  paragraph it actually rendered rather than the one the engine picked.
+  `isFlatEngine()` and `fixFirstFix()` in `index.html` are the single source for
+  each. Do not re-derive either server side, and do not remove `flatEngine` from
+  the hidden form twin.
+- Which means the email function stays a formatter. It has no opinion about what
+  the Fix First block should say; it prints what the submission contains. That is
+  the same principle as the six `told_*` sentences, and it is why changing copy
+  in `index.html` updates the email for free. It carries no copy of its own: the audit posts the six
   sentences and the Fix First action as form fields, so changing copy in
   `index.html` updates the email automatically.
 - Failures return **200** on purpose. A non-2xx makes Netlify retry, which would

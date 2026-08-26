@@ -424,9 +424,12 @@ async function submitWith(sliderValues) {
   await page2.fill('#f-email', 'a@acme.io'); await page2.fill('#f-company', 'Acme');
   await page2.click('#capture-submit');
   await page2.waitForSelector('#res-fixfirst b');
-  const onScreen = await page2.evaluate(() => document.querySelector('#res-fixfirst b').textContent);
+  const read = await page2.evaluate(() => ({
+    head: document.querySelector('#res-fixfirst b').textContent,
+    paras: [...document.querySelectorAll('#res-fixfirst p')].map(e => e.textContent)
+  }));
   await page2.close();
-  return { body: new URLSearchParams(sent[0] || ''), onScreen };
+  return { body: new URLSearchParams(sent[0] || ''), onScreen: read.head, paras: read.paras };
 }
 
 const flatRun = await submitWith([40, 40, 40, 40, 40, 40]);
@@ -437,6 +440,21 @@ check('  fixFirst is still posted for the record', !!flatRun.body.get('fixFirst'
 const sharpRun = await submitWith([0, 40, 60, 20, 80, 40]);
 check('uneven engine posts flatEngine=no', sharpRun.body.get('flatEngine') === 'no', sharpRun.body.get('flatEngine'));
 check('  and the screen names the pillar', sharpRun.onScreen === 'Fix First: Your story', sharpRun.onScreen);
+
+console.log('   the emailed body carries the paragraph the reader saw:');
+check('flat: posted fixFirstAction is the screen\'s fix paragraph',
+      flatRun.body.get('fixFirstAction') === flatRun.paras[1], flatRun.body.get('fixFirstAction').slice(0, 60));
+check('flat: and it is the band Now What, not a pillar action',
+      /^Build the parts that don’t need you in the room/.test(flatRun.body.get('fixFirstAction')),
+      flatRun.body.get('fixFirstAction').slice(0, 60));
+check('uneven: posted fixFirstAction is the screen\'s fix paragraph',
+      sharpRun.body.get('fixFirstAction') === sharpRun.paras[1], sharpRun.body.get('fixFirstAction').slice(0, 60));
+check('uneven: and it is the pillar action',
+      /^Define one buyer-led commercial story/.test(sharpRun.body.get('fixFirstAction')),
+      sharpRun.body.get('fixFirstAction').slice(0, 60));
+check('the whole emailed Fix First block matches the screen, both cases',
+      flatRun.body.get('fixFirstAction') !== sharpRun.body.get('fixFirstAction'),
+      'flat and uneven must not post the same action');
 
 check('the deal value is still nowhere in either payload',
       ![...flatRun.body.keys(), ...sharpRun.body.keys()].some(k => /deal|value|vas|win/i.test(k)),
