@@ -122,8 +122,14 @@ same six questions, same sliders, same scoring, same bands.
 - If the visitor moved no sliders, the whole module is absent, exactly like the
   band copy and the bars. Do not "fix" this either.
 - A collapsed **How this is calculated** accordion sits at the bottom of the
-  report. It is the only place the four published statistics appear. Anywhere
+  report. It is the only place the three published statistics appear. Anywhere
   else in the report they read as claims about this company.
+- The **Part 7 stage swaps one noun** in the value line and nothing else:
+  design-ins pre-revenue, programs when public or late-stage, design wins
+  everywhere in between and when no stage was picked. `VAS_UNIT` keys are matched
+  against `STAGES` verbatim, so reword a stage label and both lists move together
+  or that stage silently falls back to design wins. The stage is not carried in
+  `?crg=`, so every shared link and every emailed report reads "design wins".
 
 **The deal value never leaves the browser.** It is not a form field, it is not
 in the emailed report, it is not logged, and it is deliberately **not** in
@@ -139,6 +145,13 @@ a deal value in the first place. Do not "complete the pair".
 per 8 points of capacity. If the top of the slider ever produces a figure that
 does not survive a CEO reading it aloud, lower that constant. Do not cap the
 slider and do not touch the six coefficients.
+
+**Gaps are normalised by the benchmark, `(80 - score)/80`, not by 100.** This is
+load-bearing. The panel publishes the benchmark and all six coefficients, so a
+reader can reproduce the arithmetic on paper, and only under `/80` does the
+factor top out at 0.40, which is exactly what the six coefficients sum to.
+Divide by 100 and the ceiling quietly becomes 0.32 while the panel still implies
+0.40. The published method has to reproduce.
 
 Run `node scripts/vas-test/run.mjs` before shipping a change to any of this. It
 asserts the two suppression rules and, more importantly, the absences: no deal
@@ -218,24 +231,30 @@ that count ever reads 2, something new broke the rule.
 
 ## 5. Outstanding work
 
-### Open: three source links in the methodology accordion
+### Open: Jeff clicks three source links, and reads one claim
 
-The value-at-stake module cites four published sources, each linked. **None of
-the four links has ever been fetched**: this build ran in a container whose
-egress policy answers 403 to every host (see section 6). Click all four on the
-live page before Jeff sends the audit to anyone:
+The value-at-stake module cites three published sources, each linked. **None of
+the three links has ever been fetched**, and the Forrester claim has never been
+read on the page: this build ran in a container whose egress policy answers 403
+to every host (see section 6). These need a human with a browser.
 
-| Source | Link as shipped |
-|---|---|
-| Dixon and McKenna, The JOLT Effect (2022) | `https://www.jolteffect.com` |
-| McKinsey, The Power of Pricing | `https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing` |
-| Forrester Consulting for Impact (2019) | `https://impact.com` |
-| Aberdeen Group (2010) | `https://www.aberdeen.com` |
+| # | Source | Link as shipped | What to check |
+|---|---|---|---|
+| 1 | Dixon and McKenna, The JOLT Effect (2022) | `https://www.jolteffect.com` | Link resolves |
+| 2 | McKinsey, The Power of Pricing | `https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing` | Link resolves. This is the current `/capabilities/` path and is the one most likely to have moved |
+| 3 | Forrester | `https://www.forrester.com/` | Link resolves **and** the 2.4x revenue / 2.0x profitability alignment claim is findable on Forrester's own site |
 
-The two top-level links are deliberate: the Forrester and Aberdeen studies sit
-behind gated resource pages that move, and a 404 under a statistic is worse than
-a homepage. The McKinsey path is the current `/capabilities/` form and is the
-one most likely to have moved.
+Row 3 carries the real risk. It is a top-level link under a specific numeric
+claim, so the page it lands on does not itself evidence the statistic. Either
+confirm the claim is Forrester's and reachable from there, or swap the href for
+the specific report before the audit goes to anyone.
+
+Two citations were withdrawn on 2026-08-26 and must not come back: the
+Forrester/Impact 28%-versus-18% partner-maturity pairing, which does not hold up
+in that form, and Aberdeen Group 2010, which is sixteen years old. The single
+Forrester alignment line replaces both and carries two coefficients,
+partnerships and internal alignment, which the panel states rather than leaving
+to be noticed.
 
 ### Open: paste the Code Block, then Jeff signs off
 

@@ -92,7 +92,7 @@ check('default reads $5M', m.value === '$5M', m.value);
 check('print line', m.printLine === 'Design win value: $5M', m.printLine);
 check('two lines', m.lines.length === 2, m.lines.length);
 check('delay line', /^Roughly 7\.2 months of commercial delay against a peer with the same technology and a clearer commercial engine\.$/.test(m.lines[0]), m.lines[0]);
-check('dollar line', m.lines[1] === 'At $5M a design win, that’s about 1.3 design wins a year, or $6.4M of commercial capacity you can’t currently reach.', m.lines[1]);
+check('dollar line', m.lines[1] === 'At $5M a design win, that’s about 1.6 design wins a year, or $8M of commercial capacity you can’t currently reach.', m.lines[1]);
 check('bridge shown', m.bridgeHidden === false);
 check('bridge copy', m.bridgeText === 'That estimate uses one number from you. Bring the rest and we’ll do it properly.', m.bridgeText);
 check('accordion closed by default', m.methodOpen === false && m.methodBodyVisible === false, 'height ' + m.methodHeight + 'px');
@@ -108,11 +108,11 @@ for (const pos of [0, 200, 400, 565, 700, 850, 1000]) {
 await setSlider(0);
 let r = await readModule();
 check('bottom of range is $250K', r.value === '$250K', r.value);
-check('$250K dollar figure', /or \$320K of commercial capacity/.test(r.lines[1]), r.lines[1]);
+check('$250K dollar figure', /or \$400K of commercial capacity/.test(r.lines[1]), r.lines[1]);
 await setSlider(1000);
 r = await readModule();
 check('top of range is $50M', r.value === '$50M', r.value);
-check('$50M dollar figure', /or \$64M of commercial capacity/.test(r.lines[1]), r.lines[1]);
+check('$50M dollar figure', /or \$80M of commercial capacity/.test(r.lines[1]), r.lines[1]);
 check('never shows cents or exact figures', !/\$[\d,]{4,}/.test(r.lines.join(' ')) && !/\.\d\d\b/.test(r.lines.join(' ')), r.lines[1]);
 
 /* ------------------------------------------------ case 3: suppression 80+ */
@@ -134,14 +134,22 @@ check('  (one weak low-coefficient pillar, so wins stays under 0.5)', true);
 
 /* ------------------------------- case 4: winsAtStake below 0.5 suppression */
 console.log('\n4. winsAtStake rounds below 0.5');
-await page.goto(BASE + '/?crg=68,68,68,68,68,68');
+// Slider-reachable: one weak pillar carrying the smallest coefficient.
+await page.goto(BASE + '/?crg=80,80,80,80,80,60');
 m = await readModule();
-check('delay line only', m.lines.length === 1 && /^Roughly 2\.2 months/.test(m.lines[0]), m.lines[0]);
+check('delay line only', m.lines.length === 1 && /^Roughly 0\.6 months/.test(m.lines[0]), m.lines[0]);
 check('bridge still shown (an estimate was made)', m.bridgeHidden === false);
 console.log('   at the lowest deal value too:');
 await setSlider(0);
 m = await readModule();
 check('$250K, still delay only', m.lines.length === 1, m.lines);
+console.log('   and the boundary, where wins is 0.4 and 0.5 is one point away:');
+await page.goto(BASE + '/?crg=70,70,70,70,70,70');
+m = await readModule();
+check('0.4 wins suppresses the dollar line', m.lines.length === 1 && /^Roughly 1\.8 months/.test(m.lines[0]), m.lines[0]);
+await page.goto(BASE + '/?crg=68,68,68,68,68,68');
+m = await readModule();
+check('0.5 wins does not', m.lines.length === 2 && /0\.5 design wins/.test(m.lines[1]), m.lines[1]);
 
 /* ---------------------------------------- case 5: very low deal values */
 console.log('\n5. Very low deal value at a low score');
@@ -149,10 +157,10 @@ await page.goto(BASE + '/?crg=0,0,0,0,0,0');
 await setSlider(0);
 m = await readModule();
 check('$250K bottom, floor score', m.lines.length === 2, m.lines.length);
-check('reads sensibly', /At \$250K a design win, that’s about 2\.6 design wins a year, or \$640K of commercial capacity/.test(m.lines[1]), m.lines[1]);
+check('reads sensibly', /At \$250K a design win, that’s about 3\.2 design wins a year, or \$800K of commercial capacity/.test(m.lines[1]), m.lines[1]);
 await setSlider(1000);
 m = await readModule();
-check('ceiling: 2.6 wins at $50M', /2\.6 design wins a year, or \$130M/.test(m.lines[1]), m.lines[1]);
+check('ceiling: 3.2 wins at $50M, the coefficient sum of 0.40', /3\.2 design wins a year, or \$160M/.test(m.lines[1]), m.lines[1]);
 
 /* ------------------------------------------ case 6: degenerate delay 0.0 */
 console.log('\n6. Hand-built link that rounds the delay to zero');
@@ -191,10 +199,13 @@ const method = await page.evaluate(() => {
 });
 check('label', method.summary === 'How this is calculated', method.summary);
 check('has the formula', /factor = sum of \(gap × coefficient\)/.test(method.body));
+check('gap is normalised by the benchmark, not by 100', /gap = max\(0, 80 − part score\) \/ 80/.test(method.body), method.body.slice(method.body.indexOf('gap ='), method.body.indexOf('gap =') + 44));
+check('states the 0.40 ceiling and 3.2 wins', /factor therefore runs from 0 to the sum of the six coefficients, which is 0\.40/.test(method.body) && /ceiling is 3\.2 design wins a year/.test(method.body));
 check('has the benchmark of 80', /benchmark is 80 out of 100/.test(method.body));
 check('has all six coefficients', ['0.10','0.08','0.06','0.05','0.06','0.05'].every(c => method.body.includes(c)));
-check('has four sources', /JOLT Effect/.test(method.body) && /Power of Pricing/.test(method.body) && /Forrester Consulting for Impact/.test(method.body) && /Aberdeen Group/.test(method.body));
-check('four links', method.links.length === 4, method.links.join(' '));
+check('has three sources', /JOLT Effect/.test(method.body) && /Power of Pricing/.test(method.body) && /2\.4x higher revenue growth and 2\.0x higher growth in profitability/.test(method.body));
+check('the two withdrawn citations are gone', !/Impact/.test(method.body) && !/Aberdeen/.test(method.body) && !/28% of revenue/.test(method.body));
+check('three links', method.links.length === 3, method.links.join(' '));
 check('closing sentence', /This is a structured estimate based on published benchmarks and your own inputs\. It is not a forecast\.$/.test(method.body));
 check('sits at the bottom of the report', method.lastInPanelOrder.indexOf('res-method') > method.lastInPanelOrder.findIndex(x => /^cta/.test(x)), JSON.stringify(method.lastInPanelOrder));
 
@@ -203,9 +214,9 @@ const stats = await page.evaluate(() => {
   const t = document.body.innerText;
   const inMethod = document.getElementById('res-method').innerText;
   const outside = t.replace(inMethod, '');
-  return ['40 to 60%', '8% operating profit', '28% of revenue', 'declined 4%'].map(s => ({ s, outside: outside.includes(s), inside: inMethod.includes(s) }));
+  return ['40 to 60%', '8% operating profit', '2.4x higher revenue growth'].map(s => ({ s, outside: outside.includes(s), inside: inMethod.includes(s) }));
 });
-check('the four statistics appear only inside the panel', stats.every(x => x.inside && !x.outside), JSON.stringify(stats));
+check('the three statistics appear only inside the panel', stats.every(x => x.inside && !x.outside), JSON.stringify(stats));
 
 console.log('\n9. Print');
 await page.emulateMedia({ media: 'print' });
@@ -254,6 +265,46 @@ if (posted[0]) {
   check('no deal-value field', !keys.some(k => /deal|value|vas|win/i.test(k)), keys.filter(k=>/deal|value|vas|win/i.test(k)).join(','));
   check('field set unchanged (37 fields, same as before)', keys.length === 37, keys.length);
 }
+
+/* --------------------------------- case 12: the stage swaps the noun */
+console.log('\n12. Part 7 stage swaps the noun in the value line');
+const STAGE_UNIT = [
+  ['Pre-revenue, first design-ins',       'design-in',  'design-ins'],
+  ['Early revenue, founder-led sales',    'design win', 'design wins'],
+  ['Scaling, building the sales team',    'design win', 'design wins'],
+  ['Post-Series B, commercial build-out', 'design win', 'design wins'],
+  ['Public or late-stage',                'program',    'programs'],
+  ['Not sure',                            'design win', 'design wins'],
+];
+for (const [label, one, many] of STAGE_UNIT) {
+  await page.goto(BASE + '/');
+  await page.evaluate(() => document.querySelector('#s-intro .btn-primary, #s-intro button').click());
+  await page.waitForSelector('#s-quiz.is-on');
+  // move one slider so the result is a real read, then click through
+  await page.evaluate(() => {
+    const el = document.getElementById('q-slider');
+    el.value = '40'; el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  for (let i = 0; i < 6; i++) await page.click('#q-next');
+  await page.waitForSelector('#s-stage.is-on');
+  await page.evaluate((l) => {
+    [...document.querySelectorAll('.stage-opt')].find(b => b.textContent.includes(l)).click();
+  }, label);
+  await page.click('#s-stage .btn-primary');
+  await page.waitForSelector('#s-capture.is-on');
+  await page.fill('#f-first', 'A'); await page.fill('#f-last', 'B');
+  await page.fill('#f-email', 'a@acme.io'); await page.fill('#f-company', 'Acme');
+  await page.click('#capture-submit');
+  await page.waitForSelector('#vas-lines p:nth-child(2)');
+  const line = (await readModule()).lines[1] || '';
+  const ok = line.includes('a ' + one + ',') && new RegExp('\\d ' + many.replace('-', '\\-') + ' a year').test(line);
+  check(label, ok, line);
+}
+console.log('   an unpicked stage, which is every shared ?crg= link:');
+await page.goto(BASE + '/?crg=40,40,40,40,40,40');
+m = await readModule();
+check('falls through to design wins', /a design win, .* design wins a year/.test(m.lines[1]), m.lines[1]);
+check('the math did not move', /1\.6 design wins a year, or \$8M/.test(m.lines[1]), m.lines[1]);
 
 await browser.close();
 server.close();

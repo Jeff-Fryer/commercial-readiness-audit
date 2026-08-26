@@ -1141,7 +1141,7 @@ body.is-embed .shell{box-shadow:none;}
       <div class="method-body">
         <p>Each of the six parts is compared with a benchmark of 80. The shortfalls are weighted, added together, and converted into design wins, then into the number you set above.</p>
 
-        <div class="method-eq">gap = max(0, 80 &minus; part score) / 100<br>
+        <div class="method-eq">gap = max(0, 80 &minus; part score) / 80<br>
 factor = sum of (gap &times; coefficient), from 0 to 0.40<br>
 delay in months = 1.5 &times; ((80 &minus; average score) / 100) &times; 12<br>
 design wins at stake = factor / 0.125<br>
@@ -1159,14 +1159,13 @@ capacity at stake = design wins at stake &times; your design win value</div>
           </tbody>
         </table>
 
-        <p>The benchmark is 80 out of 100. At or above it there is no material gap to put a number on, and both lines above are replaced by a single sentence saying so. The divisor of 0.125 is one full design win per 8 points of capacity. A score of zero on all six parts gives a factor of 0.32, which is the ceiling: 2.6 design wins a year.</p>
+        <p>The benchmark is 80 out of 100. At or above it there is no material gap to put a number on, and both lines above are replaced by a single sentence saying so. Each gap is measured against that benchmark, so it runs from 0 to 1, and the factor therefore runs from 0 to the sum of the six coefficients, which is 0.40. The divisor of 0.125 is one full design win per 8 points of capacity, so the ceiling is 3.2 design wins a year.</p>
 
-        <p>The coefficients are set from four published findings:</p>
+        <p>The coefficients are set from three published findings. The Forrester finding covers two parts of the engine, partnerships and internal alignment, because the underlying claim is the same for both:</p>
         <ul class="method-src">
           <li>Dixon and McKenna, <a href="https://www.jolteffect.com" target="_blank" rel="noopener">The JOLT Effect</a> (2022): 40 to 60% of qualified B2B deals end in no decision.</li>
           <li>McKinsey, <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-power-of-pricing" target="_blank" rel="noopener">The Power of Pricing</a>: a 1% improvement in realized price yields roughly 8% operating profit.</li>
-          <li><a href="https://impact.com" target="_blank" rel="noopener">Forrester Consulting for Impact</a> (2019, n=454): mature partner programs contribute 28% of revenue versus 18% for low maturity.</li>
-          <li><a href="https://www.aberdeen.com" target="_blank" rel="noopener">Aberdeen Group</a> (2010, n=453): aligned organizations grew revenue 20% while laggards declined 4%.</li>
+          <li><a href="https://www.forrester.com/" target="_blank" rel="noopener">Forrester</a>: companies with high levels of alignment realize 2.4x higher revenue growth and 2.0x higher growth in profitability.</li>
         </ul>
 
         <p class="method-close">This is a structured estimate based on published benchmarks and your own inputs. It is not a forecast.</p>
@@ -1591,13 +1590,16 @@ capacity at stake = design wins at stake &times; your design win value</div>
    */
 
   /* Per-pillar capacity coefficients, in canonical PILLARS order:
-     story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40.
+     story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40,
+     which is the reachable ceiling for `factor`: a gap is normalised by the
+     benchmark, so it runs a clean 0 to 1 and hits 1 on a score of zero.
 
-     Note that 0.40 is NOT the reachable ceiling for `factor`. A gap is
-     (80 - score)/100, so it maxes at 0.80 on a score of zero, not at 1.0, and the
-     factor therefore runs 0 to 0.32. Reaching 0.40 would take a score of -20.
-     The real ceiling is 0.32, which is 2.6 design wins a year at stake. Keep this
-     comment honest if the gap ever gets normalised by the benchmark instead. */
+     Normalising by the benchmark rather than by 100 is load-bearing, not
+     cosmetic. The methodology panel publishes the benchmark and all six
+     coefficients, so a reader can reproduce this arithmetic on paper. Divide by
+     100 and the factor tops out at 0.32 instead, and their sum of the
+     coefficients no longer matches the ceiling the panel states. Internal
+     consistency wins over the 25% it costs. */
   const CRG_COEFF = [0.10, 0.08, 0.06, 0.05, 0.06, 0.05];
 
   /* The score a commercial engine is measured against. Also the suppression
@@ -1608,14 +1610,15 @@ capacity at stake = design wins at stake &times; your design win value</div>
   const CRG_DELAY_K = 1.5;
 
   /* THE CALIBRATION CONSTANT. 0.125 = one full design win per 8 points of
-     capacity. At the factor ceiling of 0.32 it yields 2.6 design wins a year at
-     stake. (The brief called for 3.2 at a factor of 0.40; see the note on
-     CRG_COEFF for why 0.40 is unreachable under this gap definition.)
+     capacity. At the factor ceiling of 0.40 it yields 3.2 design wins a year at
+     stake, which is the intended ceiling.
 
      This is the single tuning point for the whole module. If the top of the
      deal-value slider ever produces a figure that does not survive a CEO reading
      it out loud, lower this number here and nowhere else. Do not cap the slider,
-     and do not reach for the coefficients. */
+     and do not reach for the coefficients: they are set from the published
+     findings in the methodology panel, and moving one changes which pillar the
+     report says is costing the money. */
   const CRG_WIN_PER_FACTOR = 0.125;
 
   /**
@@ -1626,7 +1629,7 @@ capacity at stake = design wins at stake &times; your design win value</div>
    * @returns {{factor:number, delayMonths:number, winsAtStake:number, dollarsAtStake:number}}
    */
   function crgValueAtStake(scores, dealValue) {
-    const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / 100);
+    const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / CRG_BENCHMARK);
     const factor = gaps.reduce((sum, g, i) => sum + g * CRG_COEFF[i], 0);
     const composite = scores.reduce((a, b) => a + b, 0) / scores.length;
     const delayMonths = Math.max(0, CRG_DELAY_K * ((CRG_BENCHMARK - composite) / 100) * 12);
@@ -2197,6 +2200,23 @@ capacity at stake = design wins at stake &times; your design win value</div>
   var VAS_DEFAULT = 5000000;
   var VAS_NO_GAP = 'No material gap. Your commercial engine is keeping pace with your technology.';
 
+  /* What the CEO actually counts, by the stage they picked in Part 7. A
+     pre-revenue company counts design-ins because it has not shipped a win yet;
+     a public one counts programs because a single win stopped being the unit of
+     progress. Same arithmetic either way, so this swaps the noun in the value
+     line and nothing else. Keys must match STAGES verbatim. An unpicked stage,
+     which is every shared `?crg=` link, falls through to the neutral default. */
+  var VAS_UNIT_DEFAULT = { one: 'design win', many: 'design wins' };
+  var VAS_UNIT = {
+    'Pre-revenue, first design-ins':      { one: 'design-in', many: 'design-ins' },
+    'Early revenue, founder-led sales':   VAS_UNIT_DEFAULT,
+    'Scaling, building the sales team':   VAS_UNIT_DEFAULT,
+    'Post-Series B, commercial build-out': VAS_UNIT_DEFAULT,
+    'Public or late-stage':               { one: 'program', many: 'programs' },
+    'Not sure':                           VAS_UNIT_DEFAULT
+  };
+  function vasUnit() { return VAS_UNIT[stage] || VAS_UNIT_DEFAULT; }
+
   var dealValue = VAS_DEFAULT;
 
   /* Logarithmic, so an inch of travel is the same proportional step everywhere:
@@ -2272,8 +2292,9 @@ capacity at stake = design wins at stake &times; your design win value</div>
     // Under half a design win rounds to a figure nobody should act on, so the
     // delay line stands alone rather than carrying a dollar number it cannot hold.
     if (v.winsAtStake >= 0.5) {
-      out += '<p>At ' + esc(vasCompact(dealValue)) + ' a design win, that’s about <b>' +
-             vasTrim(v.winsAtStake) + ' ' + vasPlural(v.winsAtStake, 'design win', 'design wins') +
+      var unit = vasUnit();
+      out += '<p>At ' + esc(vasCompact(dealValue)) + ' a ' + esc(unit.one) + ', that’s about <b>' +
+             vasTrim(v.winsAtStake) + ' ' + esc(vasPlural(v.winsAtStake, unit.one, unit.many)) +
              '</b> a year, or <b>' + esc(vasMoney(v.dollarsAtStake)) +
              '</b> of commercial capacity you can’t currently reach.</p>';
     }

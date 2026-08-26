@@ -68,15 +68,15 @@ Everything below the slider recalculates on drag.
 - `?crg=40,40,40,40,40,40` with the slider left at its **$5M** default gives:
   - "Roughly **7.2 months** of commercial delay against a peer with the same
     technology and a clearer commercial engine."
-  - "At $5M a design win, that's about **1.3 design wins** a year, or **$6.4M**
+  - "At $5M a design win, that's about **1.6 design wins** a year, or **$8M**
     of commercial capacity you can't currently reach."
 - Drag the slider to each end at that same score. Nothing but the money moves:
 
   | Slider | Reads | Dollar figure |
   |---|---|---|
-  | bottom | $250K | $320K |
-  | middle | $5M | $6.4M |
-  | top | $50M | $64M |
+  | bottom | $250K | $400K |
+  | middle | $5M | $8M |
+  | top | $50M | $80M |
 
 - The slider is logarithmic, so $250K to $500K takes the same drag as $25M to
   $50M. It snaps to a clean ladder: 50K steps under $1M, 0.5M steps to $20M, 1M
@@ -93,8 +93,8 @@ Both rules are load-bearing. Verify all four rows.
 |---|---|---|
 | `?crg=80,80,80,80,80,80` | 80.0 | **Only** "No material gap. Your commercial engine is keeping pace with your technology." Both result lines and the bridge line are gone. |
 | `?crg=100,100,100,100,100,100` | 100 | Same single sentence. |
-| `?crg=68,68,68,68,68,68` | 68.0 | **Delay line only** ("Roughly 2.2 months..."). `winsAtStake` is 0.4, which rounds below 0.5, so the dollar line is suppressed at every slider position including the very bottom. |
-| `?crg=80,80,80,80,80,60` | 76.7 | Delay line only ("Roughly 0.6 months..."). One weak pillar carrying the smallest coefficient. |
+| `?crg=80,80,80,80,80,60` | 76.7 | **Delay line only** ("Roughly 0.6 months..."). One weak pillar carrying the smallest coefficient, so `winsAtStake` is 0.1. This one is reachable with the real sliders. |
+| `?crg=70,70,70,70,70,70` | 70.0 | Delay line only ("Roughly 1.8 months..."). `winsAtStake` is 0.4. This is the boundary: `?crg=68,68,68,68,68,68` gives 0.5 and **does** show the dollar line. Check both. |
 
 Note the composite these rules use is the **plain mean of the six pillar
 scores**, not the weighted composite on the score ring. They answer different
@@ -129,15 +129,52 @@ This is a promise printed under the slider, so check it rather than trusting it.
 - Collapsed by default, labelled **How this is calculated**, sitting at the
   bottom of the report under the Calendly CTA.
 - Contains the formula, the six coefficients by pillar name, the benchmark of
-  80, four sources with links, and the closing line "This is a structured
+  80, three sources with links, and the closing line "This is a structured
   estimate based on published benchmarks and your own inputs. It is not a
   forecast."
-- The four published statistics appear **here and nowhere else** in the report.
+- The formula must read `gap = max(0, 80 - part score) / 80`. If it ever reads
+  `/ 100` again, the published ceiling of 0.40 stops reproducing.
+- The three published statistics appear **here and nowhere else** in the report.
   If one turns up in the result copy it reads as a claim about this company.
-- **The four source links have never been fetched.** The build container has no
-  egress. Click all four before publishing.
+- The Forrester finding is cited once and carries **two** coefficients,
+  partnerships and internal alignment, because the underlying claim is the same
+  for both. The panel says so rather than leaving it to be noticed.
+- **The three source links have never been fetched.** The build container has no
+  egress. Click all three before publishing.
 
-### 13. Value at stake: print and PDF
+Two citations were withdrawn on 2026-08-26 and must not come back: the
+Forrester/Impact 28%-versus-18% partner-maturity pairing, which does not hold up
+in that form, and Aberdeen Group 2010, which is sixteen years old. The single
+Forrester alignment line replaces both.
+
+### 13. Value at stake: the Part 7 stage swaps the noun
+
+The stage picked on Part 7 changes one word in the value line, and nothing else.
+The arithmetic, the delay line and the slider are identical across all six.
+
+| Stage | Value line reads |
+|---|---|
+| Pre-revenue, first design-ins | "a **design-in**... **design-ins** a year" |
+| Early revenue, founder-led sales | "a design win... design wins a year" |
+| Scaling, building the sales team | "a design win... design wins a year" |
+| Post-Series B, commercial build-out | "a design win... design wins a year" |
+| Public or late-stage | "a **program**... **programs** a year" |
+| Not sure | "a design win... design wins a year" |
+
+The stage is optional and is not carried in `?crg=`, so **every shared link and
+every emailed report opens with no stage set** and falls through to "design
+wins". That is the neutral default, not a bug.
+
+The keys in `VAS_UNIT` are matched against `STAGES` verbatim. If a stage label is
+ever reworded, both lists have to move together or that stage silently falls back
+to "design wins".
+
+The slider label above it still asks "What's one design win worth to you over its
+life?" in every case, and the print line still reads "Design win value:". Only
+the value line was in scope. If those should follow the stage too, it is the same
+`vasUnit()` call in two more places.
+
+### 14. Value at stake: print and PDF
 
 Print the results screen (the Save PDF / Print button, or Cmd-P).
 
@@ -149,7 +186,7 @@ Print the results screen (the Save PDF / Print button, or Cmd-P).
   the Print button opens it, `beforeprint` opens it, and a print media query
   opens it for the Safari path that skips `beforeprint`.
 
-### 14. Value at stake: nothing answered
+### 15. Value at stake: nothing answered
 
 Click straight through without moving a slider. The whole module is absent, along
 with the bridge line. A dollar figure hung off the midpoint of the scale is
@@ -166,12 +203,17 @@ Do **not** cap the slider instead, and do not reach for the six coefficients:
 they are set from the four published findings in the methodology panel, and
 moving one changes which pillar the report says is costing the money.
 
-The reachable ceiling is a factor of **0.32**, not the 0.40 the coefficients sum
-to. A gap is `(80 - score)/100`, so it maxes at 0.80 on a score of zero, and a
-factor of 0.40 would need a score of -20. At 0.32 the module puts **2.6 design
-wins a year** at stake, which is $130M at the top of the slider. The comments on
-`CRG_COEFF` and `CRG_WIN_PER_FACTOR` say this too; keep all three in step if the
-gap is ever normalised by the benchmark instead.
+The ceiling is a factor of **0.40**, which is exactly the sum of the six
+coefficients, because a gap is normalised by the benchmark: `(80 - score)/80`
+runs a clean 0 to 1. That equality is the point. The panel publishes the
+benchmark and all six coefficients, so a reader can reproduce the arithmetic on
+paper and land on the same ceiling. Divide by 100 instead and the factor tops
+out at 0.32 while the panel still says the coefficients sum to 0.40, and the
+published method no longer reproduces.
+
+At the 0.40 ceiling the module puts **3.2 design wins a year** at stake, which is
+$160M at the top of the slider. The comments on `CRG_COEFF` and
+`CRG_WIN_PER_FACTOR` say the same thing; keep all three in step.
 
 ## One deliberate exception to the copy sweep
 

@@ -383,13 +383,16 @@ function scoreCommercialReadiness({ answers, companyWebsite = null, websiteSigna
  */
 
 /* Per-pillar capacity coefficients, in canonical PILLARS order:
-   story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40.
+   story, sell, timingLane, charge, partnerships, alignment. They sum to 0.40,
+   which is the reachable ceiling for `factor`: a gap is normalised by the
+   benchmark, so it runs a clean 0 to 1 and hits 1 on a score of zero.
 
-   Note that 0.40 is NOT the reachable ceiling for `factor`. A gap is
-   (80 - score)/100, so it maxes at 0.80 on a score of zero, not at 1.0, and the
-   factor therefore runs 0 to 0.32. Reaching 0.40 would take a score of -20.
-   The real ceiling is 0.32, which is 2.6 design wins a year at stake. Keep this
-   comment honest if the gap ever gets normalised by the benchmark instead. */
+   Normalising by the benchmark rather than by 100 is load-bearing, not
+   cosmetic. The methodology panel publishes the benchmark and all six
+   coefficients, so a reader can reproduce this arithmetic on paper. Divide by
+   100 and the factor tops out at 0.32 instead, and their sum of the
+   coefficients no longer matches the ceiling the panel states. Internal
+   consistency wins over the 25% it costs. */
 const CRG_COEFF = [0.10, 0.08, 0.06, 0.05, 0.06, 0.05];
 
 /* The score a commercial engine is measured against. Also the suppression
@@ -400,14 +403,15 @@ const CRG_BENCHMARK = 80;
 const CRG_DELAY_K = 1.5;
 
 /* THE CALIBRATION CONSTANT. 0.125 = one full design win per 8 points of
-   capacity. At the factor ceiling of 0.32 it yields 2.6 design wins a year at
-   stake. (The brief called for 3.2 at a factor of 0.40; see the note on
-   CRG_COEFF for why 0.40 is unreachable under this gap definition.)
+   capacity. At the factor ceiling of 0.40 it yields 3.2 design wins a year at
+   stake, which is the intended ceiling.
 
    This is the single tuning point for the whole module. If the top of the
    deal-value slider ever produces a figure that does not survive a CEO reading
    it out loud, lower this number here and nowhere else. Do not cap the slider,
-   and do not reach for the coefficients. */
+   and do not reach for the coefficients: they are set from the published
+   findings in the methodology panel, and moving one changes which pillar the
+   report says is costing the money. */
 const CRG_WIN_PER_FACTOR = 0.125;
 
 /**
@@ -418,7 +422,7 @@ const CRG_WIN_PER_FACTOR = 0.125;
  * @returns {{factor:number, delayMonths:number, winsAtStake:number, dollarsAtStake:number}}
  */
 function crgValueAtStake(scores, dealValue) {
-  const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / 100);
+  const gaps = scores.map(s => Math.max(0, CRG_BENCHMARK - s) / CRG_BENCHMARK);
   const factor = gaps.reduce((sum, g, i) => sum + g * CRG_COEFF[i], 0);
   const composite = scores.reduce((a, b) => a + b, 0) / scores.length;
   const delayMonths = Math.max(0, CRG_DELAY_K * ((CRG_BENCHMARK - composite) / 100) * 12);

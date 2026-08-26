@@ -35,17 +35,19 @@ Three of the module's rules are invisible on a happy path.
 | 1. Mid score | Module renders, heading, `$5M` default, both lines word for word, bridge line, accordion closed, module sits above both Fix First blocks |
 | 2. Slider sweep | Seven positions from `$250K` to `$50M`, ends land exactly, no cents and no exact figures anywhere |
 | 3. Suppression at 80+ | Three presets at or above the benchmark show only the no-gap sentence and hide the bridge line |
-| 4. Under half a win | `?crg=68,68,68,68,68,68` shows the delay line alone, at every slider position |
-| 5. Very low deal value | `$250K` at a floor score, and the `2.6` win ceiling at `$50M` |
+| 4. Under half a win | `?crg=80,80,80,80,80,60` shows the delay line alone at every slider position, plus the 0.4-versus-0.5 boundary either side of it |
+| 5. Very low deal value | `$250K` at a floor score, and the `3.2` win ceiling at `$50M` |
 | 6. Degenerate delay | `?crg=79,80,80,80,80,80` never prints "Roughly 0 months" |
 | 7. Deal value stays put | Share URL carries the six values and nothing else; no global holds it |
-| 8. Methodology | Label, formula, benchmark, six coefficients, four sources, four links, closing line, position, and that the four statistics appear nowhere else in the report |
+| 8. Methodology | Label, formula (including that the gap divides by 80, not 100), the published 0.40 ceiling, benchmark, six coefficients, three sources, three links, closing line, position, that the two withdrawn citations stay gone, and that the three statistics appear nowhere else in the report |
 | 9. Print | Control hidden, static value line shown, both lines print, accordion expanded |
 | 10. Nothing answered | Module and bridge line both absent |
 | 11. The POST | Still 37 fields, none of them a deal value |
+| 12. Stage noun | All six Part 7 stages driven end to end, each checked for the right singular and plural in the value line, plus the no-stage fallback |
 
 ## What it cannot check
 
-Whether the four source links in the methodology panel resolve. The build
-container has no egress, so they have never been fetched. Click all four before
-publishing.
+Whether the three source links in the methodology panel resolve, and whether the
+Forrester alignment claim is actually findable at the top-level link sitting
+under it. The build container has no egress, so none of them has ever been
+fetched. HANDOFF section 5 has the table. Check all three before publishing.
